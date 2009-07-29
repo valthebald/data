@@ -139,6 +139,11 @@ function data_get_field_definitions() {
       'type' => 'text',
       'not null' => FALSE,
     ),
+    'float' => array(
+      'type' => 'float',
+      'size' => 'medium',
+      'not null' => FALSE,
+    ),
     'double' => array(
       'type' => 'float',
       'size' => 'big',
