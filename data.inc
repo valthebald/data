@@ -318,11 +318,14 @@ class DataTable {
   public function changePrimaryKey($fields) {
     $schema = $this->table_schema;
     if (!empty($schema['primary key'])) {
-      $this->dropPrimarykey();
+      if (!$this->dropPrimaryKey()) {
+        return FALSE;
+      }
     }
     if (!empty($fields)) {
       return $this->addPrimaryKey($fields);
     }
+    return TRUE;
   }
 
   /**
