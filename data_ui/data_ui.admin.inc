@@ -402,6 +402,11 @@ function data_ui_edit_form(&$form_state, $table) {
         '#options' => data_get_field_types(),
         '#default_value' => $field['type'],
       );
+      $form['fields'][$field_name]['size'] = array(
+        '#type' => 'select',
+        '#options' => data_get_field_sizes(),
+        '#default_value' => isset($field['size']) ? $field['size'] : 'normal',
+      );
       $form['fields'][$field_name]['unsigned'] = array(
         '#type' => 'checkbox',
         '#default_value' => $field['unsigned'],
@@ -671,7 +676,7 @@ function theme_data_ui_create_form($form) {
       }
       $rows[] = $row;
     }
-    $header = array(t('Name *'), t('Label'), t('Type'), t('Unsigned'), t('Index'), t('Primary key'));
+    $header = array(t('Name *'), t('Label'), t('Type'), t('Size'), t('Unsigned'), t('Index'), t('Primary key'));
     $output .= theme('table', $header, $rows);
 
     $output .= drupal_render($form);
@@ -703,7 +708,7 @@ function theme_data_ui_edit_form($form) {
   }
   $rows[] = $row;
 
-  $header = array(t('Select'), t('Name'), t('Label'), t('Type'), t('Unsigned'), t('Index'), t('Primary key'), t('Joins'));
+  $header = array(t('Select'), t('Name'), t('Label'), t('Type'), t('Size'), t('Unsigned'), t('Index'), t('Primary key'), t('Joins'));
   $output .= theme('table', $header, $rows);
   $output .= drupal_render($form);
   return $output;
@@ -778,6 +783,10 @@ function _data_ui_field_form($required = FALSE) {
   $form['type'] = array(
     '#type' => 'select',
     '#options' => data_get_field_types(),
+  );
+  $form['size'] = array(
+    '#type' => 'select',
+    '#options' => data_get_field_sizes(),
   );
   $form['unsigned'] = array(
     '#type' => 'checkbox',

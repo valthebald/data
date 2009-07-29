@@ -139,6 +139,11 @@ function data_get_field_definitions() {
       'type' => 'text',
       'not null' => FALSE,
     ),
+    'double' => array(
+      'type' => 'float',
+      'size' => 'big',
+      'not null' => FALSE,
+    ),
   );
 }
 
@@ -165,6 +170,14 @@ function data_get_field_types() {
     $types[$def['type']] = $def['type'];
   }
   return $types;
+}
+
+/**
+ * Get schema API field sizes.
+ */
+function data_get_field_sizes() {
+  $sizes = array('normal', 'tiny', 'small', 'medium', 'big');
+  return drupal_map_assoc($sizes);
 }
 
 /**
@@ -277,6 +290,7 @@ function data_build_schema($keys) {
 function data_build_field_definition($stub) {
   $spec = array();
   $spec['type'] = $stub['type'];
+  $spec['size'] = empty($stub['size']) ? 'normal' : $stub['size'];
   if ($spec['type'] == 'int') {
     $spec['unsigned'] = empty($stub['unsigned']) ? FALSE : TRUE;
   }
