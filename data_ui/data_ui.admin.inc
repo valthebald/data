@@ -296,10 +296,10 @@ function data_ui_create_form_submit($form, &$form_state) {
 
       // Limit index if field type is text.
       if (!empty($field['index'])) {
-        $index[$field['name']] = data_get_index_definition($field['name'], $field['type']);
+        $index[$field['name']] = data_get_index_definition($field['name'], $field);
       }
       if (!empty($field['primary'])) {
-        $primary[] = data_get_pk_definition($field['name'], $field['type']);
+        $primary[] = data_get_pk_definition($field['name'], $field);
       }
     }
     $schema['indexes'] = $index;

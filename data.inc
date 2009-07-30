@@ -191,10 +191,10 @@ class DataTable {
   public function addIndex($field) {
     $schema = $this->table_schema;
     if ($schema['fields'][$field]) {
-      $index = data_build_index_array($field, $schema['fields'][$field]);
+      $index = data_get_index_definition($field, $schema['fields'][$field]);
       db_add_index($ret, $this->name, $field, $index);
       if ($ret[0]['success']) {
-        $schema['indexes'][$field] = array($field);
+        $schema['indexes'][$field] = $index;
         $this->update(array('table_schema' => $schema));
         drupal_get_schema($this->name, TRUE);
         return TRUE;
@@ -226,7 +226,7 @@ class DataTable {
     $schema = $this->table_schema;
     if ($schema['fields'][$field]) {
       $ret = array();
-      $index = data_build_index_array($field, $schema['fields'][$field]);
+      $index = data_get_index_definition($field, $schema['fields'][$field]);
       db_add_unique_key($ret, $this->name, $field, $index);
       if ($ret[0]['success']) {
         $schema['unique keys'][$field] = array($field);

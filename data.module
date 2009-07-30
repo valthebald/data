@@ -195,12 +195,12 @@ function data_get_field_sizes() {
 /**
  * Get a Schema API PK definition for a given field type.
  */
-function data_get_pk_definition($name, $type) {
-  if ($type == 'text') {
-    return array($name, 255);
+function data_get_pk_definition($field_name, $spec) {
+  if ($spec['type'] == 'text') {
+    return array($field_name, 255);
   }
   else {
-    return $name;
+    return $field_name;
   }
 }
 
@@ -208,12 +208,14 @@ function data_get_pk_definition($name, $type) {
  * Get a Schema API index definition for a given field type.
  * @todo: support multiple name/type combinations.
  */
-function data_get_index_definition($name, $type) {
-  if ($type == 'text') {
-    return array(array($name, 255));
+function data_get_index_definition($field_name, $spec) {
+  // Default to 255 for now.
+  if ($spec['type'] == 'text') {
+    // @todo: what's the right format here? this is broken.
+    return array(array($field_name, 255));
   }
   else {
-    return array($name);
+    return array($field_name);
   }
 }
 
@@ -310,19 +312,6 @@ function data_build_field_definition($stub) {
     $spec['length'] = 255;
   }
   return $spec;
-}
-
-/**
- * Helper for building a schema API conform index array.
- */
-function data_build_index_array($field_name, $spec) {
-  // Default to 255 for now.
-  if ($spec['type'] == 'text') {
-    return array(array($field_name, 255));
-  }
-  else {
-    return array($field_name);
-  }
 }
 
 /**
