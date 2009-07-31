@@ -77,6 +77,12 @@ function data_views_data() {
           'field' => $join['field'],
           'type' => $join['inner_join'] ? 'INNER' : 'LEFT',
         );
+        // Add an explicit relationship for every join added.
+        $table_data[$join['field']]['relationship'] = array(
+          'label' => "{$table->get('name')}.{$join['field']} -> {$left_table}.{$join['left_field']}",
+          'base' => $left_table,
+          'base field' => $join['left_field'],
+        );
       }
     }
 
