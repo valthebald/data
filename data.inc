@@ -11,6 +11,7 @@
  * 
  * @see data_create_table().
  * @see data_get_table().
+ * @see data_drop_table().
  * 
  * Usage:
  * 
