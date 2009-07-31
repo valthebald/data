@@ -9,13 +9,6 @@
 // Constant designating an undefined export state.
 // Used in absence of EXPORT_IN_CODE, EXPORT_IN_DATABASE
 define('DATA_EXPORT_UNDEFINED', 0);
-// Define CTools/export constants if they are not present.
-if (!defined('EXPORT_IN_DATABASE')) {
-  define('EXPORT_IN_DATABASE', 0x01);
-}
-if (!defined('EXPORT_IN_CODE')) {
-  define('EXPORT_IN_CODE', 0x02);
-}
 
 /**
  * Implementation of hook_views_api().
