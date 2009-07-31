@@ -176,10 +176,10 @@ function data_ui_adjust_form_submit_alter_table($form, &$form_state) {
     }
   }
   if (count($resolved)) {
-    drupal_set_message(t('Resolved') . theme_item_list($resolved));
+    drupal_set_message(t('Resolved') . theme('item_list', $resolved));
   }
   if (count($unresolved)) {
-    drupal_set_message(t('Could not resolve') . theme_item_list($unresolved), 'error');
+    drupal_set_message(t('Could not resolve') . theme('item_list', $unresolved), 'error');
   }
 }
 
@@ -562,6 +562,57 @@ function data_ui_edit_form_submit($form, &$form_state) {
 }
 
 /**
+ * Views handler configuration form.
+ */
+function data_ui_views_form(&$form_state, $table) {
+  module_load_include('inc', 'data', 'data.views');
+
+  $schema = $table->get('table_schema');
+  $meta = $table->get('meta');
+
+  $form = array();
+  // Keep table.
+  $form['#table'] = $table;
+
+  // Existing fields.
+  $form['fields'] = array('#tree' => TRUE);
+  if (isset($schema['fields'])) {
+    foreach ($schema['fields'] as $field_name => $field) {
+      $form['fields'][$field_name] = array();
+      $form['fields'][$field_name]['name'] = array('#value' => $field_name);
+      $form['fields'][$field_name]['views_field_handler'] = array(
+        '#type' => 'select',
+        '#options' => data_get_views_field_handlers(),
+        '#default_value' => data_get_views_field_handler($table, $field_name),
+      );
+    }
+  }
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for data_ui_views_form().
+ */
+function data_ui_views_form_submit($form, &$form_state) {
+  $table = $form['#table'];
+  $meta = $table->get('meta');
+  if (isset($form_state['values']['fields'])) {
+    foreach ($form_state['values']['fields'] as $field_name => $handlers) {
+      foreach ($handlers as $handler_type => $handler) {
+        $meta['fields'][$field_name][$handler_type] = $handler;
+      }
+    }
+  }
+  $table->update(array('meta' => $meta));
+  views_invalidate_cache();
+}
+
+/**
  * Join form.
  */
 function data_ui_join_form(&$form_state, $table, $field_name) {
@@ -686,7 +737,7 @@ function theme_data_ui_create_form($form) {
 }
 
 /**
- * Theme data_ui_admin_form.
+ * Theme data_ui_edit_form.
  */
 function theme_data_ui_edit_form($form) {
 
@@ -709,6 +760,28 @@ function theme_data_ui_edit_form($form) {
   $rows[] = $row;
 
   $header = array(t('Select'), t('Name'), t('Label'), t('Type'), t('Size'), t('Unsigned'), t('Index'), t('Primary key'), t('Joins'));
+  $output .= theme('table', $header, $rows);
+  $output .= drupal_render($form);
+  return $output;
+}
+
+/**
+ * Theme data_ui_views_form.
+ */
+function theme_data_ui_views_form($form) {
+
+  // Format existing fields.
+  $rows = array();
+  foreach (element_children($form['fields']) as $e) {
+    $row = array();
+    foreach (element_children($form['fields'][$e]) as $f) { 
+      $row[] = drupal_render($form['fields'][$e][$f]);
+    }
+    $row[] = '&nbsp;';
+    $rows[] = $row;
+  }
+
+  $header = array(t('Name'), t('Views handler'));
   $output .= theme('table', $header, $rows);
   $output .= drupal_render($form);
   return $output;

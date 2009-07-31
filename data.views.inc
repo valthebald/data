@@ -2,7 +2,7 @@
 // $Id$
 /**
  * @file
- * Views hooks.
+ * Views hooks and utility functions.
  */
 
 /**
@@ -36,24 +36,24 @@ function data_views_data() {
         'title' => $title,
         'help' => $title,
         'field' => array(
-          'handler' => _data_views_field_handler($field['type']),
+          'handler' => data_get_views_field_handler($table, $field_name),
           'help' => $title,
           'click sortable' => TRUE,
         ),
         'filter' => array(
-          'handler' => _data_views_filter_handler($field['type']),
+          'handler' => data_get_views_filter_handler($table, $field_name),
           'allow empty' => TRUE,
           'help' => t('Filter on %field', array('%field' => $title)),
         ),
         'argument' => array(
-          'handler' => _data_viewsfield_argument($field['type']),
+          'handler' => data_get_views_field_argument($table, $field_name),
           'help' => $title,
         ),
         'sort' => array(
-          'handler' => _data_viewsfield_sort($field['type']),
+          'handler' => data_get_views_field_sort($table, $field_name),
           'help' => t('Sort by %field', array('%field' => $title)),
         ),
-      );      
+      );
     }
 
     // Tables with a primary key are base tables.
@@ -100,8 +100,9 @@ function data_views_data() {
  * @return
  *   Views handler string.
  */
-function _data_views_filter_handler($type) {
-  switch ($type) {
+function data_get_views_filter_handler($table, $field_name) {
+  $schema = $table->get('table_schema');
+  switch ($schema['fields'][$field_name]['type']) {
     case 'float':
     case 'numeric':
       return 'views_handler_filter_float';
@@ -118,9 +119,40 @@ function _data_views_filter_handler($type) {
   return 'views_handler_filter_string';
 }
 
-// Return a field handler string for a given field type.
-function _data_views_field_handler($type) {
-  switch ($type) {
+/**
+ * Return all available field handlers.
+ */
+function data_get_views_field_handlers() {
+  return array(
+    'views_handler_field' => 'views_handler_field',
+    'views_handler_field_numeric' => 'views_handler_field_numeric',
+    'views_handler_field_date' => 'views_handler_field_date',
+  );
+}
+
+/**
+ * Return a field handler string for a given field.
+ * 
+ * @param $table
+ *   DataTable object.
+ * @param $field_name
+ *   String that defines the field.
+ * @param 
+ *   If TRUE, default value will be returned, if FALSE the user-defined value
+ *   will be returned, if available.
+ * 
+ * @return 
+ *   A string that defines the views handler to use.
+ */
+function data_get_views_field_handler($table, $field_name, $default = FALSE) {
+  if (!$default) {
+    $meta = $table->get('meta');
+    if (isset($meta['fields'][$field_name]['views_field_handler'])) {
+      return $meta['fields'][$field_name]['views_field_handler'];
+    }
+  }
+  $schema = $table->get('table_schema');
+  switch ($schema['fields'][$field_name]['type']) {
     case 'int':
     case 'float':
     case 'serial':
@@ -133,8 +165,9 @@ function _data_views_field_handler($type) {
 }
 
 // Return a argument handler string for a given field type.
-function _data_viewsfield_argument($type) {
-  switch ($type) {
+function data_get_views_field_argument($table, $field_name) {
+  $schema = $table->get('table_schema');
+  switch ($schema['fields'][$field_name]['type']) {
     case 'int':
     case 'float':
     case 'serial':
@@ -149,8 +182,9 @@ function _data_viewsfield_argument($type) {
 }
 
 // Return a sort handler string for a given field type.
-function _data_viewsfield_sort($type) {
-  switch ($type) {
+function data_get_views_field_sort($table, $field_name) {
+  $schema = $table->get('table_schema');
+  switch ($schema['fields'][$field_name]['type']) {
     case 'datetime':
       return 'views_handler_sort_date';
   }
