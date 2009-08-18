@@ -130,6 +130,11 @@ function data_get_field_definitions() {
       'unsigned' => TRUE,
       'not null' => FALSE,
     ),
+    'serial' => array(
+      'type' => 'serial',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+    ),
     'varchar' => array(
       'type' => 'varchar',
       'length' => 255,
