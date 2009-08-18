@@ -25,4 +25,4 @@ Check out FeedAPI Data module for using Data as a storage engine for feed items.
 While data module does not have any dependencies, its full functionality is only
 available with Schema module and CTools. 
 
-If you use Schema module, apply latest patch from: http://drupal.org/node/533596
+If you use Schema module, use the latest development snapshot.
