@@ -464,7 +464,7 @@ class DataTable {
   /**
    * Save to data table.
    */
-  public function save($record, $update = array()) {
+  public function save(&$record, $update = array()) {
     if (count($update)) {
       $keys = array();
       foreach ($update as $key) {
