@@ -36,21 +36,21 @@ function data_views_data() {
         'title' => $title,
         'help' => $title,
         'field' => array(
-          'handler' => data_get_views_field_handler($table, $field_name),
+          'handler' => data_get_views_handler('field', $table, $field_name),
           'help' => $title,
           'click sortable' => TRUE,
         ),
         'filter' => array(
-          'handler' => data_get_views_filter_handler($table, $field_name),
+          'handler' => data_get_views_handler('filter', $table, $field_name),
           'allow empty' => TRUE,
           'help' => t('Filter on %field', array('%field' => $title)),
         ),
         'argument' => array(
-          'handler' => data_get_views_field_argument($table, $field_name),
+          'handler' => data_get_views_handler('argument', $table, $field_name),
           'help' => $title,
         ),
         'sort' => array(
-          'handler' => data_get_views_field_sort($table, $field_name),
+          'handler' => data_get_views_handler('sort', $table, $field_name),
           'help' => t('Sort by %field', array('%field' => $title)),
         ),
       );
@@ -93,100 +93,126 @@ function data_views_data() {
 }
 
 /**
- * Return a views handler string for a given field type.
- *
- * @param $field_type
- *   Schema API field type.
- * @return
- *   Views handler string.
- */
-function data_get_views_filter_handler($table, $field_name) {
-  $schema = $table->get('table_schema');
-  switch ($schema['fields'][$field_name]['type']) {
-    case 'float':
-    case 'numeric':
-      return 'views_handler_filter_float';
-    case 'int':
-    case 'serial':
-      return 'views_handler_filter_numeric';
-    case 'datetime':
-      // @TODO: make this conditional on whether the time is stored as a timestamp/datetime
-      if (module_exists('date_api')) {
-        return 'date_api_filter_handler';
-      }
-      return 'views_handler_filter_date';
-  }
-  return 'views_handler_filter_string';
-}
-
-/**
  * Return all available field handlers.
+ *
+ * @param $type
+ *   Optional: the view handler type whose options should be provided
+ *   ('field', 'filter', 'sort', 'argument'). If omitted, a full array
+ *   keyed on type is returned.
+ * @param $reset
+ *   Boolean to reset the static cache.
+ *
+ * @return
+ *   An array suitable for use as options in a FormAPI element.
  */
-function data_get_views_field_handlers() {
-  return array(
-    'views_handler_field' => 'views_handler_field',
-    'views_handler_field_numeric' => 'views_handler_field_numeric',
-    'views_handler_field_date' => 'views_handler_field_date',
-  );
+function data_get_views_handler_options($type = NULL, $reset = FALSE) {
+  static $handlers;
+  if (!isset($handlers) || $reset) {
+    $handlers = array();
+    $handlers['field'] = array(
+      'views_handler_field' => 'views_handler_field',
+      'views_handler_field_numeric' => 'views_handler_field_numeric',
+      'views_handler_field_date' => 'views_handler_field_date',
+    );
+    $handlers['filter'] = array(
+      'views_handler_filter_date' => 'views_handler_filter_date',
+      'views_handler_filter_float' => 'views_handler_filter_float',
+      'views_handler_filter_numeric' => 'views_handler_filter_numeric',
+      'views_handler_filter_string' => 'views_handler_filter_string',
+    );
+    $handlers['argument'] = array(
+      'views_handler_argument' => 'views_handler_argument',
+      'views_handler_argument_date' => 'views_handler_argument_date',
+      'views_handler_argument_numeric' => 'views_handler_argument_numeric',
+      'views_handler_argument_string' => 'views_handler_argument_string',
+    );
+    $handlers['sort'] = array(
+      'views_handler_sort' => 'views_handler_sort',
+      'views_handler_sort_date' => 'views_handler_sort_date',
+    );
+    // Allow other modules to alter the list of available handlers.
+    drupal_alter('data_views_handlers', $handlers);
+  }
+  return isset($type) && isset($handlers[$type]) ? $handlers[$type] : $handlers;
 }
 
 /**
- * Return a field handler string for a given field.
- * 
+ * Get the handler (class name) for a specified data table field.
+ *
+ * @param $type
+ *   The view handler type ('field', 'filter', 'sort', 'argument').
  * @param $table
- *   DataTable object.
+ *   A data table object.
  * @param $field_name
- *   String that defines the field.
- * @param 
- *   If TRUE, default value will be returned, if FALSE the user-defined value
- *   will be returned, if available.
- * 
- * @return 
- *   A string that defines the views handler to use.
+ *   String: name of the field.
+ * @param $default
+ *   Boolean for whether to return the default handler for the given
+ *   db column type.
+ *
+ * @return
+ *   String: A views handler class name.
  */
-function data_get_views_field_handler($table, $field_name, $default = FALSE) {
+function data_get_views_handler($type, $table, $field_name, $default = FALSE) {
+  // Return the handler's custom setting if available
   if (!$default) {
     $meta = $table->get('meta');
-    if (isset($meta['fields'][$field_name]['views_field_handler'])) {
-      return $meta['fields'][$field_name]['views_field_handler'];
+    if (isset($meta['fields'][$field_name]["views_{$type}_handler"])) {
+      return $meta['fields'][$field_name]["views_{$type}_handler"];
     }
   }
-  $schema = $table->get('table_schema');
-  switch ($schema['fields'][$field_name]['type']) {
-    case 'int':
-    case 'float':
-    case 'serial':
-    case 'numeric':
-      return 'views_handler_field_numeric';
-    case 'datetime':
-      return 'views_handler_field_date';
-  }
-  return 'views_handler_field';
-}
 
-// Return a argument handler string for a given field type.
-function data_get_views_field_argument($table, $field_name) {
   $schema = $table->get('table_schema');
-  switch ($schema['fields'][$field_name]['type']) {
-    case 'int':
-    case 'float':
-    case 'serial':
-    case 'numeric':
-      return 'views_handler_argument_numeric';
-    case 'datetime':
-      return 'views_handler_argument_date';
-    case 'varchar':
-     return 'views_handler_argument_string';
-  }
-  return 'views_handler_argument';
-}
+  switch ($type) {
 
-// Return a sort handler string for a given field type.
-function data_get_views_field_sort($table, $field_name) {
-  $schema = $table->get('table_schema');
-  switch ($schema['fields'][$field_name]['type']) {
-    case 'datetime':
-      return 'views_handler_sort_date';
+    case 'field':
+      switch ($schema['fields'][$field_name]['type']) {
+        case 'int':
+        case 'float':
+        case 'serial':
+        case 'numeric':
+          return 'views_handler_field_numeric';
+        case 'datetime':
+          return 'views_handler_field_date';
+      }
+      return 'views_handler_field';
+
+    case 'filter':
+      switch ($schema['fields'][$field_name]['type']) {
+        case 'float':
+        case 'numeric':
+          return 'views_handler_filter_float';
+        case 'int':
+        case 'serial':
+          return 'views_handler_filter_numeric';
+        case 'datetime':
+          // @TODO: make this conditional on whether the time is stored as a timestamp/datetime
+          if (module_exists('date_api')) {
+            return 'date_api_filter_handler';
+          }
+          return 'views_handler_filter_date';
+      }
+      return 'views_handler_filter_string';
+
+    case 'argument':
+      switch ($schema['fields'][$field_name]['type']) {
+        case 'int':
+        case 'float':
+        case 'serial':
+        case 'numeric':
+          return 'views_handler_argument_numeric';
+        case 'datetime':
+          return 'views_handler_argument_date';
+        case 'varchar':
+        return 'views_handler_argument_string';
+      }
+      return 'views_handler_argument';
+
+    case 'sort':
+      switch ($schema['fields'][$field_name]['type']) {
+        case 'datetime':
+          return 'views_handler_sort_date';
+      }
+      return 'views_handler_sort';
+
   }
-  return 'views_handler_sort';
 }

@@ -590,8 +590,23 @@ function data_ui_views_form(&$form_state, $table) {
       $form['fields'][$field_name]['name'] = array('#value' => $field_name);
       $form['fields'][$field_name]['views_field_handler'] = array(
         '#type' => 'select',
-        '#options' => data_get_views_field_handlers(),
-        '#default_value' => data_get_views_field_handler($table, $field_name),
+        '#options' => data_get_views_handler_options('field'),
+        '#default_value' => data_get_views_handler('field', $table, $field_name),
+      );
+      $form['fields'][$field_name]['views_filter_handler'] = array(
+        '#type' => 'select',
+        '#options' => data_get_views_handler_options('filter'),
+        '#default_value' => data_get_views_handler('filter', $table, $field_name),
+      );
+      $form['fields'][$field_name]['views_argument_handler'] = array(
+        '#type' => 'select',
+        '#options' => data_get_views_handler_options('argument'),
+        '#default_value' => data_get_views_handler('argument', $table, $field_name),
+      );
+      $form['fields'][$field_name]['views_sort_handler'] = array(
+        '#type' => 'select',
+        '#options' => data_get_views_handler_options('sort'),
+        '#default_value' => data_get_views_handler('sort', $table, $field_name),
       );
     }
   }
@@ -789,7 +804,7 @@ function theme_data_ui_views_form($form) {
     $rows[] = $row;
   }
 
-  $header = array(t('Name'), t('Views handler'));
+  $header = array(t('Name'), t('Field handler'), t('Filter handler'), t('Argument handler'), t('Sort handler'));
   $output .= theme('table', $header, $rows);
   $output .= drupal_render($form);
   return $output;
