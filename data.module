@@ -348,6 +348,9 @@ function data_export($name, $indent = '') {
  * b) there is no DataTable object that does not have an existing table.
  */
 function _data_get_table($name, $schema = NULL, $title = NULL, $reset = FALSE) {
+  if (empty($name)) {
+    return FALSE;
+  }
   _data_include();
 
   static $tables;
