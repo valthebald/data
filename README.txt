@@ -17,6 +17,10 @@ Its companion Data UI provides
 * UI to add or alter columns to existing tables managed by Data module
 * Default views for tables managed by Data module
 
+Use Data Search module
+
+* If you would like to search one or more columns of your data tables.
+
 RECOMMENDATIONS
 ===============
 
