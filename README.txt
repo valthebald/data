@@ -50,4 +50,4 @@ available with Schema module and CTools.
 
 If you use Schema module, use version 1.6 or higher.
 
-If you use CTools, apply latest stable patch from http://drupal.org/node/531522
+If you use CTools, apply http://drupal.org/node/531522#comment-2071608

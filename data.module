@@ -380,11 +380,15 @@ function _data_get_table($name, $schema = NULL, $title = NULL, $reset = FALSE) {
 function _data_load_table($name = NULL, $reset = FALSE) {
   if (module_exists('ctools')) {
     ctools_include('export');
+    if ($reset) {
+      ctools_static_reset('ctools_export_load_object');
+      ctools_static_reset('ctools_export_load_object_all');
+    }
     if (empty($name)) {
-      return ctools_export_load_object('data_tables', 'all', array(), $reset);
+      return ctools_export_load_object('data_tables', 'all', array());
     }
     else {
-      $tables = ctools_export_load_object('data_tables', 'names', array($name), $reset);
+      $tables = ctools_export_load_object('data_tables', 'names', array($name));
       if (isset($tables[$name])) {
         return $tables[$name];
       }
