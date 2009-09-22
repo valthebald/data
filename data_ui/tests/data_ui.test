@@ -196,7 +196,7 @@ class DataTestCaseUI extends DataTestCase {
       }
     }
     else {
-      $this->assertTrue(FALSE, 'Could not create schema.');
+      $this->assertTrue(FALSE, 'Could not create schema - invalid schema definition?');
     }
 
     return $table_name;
@@ -232,18 +232,28 @@ class DataTestCaseUI extends DataTestCase {
    */
   protected function randomFields($n = 5) {
     $fields = array();
+    $excluded_types = array();
+
     for ($i = 0; $i < $n-1; $i++) {
       $label = $this->uniqueRandomName();
       $name = data_safe_name($label);
+
+      // Get a random type. Make sure that serial does not occur twice.
+      $type = $this->randomValue(data_get_field_types(), $excluded_types);
+      if ($type == 'serial') {
+        $excluded_types['serial'] = 'serial';
+      }
+
       $fields[$name] = array(
         'name' => $name,
         'label' => $label,
-        'type' => $this->randomValue(data_get_field_types()),
+        'type' => $type,
       );
       if (rand(0, 1)) {
         $fields[$name]['unsigned'] = 1;
       }
-      if (rand(0, 1)) {
+      // Auto increment fields must be indexed.
+      if (($fields[$name]['type'] == 'serial') || rand(0, 1)) {
         $fields[$name]['index'] = 1;
       }
       if (rand(0, 1)) {
@@ -265,9 +275,17 @@ class DataTestCaseUI extends DataTestCase {
 
   /**
    * Get a random value from the given array.
+   * 
+   * @param $array
+   *   Array to pick random value from.
+   * @param $exclude
+   *   Values not to pick.
+   * 
+   * @return 
+   *   A random value from $array that does not exist in $exclude.
    */
-  protected function randomValue($array) {
-    $array = array_values($array);
+  protected function randomValue($array, $exclude = array()) {
+    $array = array_diff(array_values($array), $exclude);
     return $array[rand(0, count($array) - 1)];
   }
 
