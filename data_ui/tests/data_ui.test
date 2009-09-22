@@ -244,20 +244,22 @@ class DataTestCaseUI extends DataTestCase {
         $excluded_types['serial'] = 'serial';
       }
 
-      $fields[$name] = array(
-        'name' => $name,
-        'label' => $label,
-        'type' => $type,
-      );
-      if (rand(0, 1)) {
-        $fields[$name]['unsigned'] = 1;
-      }
-      // Auto increment fields must be indexed.
-      if (($fields[$name]['type'] == 'serial') || rand(0, 1)) {
-        $fields[$name]['index'] = 1;
-      }
-      if (rand(0, 1)) {
-        $fields[$name]['primary'] = 1;
+      if (!empty($type)) {
+        $fields[$name] = array(
+          'name' => $name,
+          'label' => $label,
+          'type' => $type,
+        );
+        if (rand(0, 1)) {
+          $fields[$name]['unsigned'] = 1;
+        }
+        // Auto increment fields must be indexed.
+        if (($fields[$name]['type'] == 'serial') || rand(0, 1)) {
+          $fields[$name]['index'] = 1;
+        }
+        if (rand(0, 1)) {
+          $fields[$name]['primary'] = 1;
+        }
       }
     }
     // Make sure we have at least one field that is text, PK and indexed.
@@ -286,6 +288,9 @@ class DataTestCaseUI extends DataTestCase {
    */
   protected function randomValue($array, $exclude = array()) {
     $array = array_diff(array_values($array), $exclude);
+    if (empty($array)) {
+      $this->error('Array for random value selection is empty.');
+    }
     return $array[rand(0, count($array) - 1)];
   }
 
