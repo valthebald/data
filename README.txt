@@ -17,9 +17,23 @@ Its companion Data UI provides
 * UI to add or alter columns to existing tables managed by Data module
 * Default views for tables managed by Data module
 
-Use Data Search module
+Use Data Search module if you would like to search one or more columns of your 
+data tables:
 
-* If you would like to search one or more columns of your data tables.
+* Install Data Search
+* Go to admin/content/data
+* Edit table to be indexed
+* Click on "Configure search" tab
+* Check table columns to be indexed
+
+Use Data Node module if you would like to relate nodes to data records:
+
+* Install Data Node
+* Go to admin/content/data
+* Edit table to relate to nodes
+* Click on "Relate to nodes" tab
+* Pick a content type
+* Pick which id in table will be related to a node id
 
 RECOMMENDATIONS
 ===============
