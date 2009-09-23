@@ -113,6 +113,7 @@ function data_get_views_handler_options($type = NULL, $reset = FALSE) {
       'views_handler_field' => 'views_handler_field',
       'views_handler_field_numeric' => 'views_handler_field_numeric',
       'views_handler_field_date' => 'views_handler_field_date',
+      'views_handler_field_url' => 'views_handler_field_url',
     );
     $handlers['filter'] = array(
       'views_handler_filter_date' => 'views_handler_filter_date',
