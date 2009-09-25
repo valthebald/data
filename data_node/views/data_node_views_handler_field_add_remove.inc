@@ -28,10 +28,13 @@ class data_node_views_handler_field_add_remove extends views_handler_field {
   function render($values) {
     if (user_access('manage data relations')) {
       $id = $values->{$this->id};
+      $table = data_get_table($this->table_name);
+      $node_list = data_node_get_nids($table, $id);
       if ($nid = data_node_get_active($this->table_name)) {
-        $table = data_get_table($this->table_name);
-        $node_list = data_node_get_nids($table, $id);
         return in_array($nid, $node_list) ? data_node_render_remove_link($table, $id, $nid) : data_node_render_add_link($table, $id, $nid);
+      }
+      else {
+        return data_node_render_placeholder_link($table, $id);
       }
     }
   }

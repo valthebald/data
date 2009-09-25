@@ -54,6 +54,19 @@ Drupal.behaviors.data_node = function(context) {
               stale_nid = url[1];
             }
           });
+
+          $('span.data-node-placeholder').each(function() {
+            var classes = $(this).attr('class').split(' ');
+            for (var key in classes) {
+              if (classes[key].indexOf('data_node_link') === 0) {
+                // 0: table, 1: id, 2: nid
+                var split = classes[key].replace('data_node_link-', '').split('-');
+                stale.push(split[1]);
+                break;
+              }
+            }
+          });
+
           $.getJSON(ajax_url, {'ajax': 1, 'stale': stale.join('-')}, function(data) {
             if (data['status']) {
               for (var id in data['refresh']) {

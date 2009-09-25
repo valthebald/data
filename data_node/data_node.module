@@ -414,7 +414,17 @@ function data_node_render_labels($table, $id) {
 }
 
 /**
- * Render node-data labels for a given item.
+ * Render a placeholder when there are no active nodes that can be replaced via AJAX.
+ */
+function data_node_render_placeholder_link($table, $id) {
+  drupal_add_css(drupal_get_path('module', 'data_node') . '/data_node.css');
+  drupal_add_js(drupal_get_path('module', 'data_node') . '/data_node.js');
+  $table_name = $table->get('name');
+  return "<span class='data-node-placeholder data_node_link-{$table_name}-{$id}-0'></span>";
+}
+
+/**
+ * Render an add link for a given item..
  */
 function data_node_render_add_link($table, $id, $nid) {
   drupal_add_css(drupal_get_path('module', 'data_node') . '/data_node.css');
@@ -427,7 +437,7 @@ function data_node_render_add_link($table, $id, $nid) {
 }
 
 /**
- * Render node-data labels for a given item.
+ * Render a remove link for a given item.
  */
 function data_node_render_remove_link($table, $id, $nid) {
   drupal_add_css(drupal_get_path('module', 'data_node') . '/data_node.css');
