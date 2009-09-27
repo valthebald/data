@@ -41,7 +41,9 @@ class DataTestCaseAPI extends DataTestCase {
       return;
     }
     else {
-      $this->assertTrue(1, 'Created table '. $table_name);
+      $this->assertTrue(db_table_exists($table->get('name')), 'Created table '. $table->get('name'));
+      $schema = drupal_get_schema($table->get('name'));
+      $this->assertTrue(!empty($schema), 'Schema information is available.');
     }
 
     // Save data.
@@ -49,12 +51,6 @@ class DataTestCaseAPI extends DataTestCase {
     $table->save($test_data[0], array('id'));
     $table->save($test_data[1], array('id'));
     $table->save($test_data[1], array('id'));
-    $record_num = db_result(db_query('SELECT COUNT(*) FROM {'. $table_name .'}'));
-    
-    $result = db_query('SELECT * FROM {'. $table_name .'}');
-    while ($row = db_fetch_array($result)) {
-      $rows[] = $row;
-    }
 
     // Load second record.
     $data = $table->load(array('id' => 1));
@@ -71,7 +67,7 @@ class DataTestCaseAPI extends DataTestCase {
     $this->assertEqual($data[0]['id'], 1, 'Loaded data by string type key.');
 
     // Delete table.
-    data_drop_table($table_name);
+    $table->drop($table_name);
     $this->assertFalse(db_table_exists($table_name), 'Dropped table.');
 
     // Create table and drop it again.
@@ -79,7 +75,7 @@ class DataTestCaseAPI extends DataTestCase {
     $this->assertTrue(!empty($table), 'Created table with same name '. $table_name);
 
     // Delete table.
-    data_drop_table($table_name);
+    $table->drop($table_name);
     $this->assertFalse(db_table_exists($table_name), 'Dropped table.');
   }
 }

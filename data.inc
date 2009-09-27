@@ -41,78 +41,93 @@ class DataTable {
   // @todo: change $name to $id.
   // Unfortunately drupal_write_record does not escape field names. $table_schema instead of $schema it is.
   protected $name, $title, $table_schema, $meta, $export_type;
-
+  
   /**
-   * Constructor.
+   * Instiate a DataTable object. Use this function instead of new DataTable.
    */
-  public function __construct($name, $table_schema = NULL, $title = NULL) {
-    if ($table_schema) {      
-      $table = array(
-        'name' => $name,
-        'title' => empty($title) ? data_natural_name($name) : $title,
-        'table_schema' => array(),
-        'meta' => array(),
-      );
-      drupal_write_record('data_tables', $table);
-
-      $this->init($name);
-      $this->create($table_schema);
+  public static function instance($name) {
+    static $tables;
+    if (!isset($tables[$name])) {
+      $tables[$name] = new DataTable($name);
     }
-    else {
-      $this->init($name);
-    }
+    return $tables[$name];
   }
 
   /**
-   * Load DataTable data from DB.
+   * Constructor. Do not call directly, but use DataTable::instance($name) instead.
    */
-  protected function init($name) {
+  protected function __construct($name) {
+    $this->name = $name;
+
+    // Try to load table information.
     if ($table = _data_load_table($name)) {
       foreach (array('title', 'name', 'table_schema', 'meta', 'export_type') as $key) {
         $this->$key = $table->$key;
       }
+    }
+  }
+
+  /**
+   * Create a table.
+   * 
+   * Do not call directly but use data_create_table() instead.
+   */
+  public function create($table_schema) {
+
+    // Only create the table if it is not defined as data table AND it does not
+    // physically exist.
+    if (!_data_load_table($this->name, TRUE) && !db_table_exists($this->name)) {
+
+      // Create table.
+      db_create_table($ret, $this->name, $table_schema);
+      if ($ret[0]['success'] != 1) {
+        drupal_set_message(t('Error creating table.'), 'error');
+        return FALSE;
+      }
+  
+      // If schema module is enabled, inspect and read back to make
+      // sure our schema information is up to date. 
+      // @todo: this is slow, maybe we need to make this an explicit method 
+      // on DataTable.
+      if (module_exists('_schema')) {
+        $schema = schema_invoke('inspect');
+        if (isset($schema[$this->name])) {
+          $table_schema = $schema[$this->name];
+        }
+      }
+
+      // Set table_schema and export_type.
+      // @todo: rather user _data_table_load() ?
+      $this->table_schema = $table_schema;
+      $this->export_type = EXPORT_IN_DATABASE;
+
+      // Save table information.
+      // Set export_type - needs to be defined so that schema information is being passed on
+      // to Drupal by data_schema_alter().
+      $table = array(
+        'name' => $this->name,
+        'table_schema' => $this->table_schema,
+      );
+      drupal_write_record('data_tables', $table);
+  
+      // Clear caches.
+      drupal_get_schema($this->name, TRUE);
+  
       return TRUE;
     }
     return FALSE;
   }
 
   /**
-   * Create a table.
+   * Determine whether a table is defined.
+   * 
+   * @return 
+   *   TRUE if the table is defined, FALSE otherwise.
+   *   Note: If a table is defined it does not mean that it actually exists in the 
+   *   database.
    */
-  protected function create($table_schema) {
-    // Create table.
-    db_create_table($ret, $this->name, $table_schema);
-    if ($ret[0]['success'] != 1) {
-      drupal_set_message(t('Error creating table.'), 'error');
-      return FALSE;
-    }
-
-    // If schema module is enabled, inspect and read back to make
-    // sure our schema information is up to date. 
-    // @todo: this is slow, maybe we need to make this an explicit method 
-    // on DataTable.
-    if (module_exists('schema')) {
-      $schema = schema_invoke('inspect');
-      if (isset($schema[$this->name])) {
-        $table_schema = $schema[$this->name];
-      }
-    }
-
-    // Update table_schema information.
-    $this->update(array('table_schema' => $table_schema));
-
-    // Clear cache.
-    drupal_get_schema($this->name, TRUE);
-
-    return TRUE;
-  }
-
-  /**
-   * Determine whether table really exists in database. This can happen e. g. when tables
-   * are defined by default modules.
-   */
-  public function exists() {
-    return db_table_exists($this->name);
+  public function defined() {
+    return _data_load_table($this->name) ? TRUE : FALSE;
   }
 
   /**
@@ -368,10 +383,7 @@ class DataTable {
   }
 
   /**
-   * Drop a table. Don't call this function directly, but
-   * use data_drop_table() instead.
-   * 
-   * Does not drop a table if its defined in code.
+   * Drop a table. Does not drop a table if its defined in code.
    * 
    * @return 
    *   TRUE if the table was dropped, FALSE otherwise.

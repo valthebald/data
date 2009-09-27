@@ -477,7 +477,7 @@ function data_ui_edit_form_submit($form, &$form_state) {
   $table = $form_state['values']['table'];
   $schema = $table->get('table_schema');
 
-  if (!$table->exists()) {
+  if (!db_table_exists($table->get('name'))) {
     drupal_set_message(t('Table does not exist in database.'), 'error');
     if (module_exists('schema')) {
       drupal_set_message(t('Go to !compare to resolve conflicts.', array('!compare' => l(t('Compare schemas'), 'admin/content/data/compare'))), 'error');
