@@ -43,6 +43,10 @@ function data_schema_alter(&$schema) {
 /**
  * Create a table.
  * 
+ * @todo: refactor and simplifiy. Move singleton management into 
+ * DataTable class and thus remove _data_get_table() based tracking of
+ * statics.
+ * 
  * Usage:
  * $table = data_create_table('my_table', $schema, 'My table');
  * $table->save($data);
