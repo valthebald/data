@@ -377,7 +377,7 @@ class DataTable {
    *   TRUE if the table was dropped, FALSE otherwise.
    */
   public function drop() {
-    if ($this->export_type == EXPORT_IN_DATABASE || $this->export_type == DATA_EXPORT_UNDEFINED) {
+    if ($this->export_type == EXPORT_IN_DATABASE) {
       db_drop_table($ret, $this->name);
       $this->update(array('table_schema' => array()));
       drupal_get_schema($this->name, TRUE);

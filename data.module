@@ -6,10 +6,6 @@
  * @todo: Move helper functions into data.inc or other .inc file.
  */
 
-// Constant designating an undefined export state.
-// Used in absence of EXPORT_IN_CODE, EXPORT_IN_DATABASE
-define('DATA_EXPORT_UNDEFINED', 0);
-
 /**
  * Implementation of hook_views_api().
  */
@@ -33,9 +29,14 @@ function data_views_api() {
  * data_get_all_tables() ... _data_load_table() ... ctools_export_load_object().
  */
 function data_schema_alter(&$schema) {
-  $tables = data_get_all_tables();
+  $tables = data_get_all_tables(TRUE);
   foreach ($tables as $table) {
-    $schema[$table->get('name')] = $table->get('table_schema');
+    // Only add table if not yet present or the table at hand is defined in DB. 
+    // This allows other modules to "own" data managed tables which in turn makes Drupal 
+    // track schema versions - the prerequisit for using hook_update_N() on data tables.
+    if (!isset($schema[$table->get('name')]) || (EXPORT_IN_DATABASE & $table->get('export_type'))) {
+      $schema[$table->get('name')] = $table->get('table_schema');
+    }
   }
 }
 
@@ -378,43 +379,20 @@ function _data_get_table($name, $schema = NULL, $title = NULL, $reset = FALSE) {
  * Loads data table info from the database. Uses CTools if available.
  */
 function _data_load_table($name = NULL, $reset = FALSE) {
-  if (module_exists('ctools')) {
-    ctools_include('export');
-    if ($reset) {
-      ctools_static_reset('ctools_export_load_object');
-      ctools_static_reset('ctools_export_load_object_all');
-    }
-    if (empty($name)) {
-      return ctools_export_load_object('data_tables', 'all', array());
-    }
-    else {
-      $tables = ctools_export_load_object('data_tables', 'names', array($name));
-      if (isset($tables[$name])) {
-        return $tables[$name];
-      }
-      return FALSE;
-    }
+  ctools_include('export');
+  if ($reset) {
+    ctools_static_reset('ctools_export_load_object');
+    ctools_static_reset('ctools_export_load_object_all');
   }
-  // If CTools is not available, load directly from DB.
   if (empty($name)) {
-    $result = db_query('SELECT * FROM {data_tables}');
-    $tables = array();
-    while ($row = db_fetch_object($result)) {
-      foreach (array('table_schema', 'meta') as $key) {
-        $row->$key = unserialize($row->$key);
-      }
-      // No export type.
-      $row->export_type = DATA_EXPORT_UNDEFINED;
-      $tables[$row->name] = $row;
-    }
-    return $tables;
+    return ctools_export_load_object('data_tables', 'all', array());
   }
-  if ($table = db_fetch_object(db_query('SELECT * FROM {data_tables} WHERE name = "%s"', $name))) {
-      // No export type.
-      $table->export_type = DATA_EXPORT_UNDEFINED;
-      $table->table_schema = unserialize($table->table_schema);
-      $table->meta = unserialize($table->meta);
-      return $table;
+  else {
+    $tables = ctools_export_load_object('data_tables', 'names', array($name));
+    if (isset($tables[$name])) {
+      return $tables[$name];
+    }
+    return FALSE;
   }
   return FALSE;
 }

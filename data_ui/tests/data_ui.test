@@ -27,7 +27,7 @@ class DataTestCaseUI extends DataTestCase {
    * Set up test.
    */
   public function setUp() {
-    parent::setUp('data', 'data_ui');
+    parent::setUp('ctools', 'schema', 'data', 'data_ui', 'data_ui_test');
 
     $this->drupalLogin(
       $this->drupalCreateUser(
@@ -52,12 +52,6 @@ class DataTestCaseUI extends DataTestCase {
    * Test change management on UI.
    */
   public function testChangeManagement() {
-    // Only execute if ctools and schema modules are present.
-    if (!drupal_get_filename('module', 'ctools') || !drupal_get_filename('module', 'schema')) {
-      return;
-    }
-    drupal_install_modules(array('ctools', 'schema', 'data_ui_test'));
-    menu_rebuild();
 
     // Check for presence of default table.
     $this->drupalGet('admin/content/data');
@@ -65,7 +59,19 @@ class DataTestCaseUI extends DataTestCase {
     $this->assertText('Default');
     $this->assertText('Override | Export');
 
-    // Go to schema comparisons.
+    // Go to schema comparisons, verify that table is present and doesn't differ from
+    // schema definition.
+    $this->drupalGet('admin/content/data/compare');
+    $this->assertText('data_table_kittens');
+    $this->assertText('same');
+
+    // Drop the table bypassing the API.
+    $table = data_get_table('data_table_kittens');
+    $ret = array();
+    db_drop_table($ret, $table->get('name'));
+    $this->assertTrue(isset($ret[0]['success']), 'Dropped table bypassing the API.');
+
+    // Go to schema comparisons, now the table should be missing.
     $this->drupalGet('admin/content/data/compare');
     $this->assertText('data_table_kittens');
     $this->assertText('missing - adjust');
@@ -83,7 +89,6 @@ class DataTestCaseUI extends DataTestCase {
     $this->assertTrue(db_table_exists('data_table_kittens'), 'Table data_table_kittens exists in DB.');
     $schema = schema_invoke('inspect', db_prefix_tables('{data_table_kittens}'));
     $this->assertTrue(isset($schema['data_table_kittens']), 'Schema API inspector detects table.');
-    $table = data_get_table('data_table_kittens');
     $this->assertTrue(!empty($table), 'Table loaded');
     $comp = $table->compareSchema();
     $this->assertEqual($comp['status'], 'same');
@@ -198,6 +203,8 @@ class DataTestCaseUI extends DataTestCase {
     else {
       $this->assertTrue(FALSE, 'Could not create schema - invalid schema definition?');
     }
+
+    $this->assertTrue(db_table_exists($table_name), 'Table '. $table_name .' exists in database.');
 
     return $table_name;
   }

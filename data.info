@@ -2,4 +2,5 @@
 name = Data
 description = Provides two dimensional storage space for arbitrary data sets.
 package = Data
+dependencies[] = ctools
 core = 6.x

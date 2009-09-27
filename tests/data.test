@@ -27,15 +27,7 @@ class DataTestCaseAPI extends DataTestCase {
    * Set up test.
    */
   public function setUp() {
-    // Test with CTools enabled if available.
-    if (drupal_get_filename('module', 'ctools')) {
-      parent::setUp('ctools', 'data');
-      $this->assertTrue(1, 'Testing with Data module and CTools.');
-    }
-    else {
-      parent::setUp('data');
-      $this->assertTrue(1, 'Testing with Data module only (without CTools).');
-    }
+    parent::setUp('ctools', 'data');
   }
 
   /**
