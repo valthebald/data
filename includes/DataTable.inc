@@ -104,6 +104,7 @@ class DataTable {
       // Save table information.
       // Set export_type - needs to be defined so that schema information is being passed on
       // to Drupal by data_schema_alter().
+      // @todo: refactor ->update() to ->save() and use ->save().
       $table = array(
         'name' => $this->name,
         'table_schema' => $this->table_schema,
