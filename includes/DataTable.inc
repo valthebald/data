@@ -448,4 +448,11 @@ class DataTable {
     unset($this->meta['join'][$left_table]);
     $this->update(array('meta' => $this->meta));
   }
+
+  /**
+   * Convenience method.
+   */
+  public function handler() {
+    return data_get_handler($this->name);
+  }
 }
