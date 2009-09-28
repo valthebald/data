@@ -732,6 +732,13 @@ function data_ui_export_form(&$form_state, $table) {
   );
   return $form;
 }
+ 
+/**
+ * View table with krumo().
+ */
+function data_ui_view_schema($table) {
+  return kprint_r($table->get('table_schema'), TRUE);
+}
 
 /**
  * Theme data_ui_create_form.

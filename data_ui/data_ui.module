@@ -69,18 +69,31 @@ function data_ui_menu() {
     'access arguments' => array('administer data tables'),
     'type' => MENU_CALLBACK, 
   );
-  // Only offer these options if views module exists.
-  if (module_exists('views')) {
+  // Optional paths.
+  if (module_exists('views') || module_exists('devel')) {
     $items['admin/content/data/edit/%data_ui_table/edit'] = array(
       'title' => 'Edit schema',
       'type' => MENU_DEFAULT_LOCAL_TASK,
       'weight' => -10,
     );
+  }
+  if (module_exists('views')) {
     $items['admin/content/data/edit/%data_ui_table/views'] = array(
       'title' => 'Configure views',
       'description' => 'Administer data tables.',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('data_ui_views_form', 4),
+      'file' => 'data_ui.admin.inc',
+      'access arguments' => array('administer data tables'),
+      'type' => MENU_LOCAL_TASK, 
+    );
+  }
+  if (module_exists('devel')) {
+    $items['admin/content/data/edit/%data_ui_table/view-schema'] = array(
+      'title' => 'View schema',
+      'description' => 'Administer data tables.',
+      'page callback' => 'data_ui_view_schema',
+      'page arguments' => array(4),
       'file' => 'data_ui.admin.inc',
       'access arguments' => array('administer data tables'),
       'type' => MENU_LOCAL_TASK, 
