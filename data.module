@@ -3,7 +3,6 @@
 /**
  * @file
  * Hooks and API functions for data module.
- * @todo: Move helper functions into data.inc or other .inc file.
  */
 
 /**
@@ -43,10 +42,6 @@ function data_schema_alter(&$schema) {
 /**
  * Create a table.
  * 
- * Usage:
- * $table = data_create_table('my_table', $schema, 'My table');
- * $table->save($data);
- * 
  * @see DataTable class.
  * 
  * @param $name
@@ -62,7 +57,7 @@ function data_schema_alter(&$schema) {
  *   A DataTable object if one could be created, FALSE otherwise.
  */
 function data_create_table($name, $schema, $title = NULL) {
-  _data_include();
+  _data_include('DataTable');
   $table = DataTable::instance($name);
   if ($table->create($schema)) {
     if (!empty($title)) {
@@ -89,7 +84,7 @@ function data_create_table($name, $schema, $title = NULL) {
  * DataTable object.
  */
 function data_get_table($name) {
-  _data_include();
+  _data_include('DataTable');
   $table = DataTable::instance($name);
   if ($table->defined()) {
     return $table;
@@ -120,6 +115,22 @@ function data_get_all_tables($reset = FALSE) {
     }
   }
   return $tables;
+}
+
+/**
+ * Get Data handler for a table.
+ * 
+ * @see class DataHandler
+ * 
+ * @param $table_name
+ *   String that is the name of a table.
+ * 
+ * @return 
+ *   DataHandler object that provides access to a table's data.
+ */
+function data_get_handler($table_name) {
+  _data_include('DataHandler');
+  return DataHandler::instance($table_name);
 }
 
 /**
@@ -383,10 +394,10 @@ function _data_override($name) {
 /**
  * Include class file.
  */
-function _data_include() {
+function _data_include($class) {
   static $included;
-  if (!$included) {
-    include drupal_get_path('module', 'data') .'/data.inc';
+  if (!isset($included[$class])) {
+    include drupal_get_path('module', 'data') .'/includes/'. $class .'.inc';
+    $included[$class] = TRUE;
   }
-  $included = TRUE;
 }

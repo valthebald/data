@@ -11,7 +11,6 @@
  * 
  * @see data_create_table().
  * @see data_get_table().
- * @see data_drop_table().
  * 
  * Usage:
  * 
@@ -25,13 +24,14 @@
  * }
  * 
  * Save some data to it.
- * $table->save($data);
+ * $handler = data_get_handler($table->get('name'));
+ * $handler->save($data);
  * 
  * Remove the data from the table.
- * $table->truncate();
+ * $handler->truncate();
  * 
  * Remove the table, but not the meta information about the table.
- * data_drop_table('my_table');
+ * $table->drop();
  * 
  */
 class DataTable {
@@ -146,6 +146,8 @@ class DataTable {
 
   /**
    * Update table properties.
+   * 
+   * @todo: make conditional, rename to save().
    * 
    * @param $properties 
    *   Array where the key designates a property (one of 'name', 'title', 'table_schema', 'meta') 
@@ -445,72 +447,5 @@ class DataTable {
   public function unlink($left_table) {
     unset($this->meta['join'][$left_table]);
     $this->update(array('meta' => $this->meta));
-  }
-
-  /**
-   * Load a record.
-   */
-  public function load($keys) {
-    $where = $values = array();
-    $fields = $this->table_schema['fields'];
-    foreach ($keys as $key => $value) {
-      // Return if a key does not exist.
-      if (!isset($fields[$key]['type'])) {
-        return FALSE;
-      }
-      $where[] = db_escape_string($key) ." = ". db_type_placeholder($fields[$key]['type']);
-      $values[] = $value;
-    }
-
-    if (!empty($where)) {
-      $result = db_query('SELECT * FROM {'. db_escape_table($this->name) .'} WHERE '. implode(' AND ', $where), $values);
-      $results = array();
-      while ($row = db_fetch_array($result)) {
-        $results[] = $row;
-      }
-      return count($results) ? $results : FALSE;
-    }
-    return FALSE;
-  }
-
-  /**
-   * Save to data table.
-   */
-  public function save(&$record, $update = array()) {
-    if (count($update)) {
-      $keys = array();
-      foreach ($update as $key) {
-        $keys[$key] = $record[$key];
-      }
-      // Update if available.
-      if ($this->load($keys)) {
-        return drupal_write_record($this->name, $record, $update);
-      }
-    }
-
-    // Otherwise insert.
-    return drupal_write_record($this->name, $record);
-  }
-
-  /**
-   * Delete from data table.
-   */
-  public function delete($keys) {
-    $where = $values = array();
-    $fields = $this->table_schema['fields'];
-    foreach ($keys as $key => $value) {
-      $where[] = db_escape_string($key) ." = ". db_type_placeholder($fields[$key]['type']);
-      $values[] = $value;
-    }
-    if (!empty($where)) {
-      db_query('DELETE FROM {'. db_escape_table($this->name) .'} WHERE '. implode(' AND ', $where), $values);
-    }
-  }
-
-  /**
-   * Empty data table.
-   */
-  public function truncate() {
-    db_query('TRUNCATE TABLE {'. db_escape_table($this->name) .'}');
   }
 }
