@@ -1,5 +1,7 @@
 $Id$
 
+Note: Data requires CTools 6.x-dev
+
 Data module
 ===========
 
@@ -44,10 +46,3 @@ RECOMMENDATIONS
 ===============
 
 Check out FeedAPI Data module for using Data as a storage engine for feed items.
-
-While data module does not have any dependencies, its full functionality is only
-available with Schema module and CTools. 
-
-If you use Schema module, use version 1.6 or higher.
-
-If you use CTools, apply http://drupal.org/node/531522#comment-2071608
