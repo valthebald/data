@@ -9,14 +9,6 @@
  * Overview over all tables.
  */
 function data_ui_overview() {
-  // Define CTools/export constants if they are not present.
-  if (!defined('EXPORT_IN_DATABASE')) {
-    define('EXPORT_IN_DATABASE', 0x01);
-  }
-  if (!defined('EXPORT_IN_CODE')) {
-    define('EXPORT_IN_CODE', 0x02);
-  }
-
   $tables = data_get_all_tables();
   $rows = array();
   foreach ($tables as $table) {
