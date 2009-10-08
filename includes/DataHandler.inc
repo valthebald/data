@@ -6,14 +6,14 @@
  */
 
 /**
- * Simple access methods to table data. Can be used on any table, not just Data 
+ * Simple access methods to table data. Can be used on any table, not just Data
  * managed tables.
  */
 class DataHandler {
 
   // Holds the name of the table that this handler is responsible for.
   public $table;
-  
+
   /**
    * Constructor, call indirectly through DataHandler::instance();
    */
@@ -64,6 +64,12 @@ class DataHandler {
 
   /**
    * Save one or more records to the table.
+   *
+   * If $update is given, DataHandler will try to load an item for the update
+   * and update it if present, otherwise it will insert data.
+   *
+   * @todo: revisit insert-if-update, this doesn't scale and has some data
+   * integrity problems.
    */
   public function save(&$record, $update = array()) {
     if (count($update)) {
