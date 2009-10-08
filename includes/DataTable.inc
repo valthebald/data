@@ -8,31 +8,31 @@
 /**
  * Manages data access and manipulation for a single data table.
  * Use data_create_table() or data_get_table() to instantiate an object from this class.
- * 
+ *
  * @see data_create_table().
  * @see data_get_table().
- * 
+ *
  * Usage:
- * 
+ *
  * Get an existing table.
- * 
+ *
  * $table = data_get_table('my_table');
- * 
+ *
  * If the table does not exist, create one.
  * if (!$table) {
  *  $table = data_create_table('my_table', $schema);
  * }
- * 
+ *
  * Save some data to it.
  * $handler = data_get_handler($table->get('name'));
  * $handler->save($data);
- * 
+ *
  * Remove the data from the table.
  * $handler->truncate();
- * 
+ *
  * Remove the table, but not the meta information about the table.
  * $table->drop();
- * 
+ *
  */
 class DataTable {
 
@@ -41,7 +41,7 @@ class DataTable {
   // @todo: change $name to $id.
   // Unfortunately drupal_write_record does not escape field names. $table_schema instead of $schema it is.
   protected $name, $title, $table_schema, $meta, $export_type;
-  
+
   /**
    * Instiate a DataTable object. Use this function instead of new DataTable.
    */
@@ -62,14 +62,16 @@ class DataTable {
     // Try to load table information.
     if ($table = _data_load_table($name)) {
       foreach (array('title', 'name', 'table_schema', 'meta', 'export_type') as $key) {
-        $this->$key = $table->$key;
+        if (isset($table->$key)) {
+          $this->$key = $table->$key;
+        }
       }
     }
   }
 
   /**
    * Create a table.
-   * 
+   *
    * Do not call directly but use data_create_table() instead.
    */
   public function create($table_schema) {
@@ -84,10 +86,10 @@ class DataTable {
         drupal_set_message(t('Error creating table.'), 'error');
         return FALSE;
       }
-  
+
       // If schema module is enabled, inspect and read back to make
-      // sure our schema information is up to date. 
-      // @todo: this is slow, maybe we need to make this an explicit method 
+      // sure our schema information is up to date.
+      // @todo: this is slow, maybe we need to make this an explicit method
       // on DataTable.
       if (module_exists('_schema')) {
         $schema = schema_invoke('inspect');
@@ -110,10 +112,10 @@ class DataTable {
         'table_schema' => $this->table_schema,
       );
       drupal_write_record('data_tables', $table);
-  
+
       // Clear caches.
       drupal_get_schema($this->name, TRUE);
-  
+
       return TRUE;
     }
     return FALSE;
@@ -121,10 +123,10 @@ class DataTable {
 
   /**
    * Determine whether a table is defined.
-   * 
-   * @return 
+   *
+   * @return
    *   TRUE if the table is defined, FALSE otherwise.
-   *   Note: If a table is defined it does not mean that it actually exists in the 
+   *   Note: If a table is defined it does not mean that it actually exists in the
    *   database.
    */
   public function defined() {
@@ -133,10 +135,12 @@ class DataTable {
 
   /**
    * Get a property of the DataTable object.
-   * 
+   *
+   * @todo: use __get()
+   *
    * @param $property
    *   One of 'name', 'title', 'table_schema', 'meta'.
-   * @return 
+   * @return
    *   The unserialized value of the property.
    */
   public function get($property) {
@@ -147,11 +151,11 @@ class DataTable {
 
   /**
    * Update table properties.
-   * 
+   *
    * @todo: make conditional, rename to save().
-   * 
-   * @param $properties 
-   *   Array where the key designates a property (one of 'name', 'title', 'table_schema', 'meta') 
+   *
+   * @param $properties
+   *   Array where the key designates a property (one of 'name', 'title', 'table_schema', 'meta')
    *   and the value is the unserialized value that this property should attain.
    */
   public function update($properties) {
@@ -165,11 +169,11 @@ class DataTable {
   }
 
   /**
-   * Compare this table's schema to schema of table in DB. 
+   * Compare this table's schema to schema of table in DB.
    * Requires schema module.
-   * 
-   * @return 
-   *   
+   *
+   * @return
+   *
    */
   public function compareSchema() {
     if (module_exists('schema')) {
@@ -180,7 +184,7 @@ class DataTable {
 
   /**
    * Add a field.
-   * 
+   *
    * @todo: Check wether field name is available, otherwise change.
    * @todo: Return false if not successful.
    */
@@ -193,7 +197,7 @@ class DataTable {
       $schema = $this->table_schema;
       $schema['fields'][$field] = $spec;
       $this->update(array('table_schema' => $schema));
-  
+
       // @todo: maybe move these cache clearing functions to their own method
       // and let take API users take care of caching.
       drupal_get_schema($this->name, TRUE);
@@ -204,7 +208,7 @@ class DataTable {
 
   /**
    * Add an index to table.
-   * 
+   *
    * @todo: support more than one field.
    */
   public function addIndex($field) {
@@ -358,7 +362,7 @@ class DataTable {
       $schema = $this->table_schema;
       $schema['fields'][$field] = $spec;
       $this->update(array('table_schema' => $schema));
-  
+
       drupal_get_schema($this->name, TRUE);
       return TRUE;
     }
@@ -378,7 +382,7 @@ class DataTable {
       $meta = $this->meta;
       unset($meta['fields'][$field]);
       $this->update(array('table_schema' => $schema), array('meta' => $meta));
-  
+
       drupal_get_schema($this->name, TRUE);
       return TRUE;
     }
@@ -387,8 +391,8 @@ class DataTable {
 
   /**
    * Drop a table. Does not drop a table if its defined in code.
-   * 
-   * @return 
+   *
+   * @return
    *   TRUE if the table was dropped, FALSE otherwise.
    */
   public function drop() {
@@ -396,7 +400,7 @@ class DataTable {
       db_drop_table($ret, $this->name);
       $this->update(array('table_schema' => array()));
       drupal_get_schema($this->name, TRUE);
-  
+
       db_query('DELETE FROM {data_tables} WHERE name = "%s"', $this->name);
       $this->title = '';
       $this->table_schema = $this->meta = array();
@@ -407,9 +411,9 @@ class DataTable {
 
   /**
    * Revert a table to its definition in code.
-   * 
+   *
    * Does not revert a table if it is not defined in code.
-   * 
+   *
    * @return
    *   TRUE if the table was reverted, FALSE otherwise.
    */
@@ -424,10 +428,10 @@ class DataTable {
   /**
    * Link this table to another table. Linking a table to another one is
    * to define how data in these tables should be joined to each other.
-   * 
+   *
    * There can be more than one link to the left of a table. However,
    * for views integration, only the first join created will be used.
-   * 
+   *
    * @todo: Get rid of link() language, use setJoin()/removeJoin() instead.
    */
   public function link($left_table, $left_field, $field = NULL, $inner_join = TRUE) {
