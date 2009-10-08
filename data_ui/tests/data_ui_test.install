@@ -13,6 +13,7 @@ function data_ui_test_install() {
  */
 function data_ui_test_schema() {
   // Pull defaults and expose schema to Drupal.
+  drupal_load('module', 'data_ui_test');
   $data_tables = data_ui_test_data_default();
   $schema = array();
   foreach ($data_tables as $name => $table) {
