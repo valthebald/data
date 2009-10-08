@@ -346,14 +346,11 @@ function data_build_field_definition($stub) {
  * Only available if ctools is installed.
  */
 function data_export($name, $indent = '') {
-  if (module_exists('ctools')) {
-    ctools_include('export');
-    $result = ctools_export_load_object('data_tables', 'names', array($name));
-    if (isset($result[$name])) {
-      return ctools_export_object('data_tables', $result[$name], $indent);
-    }
+  ctools_include('export');
+  $result = ctools_export_load_object('data_tables', 'names', array($name));
+  if (isset($result[$name])) {
+    return ctools_export_object('data_tables', $result[$name], $indent);
   }
-  return t('Export requires CTools http://drupal.org/project/ctools');
 }
 
 /**
