@@ -63,27 +63,52 @@ class DataHandler {
   }
 
   /**
+   * Insert a record.
+   *
+   * @see drupal_write_record().
+   *
+   * @param $record
+   *   An array that is the record to save to this handler's table.
+   */
+  public function insert(&$record) {
+    return drupal_write_record($this->table, $record);
+  }
+
+  /**
+   * Update a record.
+   *
+   * @see drupal_write_record().
+   *
+   * @param $record
+   *   An array that is the record to save to this handler's table.
+   * @param $update
+   *   A string or an array of strings that defines the keys to use for
+   *   this update.
+   */
+  public function update(&$record, $update) {
+    return drupal_write_record($this->table, $record, $update);
+  }
+
+  /**
    * Save one or more records to the table.
    *
-   * If $update is given, DataHandler will try to load an item for the update
-   * and update it if present, otherwise it will insert data.
+   * If $update is given, method will try to update before.
    *
-   * @todo: revisit insert-if-update, this doesn't scale and has some data
-   * integrity problems.
+   * This method is more comfortable, but slower than using insert() or
+   * update().
+   *
+   * @param $record
+   *   An array that is the record to save to this handler's table.
+   * @param
+   *   A string or an array of strings that defines the keys to use for
+   *   this update.
    */
   public function save(&$record, $update = array()) {
-    if (count($update)) {
-      $keys = array();
-      foreach ($update as $key) {
-        $keys[$key] = $record[$key];
-      }
-      // Update if available.
-      if ($this->load($keys)) {
-        return drupal_write_record($this->table, $record, $update);
+    if (is_string($update) || count($update)) {
+      if (SAVED_UPDATED != drupal_write_record($this->table, $record, $update)) {
+        return drupal_write_record($this->table, $record);
       }
     }
-
-    // Otherwise insert.
     return drupal_write_record($this->table, $record);
   }
 
@@ -101,6 +126,7 @@ class DataHandler {
     if (!empty($where)) {
       db_query('DELETE FROM {'. db_escape_table($this->table) .'} WHERE '. implode(' AND ', $where), $values);
     }
+    return db_affected_rows();
   }
 
   /**
