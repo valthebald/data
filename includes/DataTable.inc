@@ -116,6 +116,16 @@ class DataTable {
       // Clear caches.
       drupal_get_schema($this->name, TRUE);
 
+      // Have views read new views information about table.
+      if (module_exists('views')) {
+        views_invalidate_cache();
+      }
+
+      // data ui exposes path to a new default view.
+      if (module_exists('data_ui')) {
+        menu_rebuild();
+      }
+
       return TRUE;
     }
     return FALSE;
@@ -201,6 +211,10 @@ class DataTable {
       // @todo: maybe move these cache clearing functions to their own method
       // and let take API users take care of caching.
       drupal_get_schema($this->name, TRUE);
+      // Invalidate views caches to use new field immediately.
+      if (function_exists('views_invalidate_cache')) {
+        views_invalidate_cache();
+      }
       return $field;
     }
     return FALSE;
