@@ -29,7 +29,7 @@ function data_ui_menu() {
       'description' => 'Administer data tables.',
       'page callback' => 'data_ui_compare',
       'file' => 'data_ui.admin.inc',
-      'access arguments' => array('administer data tables'), 
+      'access arguments' => array('administer data tables'),
       'type' => MENU_LOCAL_TASK,
     );
     $items['admin/content/data/compare/%data_ui_table'] = array(
@@ -38,7 +38,7 @@ function data_ui_menu() {
       'page callback' => 'drupal_get_form',
       'page arguments' => array('data_ui_adjust_form', 4),
       'file' => 'data_ui.admin.inc',
-      'access arguments' => array('administer data tables'), 
+      'access arguments' => array('administer data tables'),
       'type' => MENU_LOCAL_TASK,
     );
   }
@@ -49,7 +49,7 @@ function data_ui_menu() {
     'page arguments' => array('data_ui_create_form'),
     'file' => 'data_ui.admin.inc',
     'access arguments' => array('administer data tables'),
-    'type' => MENU_CALLBACK, 
+    'type' => MENU_CALLBACK,
   );
   $items['admin/content/data/drop/%data_ui_table'] = array(
     'title' => 'Drop table',
@@ -58,7 +58,7 @@ function data_ui_menu() {
     'page arguments' => array('data_ui_drop_form', 4),
     'file' => 'data_ui.admin.inc',
     'access arguments' => array('administer data tables'),
-    'type' => MENU_CALLBACK, 
+    'type' => MENU_CALLBACK,
   );
   $items['admin/content/data/edit/%data_ui_table'] = array(
     'title' => 'Data table',
@@ -67,7 +67,7 @@ function data_ui_menu() {
     'page arguments' => array('data_ui_edit_form', 4),
     'file' => 'data_ui.admin.inc',
     'access arguments' => array('administer data tables'),
-    'type' => MENU_CALLBACK, 
+    'type' => MENU_CALLBACK,
   );
   // Optional paths.
   if (module_exists('views') || module_exists('devel')) {
@@ -85,7 +85,7 @@ function data_ui_menu() {
       'page arguments' => array('data_ui_views_form', 4),
       'file' => 'data_ui.admin.inc',
       'access arguments' => array('administer data tables'),
-      'type' => MENU_LOCAL_TASK, 
+      'type' => MENU_LOCAL_TASK,
     );
   }
   if (module_exists('devel')) {
@@ -96,7 +96,7 @@ function data_ui_menu() {
       'page arguments' => array(4),
       'file' => 'data_ui.admin.inc',
       'access arguments' => array('administer data tables'),
-      'type' => MENU_LOCAL_TASK, 
+      'type' => MENU_LOCAL_TASK,
     );
   }
   $items['admin/content/data/edit/%data_ui_table/join'] = array(
@@ -106,7 +106,7 @@ function data_ui_menu() {
     'page arguments' => array('data_ui_join_form', 4, 6),
     'file' => 'data_ui.admin.inc',
     'access arguments' => array('administer data tables'),
-    'type' => MENU_CALLBACK, 
+    'type' => MENU_CALLBACK,
   );
   $items['admin/content/data/revert/%data_ui_table'] = array(
     'title' => 'Revert data table',
@@ -115,7 +115,7 @@ function data_ui_menu() {
     'page arguments' => array('data_ui_revert_form', 4),
     'file' => 'data_ui.admin.inc',
     'access arguments' => array('administer data tables'),
-    'type' => MENU_CALLBACK, 
+    'type' => MENU_CALLBACK,
   );
   $items['admin/content/data/export/%data_ui_table'] = array(
     'title' => 'Data table',
@@ -124,7 +124,7 @@ function data_ui_menu() {
     'page arguments' => array('data_ui_export_form', 4),
     'file' => 'data_ui.admin.inc',
     'access arguments' => array('administer data tables'),
-    'type' => MENU_CALLBACK, 
+    'type' => MENU_CALLBACK,
   );
   return $items;
 }
