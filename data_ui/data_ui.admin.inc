@@ -71,9 +71,9 @@ function data_ui_compare() {
 }
 
 /**
- * Adjust table schema form: Present the user with the difference between schema information and 
- * the actual schema in the Database and offer three options: 
- * 
+ * Adjust table schema form: Present the user with the difference between schema information and
+ * the actual schema in the Database and offer three options:
+ *
  * - Adjust schema info,
  * - adjust database or
  * - leave it.
@@ -110,8 +110,8 @@ function data_ui_adjust_form(&$form_state, $table) {
       '#title' => t('Option 2: Alter table'),
       );
     $form['alter_table']['description'] = array(
-      '#value' => t('<p>Review the changes above carefully! 
-        This option will alter the database table and can very 
+      '#value' => t('<p>Review the changes above carefully!
+        This option will alter the database table and can very
         easily cause data loss.</p>'),
     );
     $form['alter_table']['submit'] = array(
@@ -249,16 +249,16 @@ function data_ui_create_form(&$form_state) {
  */
 function data_ui_create_form_validate($form, &$form_state) {
   if (data_get_table(data_name($form_state['values']['name']))) {
-    form_set_error('name', t('Name is already taken.')); 
+    form_set_error('name', t('Name is already taken.'));
   }
   if (isset($form_state['values']['field_num'])) {
     if (is_numeric($form_state['values']['field_num'])) {
       if ($form_state['values']['field_num'] < 1) {
-        form_set_error('field_num', t('At least one field must be created.')); 
+        form_set_error('field_num', t('At least one field must be created.'));
       }
     }
     else {
-      form_set_error('field_num', t('Enter a number greater than 0.')); 
+      form_set_error('field_num', t('Enter a number greater than 0.'));
     }
   }
   // Check for dupes.
@@ -375,7 +375,7 @@ function data_ui_edit_form(&$form_state, $table) {
   drupal_set_title(t('Data table !table', array('!table' => $table->get('name'))));
   $schema = $table->get('table_schema');
   $meta = $table->get('meta');
-  
+
   $form = array();
   // Keep table.
   $form['table'] = array(
@@ -504,7 +504,7 @@ function data_ui_edit_form_submit($form, &$form_state) {
       }
       if (!$table->changePrimaryKey($new_primary_key)) {
         drupal_set_message(t('Error changing primary key'), 'error');
-        
+
       }
 
       // Update meta data.
@@ -688,7 +688,7 @@ function data_ui_join_form(&$form_state, $table, $field_name) {
     '#submit' => array('data_ui_join_form_submit_delete'),
   );
   krsort($form['actions']);
-  
+
   return $form;
 }
 
@@ -724,7 +724,7 @@ function data_ui_export_form(&$form_state, $table) {
   );
   return $form;
 }
- 
+
 /**
  * View table with krumo().
  */
@@ -744,7 +744,7 @@ function theme_data_ui_create_form($form) {
     $rows = array();
     foreach (element_children($form['fields']) as $e) {
       $row = array();
-      foreach (element_children($form['fields'][$e]) as $f) {    
+      foreach (element_children($form['fields'][$e]) as $f) {
         $row[] = drupal_render($form['fields'][$e][$f]);
       }
       $rows[] = $row;
@@ -767,7 +767,7 @@ function theme_data_ui_edit_form($form) {
   $rows = array();
   foreach (element_children($form['fields']) as $e) {
     $row = array();
-    foreach (element_children($form['fields'][$e]) as $f) { 
+    foreach (element_children($form['fields'][$e]) as $f) {
       $row[] = drupal_render($form['fields'][$e][$f]);
     }
     $row[] = '&nbsp;';
@@ -782,7 +782,7 @@ function theme_data_ui_edit_form($form) {
   $rows[] = $row;
 
   $header = array(t('Select'), t('Name'), t('Label'), t('Type'), t('Size'), t('Unsigned'), t('Index'), t('Primary key'), t('Joins'));
-  $output .= theme('table', $header, $rows);
+  $output = theme('table', $header, $rows);
   $output .= drupal_render($form);
   return $output;
 }
@@ -796,7 +796,7 @@ function theme_data_ui_views_form($form) {
   $rows = array();
   foreach (element_children($form['fields']) as $e) {
     $row = array();
-    foreach (element_children($form['fields'][$e]) as $f) { 
+    foreach (element_children($form['fields'][$e]) as $f) {
       $row[] = drupal_render($form['fields'][$e][$f]);
     }
     $row[] = '&nbsp;';
@@ -811,7 +811,7 @@ function theme_data_ui_views_form($form) {
 
 /**
  * Theme a schema module comparison result. Ie. the result of schema_compare_table().
- * 
+ *
  * @todo: move to schema module - write a patch.
  */
 function theme_data_ui_schema_compare_table($comparison) {
@@ -839,9 +839,9 @@ function theme_data_ui_schema_compare_table($comparison) {
 /**
  * Magic helper function. Detect changed between keys in $new and $field
  * and return a new field spec based on $field IF there are differences.
- * 
+ *
  * Otherwise return FALSE.
- * 
+ *
  * Currently checked: type, unsigned
  */
 function _data_ui_changed($new, $field) {
