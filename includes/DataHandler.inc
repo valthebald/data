@@ -12,7 +12,7 @@
 class DataHandler {
 
   // Holds the name of the table that this handler is responsible for.
-  public $table;
+  protected $table;
 
   /**
    * Constructor, call indirectly through DataHandler::instance();
@@ -33,6 +33,13 @@ class DataHandler {
       $handlers[$table] = new DataHandler($table);
     }
     return $handlers[$table];
+  }
+
+  /**
+   * Getter.
+   */
+  public function __get($name) {
+    return $this->$name;
   }
 
   /**
