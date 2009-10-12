@@ -47,7 +47,7 @@ function data_search_admin_form_submit(&$form, &$form_state) {
     }
   }
   $table->update(array('meta' => $meta));
-  views_invalidate_cache();  
+  views_invalidate_cache();
 }
 
 /**

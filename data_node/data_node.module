@@ -94,7 +94,7 @@ function data_node_menu() {
     'page arguments' => array('data_node_settings_form', 4),
     'file' => 'data_node.admin.inc',
     'access arguments' => array('administer data tables'),
-    'type' => MENU_LOCAL_TASK, 
+    'type' => MENU_LOCAL_TASK,
   );
   return $items;
 }
@@ -224,7 +224,7 @@ function data_node_active_form_create_submit($form, &$form_state) {
 
 /**
  * Page callback for adding.
- * 
+ *
  * @todo: add tokenizing drupal_valid_token/drupal_get_token to prevent XSS
  */
 function data_node_add_page($table, $id, $nid, $token) {
@@ -278,7 +278,7 @@ function data_node_active_page($table, $nid) {
 
 /**
  * Page callback for removing.
- * 
+ *
  * @todo: add tokenizing drupal_valid_token/drupal_get_token to prevent XSS
  */
 function data_node_remove_page($table, $id, $nid, $token) {

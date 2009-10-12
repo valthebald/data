@@ -11,7 +11,7 @@
 function data_node_schema() {
   $schema = array();
   $schema['data_table_node'] = array(
-    'description' => 'Relate data records to nodes', 
+    'description' => 'Relate data records to nodes',
     'fields' => array(
       'nid' => array(
         'type' => 'int',
