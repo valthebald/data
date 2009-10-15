@@ -111,7 +111,7 @@ function data_ui_views_default_views() {
     $handler->override_option('path', data_ui_get_default_path($table->get('name')));
     $handler->override_option('menu', array(
       'type' => 'normal',
-      'title' => $table->get('name'),
+      'title' => $table->get('title'),
       'description' => '',
       'weight' => '0',
       'name' => 'navigation',

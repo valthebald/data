@@ -6,9 +6,33 @@
  */
 
 /**
- * Overview over all tables.
+ * List all tables for viewing content.
  */
-function data_ui_overview() {
+function data_ui_view() {
+  $tables = data_get_all_tables();
+  $rows = array();
+  foreach ($tables as $table) {
+    $row = array(
+      $table->get('title'),
+      $table->get('name'),
+      db_result(db_query('SELECT COUNT(*) FROM {'. db_escape_table($table->get('name')) .'}')),
+    );
+    if (module_exists('views')) {
+      $row[] = l(t('View'), data_ui_get_default_path($table->get('name')));
+    }
+    $rows[] = $row;
+  }
+  $header = array(t('Title'), t('Name'), t('Number of rows'));
+  if (module_exists('views')) {
+    $header[] = '&nbsp;';
+  }
+  return theme('table', $header, $rows);
+}
+
+/**
+ * Main page for data table management.
+ */
+function data_ui_manage() {
   $tables = data_get_all_tables();
   $rows = array();
   foreach ($tables as $table) {
@@ -16,20 +40,20 @@ function data_ui_overview() {
     $operations = array();
     if ($table->get('export_type') == EXPORT_IN_CODE) {
       $status = t('Default');
-      $operations[] = l(t('Override'), 'admin/content/data/edit/'. $table->get('name'));
+      $operations[] = l(t('Override'), 'admin/content/build/edit/'. $table->get('name'));
     }
     else if ($table->get('export_type') == (EXPORT_IN_CODE | EXPORT_IN_DATABASE)) {
       $status = t('Overridden');
-      $operations[] = l(t('Edit'), 'admin/content/data/edit/'. $table->get('name'));
-      $operations[] = l(t('Revert'), 'admin/content/data/revert/'. $table->get('name'));
+      $operations[] = l(t('Edit'), 'admin/build/data/edit/'. $table->get('name'));
+      $operations[] = l(t('Revert'), 'admin/build/data/revert/'. $table->get('name'));
     }
     else {
       $status = t('Normal');
-      $operations[] = l(t('Edit'), 'admin/content/data/edit/'. $table->get('name'));
-      $operations[] = l(t('Drop'), 'admin/content/data/drop/'. $table->get('name'));
+      $operations[] = l(t('Edit'), 'admin/build/data/edit/'. $table->get('name'));
+      $operations[] = l(t('Drop'), 'admin/build/data/drop/'. $table->get('name'));
     }
     if (module_exists('ctools')) {
-      $operations[] = l(t('Export'), 'admin/content/data/export/'. $table->get('name'));
+      $operations[] = l(t('Export'), 'admin/build/data/export/'. $table->get('name'));
     }
 
     $row = array();
@@ -40,7 +64,7 @@ function data_ui_overview() {
     $rows[] = $row;
   }
   $rows[] = array(
-    l(t('Create new table'), 'admin/content/data/create'),
+    l(t('Create new table'), 'admin/build/data/create'),
     '&nbsp;',
     '&nbsp;',
   );
@@ -60,7 +84,7 @@ function data_ui_compare() {
     $row[] = $table->get('name');
     $status = $comp['status'];
     if ($status != 'same') {
-      $status .= ' - '. l(t('adjust'), 'admin/content/data/compare/'. $table->get('name'));
+      $status .= ' - '. l(t('adjust'), 'admin/build/data/compare/'. $table->get('name'));
     }
     $row[] = $status;
     $row[] = empty($comp['warning']) ? '-' : $comp['warning'];
@@ -83,7 +107,7 @@ function data_ui_adjust_form(&$form_state, $table) {
   $comparison = $table->compareSchema();
 
   $form = array();
-  $form['#redirect'] = 'admin/content/data/compare';
+  $form['#redirect'] = 'admin/build/data/compare';
   $form['#table'] = $table;
   $form['#comparison'] = $comparison;
   $form['comparison'] = array(
@@ -215,6 +239,7 @@ function data_ui_create_form(&$form_state) {
       '#type' => 'textfield',
       '#title' => t('Table title'),
       '#description' => t('Natural name of the table - e. g. "My Table".'),
+      '#required' => TRUE,
     );
     $form['field_num'] = array(
       '#type' => 'textfield',
@@ -316,7 +341,7 @@ function data_ui_create_form_submit($form, &$form_state) {
 
     // Unset storage to enable redirect.
     unset($form_state['storage']);
-    $form_state['redirect'] = 'admin/content/data';
+    $form_state['redirect'] = 'admin/build/data';
   }
 }
 
@@ -325,12 +350,12 @@ function data_ui_create_form_submit($form, &$form_state) {
  */
 function data_ui_revert_form(&$form_state, $table) {
   $form = array();
-  $form['#redirect'] = 'admin/content/data';
+  $form['#redirect'] = 'admin/build/data';
   $form['#table'] = $table;
 
   return confirm_form($form,
     t('Revert this table?'),
-    'admin/content/data',
+    'admin/build/data',
     t('Are you sure you would like to revert table !table? This will reset all information about this table its definition in code. This action cannot be undone.', array('!table' => $table->get('name'))),
     t('Revert'), t('Cancel')
   );
@@ -349,12 +374,12 @@ function data_ui_revert_form_submit($form, &$form_state) {
  */
 function data_ui_drop_form(&$form_state, $table) {
   $form = array();
-  $form['#redirect'] = 'admin/content/data';
+  $form['#redirect'] = 'admin/build/data';
   $form['#table'] = $table;
 
   return confirm_form($form,
     t('Drop this table?'),
-    'admin/content/data',
+    'admin/build/data',
     t('Are you sure you would like to drop table !table? This action cannot be undone.', array('!table' => $table->get('name'))),
     t('Drop'), t('Cancel')
   );
@@ -425,7 +450,7 @@ function data_ui_edit_form(&$form_state, $table) {
       else {
         $join = t('<none>');
       }
-      $join = l($join, 'admin/content/data/edit/'. $table->get('name') .'/join/'.$field_name);
+      $join = l($join, 'admin/build/data/edit/'. $table->get('name') .'/join/'.$field_name);
       $form['fields'][$field_name]['join']['#value'] = $join;
     }
   }
@@ -472,7 +497,7 @@ function data_ui_edit_form_submit($form, &$form_state) {
   if (!db_table_exists($table->get('name'))) {
     drupal_set_message(t('Table does not exist in database.'), 'error');
     if (module_exists('schema')) {
-      drupal_set_message(t('Go to !compare to resolve conflicts.', array('!compare' => l(t('Compare schemas'), 'admin/content/data/compare'))), 'error');
+      drupal_set_message(t('Go to !compare to resolve conflicts.', array('!compare' => l(t('Compare schemas'), 'admin/build/data/compare'))), 'error');
     }
     return;
   }
@@ -639,7 +664,7 @@ function data_ui_join_form(&$form_state, $table, $field_name) {
   // Validate input.
   if (!isset($field_name) || !isset($schema['fields'][$field_name])) {
     drupal_set_message(t('Invalid field.'), 'error');
-    drupal_goto('admin/content/data/edit/'. $table->get('name'));
+    drupal_goto('admin/build/data/edit/'. $table->get('name'));
   }
 
   // List all tables that schema API knows about as optoins.
@@ -659,7 +684,7 @@ function data_ui_join_form(&$form_state, $table, $field_name) {
   $form = array();
   $form['#table'] = $table;
   $form['#field_name'] = $field_name;
-  $form['#redirect'] = 'admin/content/data/edit/'. $table->get('name');
+  $form['#redirect'] = 'admin/build/data/edit/'. $table->get('name');
   $join = _data_ui_get_join($meta['join'], $field_name);
   $form['#original_join'] = $join;
   $form['left'] = array(
@@ -678,7 +703,7 @@ function data_ui_join_form(&$form_state, $table, $field_name) {
   // Use confirm form for its formatting.
   $form = confirm_form($form,
     t('Join field'),
-    'admin/content/data/edit/'. $table->get('name'),
+    'admin/build/data/edit/'. $table->get('name'),
     '',
     t('Save'), t('Cancel')
   );
