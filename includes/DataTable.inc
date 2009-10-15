@@ -196,7 +196,6 @@ class DataTable {
    * Add a field.
    *
    * @todo: Check wether field name is available, otherwise change.
-   * @todo: Return false if not successful.
    */
   public function addField($field, $spec) {
 
