@@ -36,6 +36,7 @@ function data_node_schema() {
       'nid' => array('nid'),
       'data_table_name' => array('data_table_name'),
       'id' => array('id'),
+      'name_id' => array('data_table_name', 'id'),
     ),
     'primary key' => array('nid', 'data_table_name', 'id'),
   );
@@ -54,4 +55,13 @@ function data_node_install() {
  */
 function data_node_uninstall() {
   drupal_uninstall_schema('data_node');
+}
+
+/**
+ * Add an index to id and name.
+ */
+function data_node_update_6001() {
+  $ret = array();
+  db_add_index($ret, 'data_table_node', 'name_id', array('data_table_name', 'id'));
+  return $ret;
 }
