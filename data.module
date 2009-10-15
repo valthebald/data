@@ -362,7 +362,7 @@ function _data_load_table($name = NULL, $reset = FALSE) {
     ctools_static_reset('ctools_export_load_object');
     ctools_static_reset('ctools_export_load_object_all');
   }
-  if (empty($name)) {
+  if ($name === NULL) {
     return ctools_export_load_object('data_tables', 'all', array());
   }
   else {
