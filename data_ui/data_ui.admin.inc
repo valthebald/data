@@ -57,6 +57,7 @@ function data_ui_manage() {
     }
 
     $row = array();
+    $row[] = $table->get('title');
     $row[] = $table->get('name');
     $row[] = $status;
     $row[] = implode(' | ', $operations);
@@ -67,8 +68,9 @@ function data_ui_manage() {
     l(t('Create new table'), 'admin/build/data/create'),
     '&nbsp;',
     '&nbsp;',
+    '&nbsp;',
   );
-  $header = array(t('Name'), t('Status'), t('Operations'));
+  $header = array(t('Title'), t('Name'), t('Status'), t('Operations'));
   return theme('table', $header, $rows);
 }
 
@@ -397,7 +399,8 @@ function data_ui_drop_form_submit($form, &$form_state) {
  * Form callback for editing a table.
  */
 function data_ui_edit_form(&$form_state, $table) {
-  drupal_set_title(t('Data table !table', array('!table' => $table->get('name'))));
+  drupal_set_title($table->get('title'));
+
   $schema = $table->get('table_schema');
   $meta = $table->get('meta');
 
@@ -444,7 +447,7 @@ function data_ui_edit_form(&$form_state, $table) {
         '#type' => 'checkbox',
         '#default_value' => isset($schema['primary key']) ? in_array($field_name, $schema['primary key']) : FALSE,
       );
-      if ($join = _data_ui_get_join($meta['join'], $field_name)) {
+      if (isset($meta['join']) && $join = _data_ui_get_join($meta['join'], $field_name)) {
         $join = $join['left_table'] .'.'. $join['left_field'];
       }
       else {
@@ -587,9 +590,40 @@ function data_ui_edit_form_submit($form, &$form_state) {
 }
 
 /**
+ * Edit title form.
+ */
+function data_ui_edit_title_form(&$form_state, $table) {
+  drupal_set_title($table->get('title'));
+
+  $form = array();
+  $form['#table'] = $table;
+  // Table title.
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#description' => t('Natural name of the table.'),
+    '#default_value' => $table->get('title'),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+  return $form;
+}
+
+/**
+ * Submit handler for data_ui_edit_title_form().
+ */
+function data_ui_edit_title_form_submit($form, &$form_state) {
+  $form['#table']->update(array('title' => $form_state['values']['title']));
+}
+
+/**
  * Views handler configuration form.
  */
 function data_ui_views_form(&$form_state, $table) {
+  drupal_set_title($table->get('title'));
+
   module_load_include('inc', 'data', 'data.views');
 
   $schema = $table->get('table_schema');
@@ -754,7 +788,14 @@ function data_ui_export_form(&$form_state, $table) {
  * View table with krumo().
  */
 function data_ui_view_schema($table) {
-  return kprint_r($table->get('table_schema'), TRUE);
+  drupal_set_title($table->get('title'));
+  $output = '<H3>'. t('Schema') .'</H3>';
+  $output .= kprint_r($table->get('table_schema'), TRUE);
+  if ($meta = $table->get('meta')) {
+    $output .= '<H3>'. t('Meta info') .'</H3>';
+    $output .= kprint_r($table->get('meta'), TRUE);
+  }
+  return $output;
 }
 
 /**
@@ -829,7 +870,7 @@ function theme_data_ui_views_form($form) {
   }
 
   $header = array(t('Name'), t('Field handler'), t('Filter handler'), t('Argument handler'), t('Sort handler'));
-  $output .= theme('table', $header, $rows);
+  $output = theme('table', $header, $rows);
   $output .= drupal_render($form);
   return $output;
 }

@@ -90,14 +90,21 @@ function data_ui_menu() {
     'access arguments' => array('administer data tables'),
     'type' => MENU_CALLBACK,
   );
-  // Optional paths.
-  if (module_exists('views') || module_exists('devel')) {
-    $items['admin/build/data/edit/%data_ui_table/edit'] = array(
-      'title' => 'Edit schema',
-      'type' => MENU_DEFAULT_LOCAL_TASK,
-      'weight' => -10,
-    );
-  }
+  $items['admin/build/data/edit/%data_ui_table/edit'] = array(
+    'title' => 'Edit schema',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['admin/build/data/edit/%data_ui_table/title'] = array(
+    'title' => 'Edit title',
+    'description' => 'Edit the title of the table.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('data_ui_edit_title_form', 4),
+    'file' => 'data_ui.admin.inc',
+    'access arguments' => array('administer data tables'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -9,
+  );
   if (module_exists('views')) {
     $items['admin/build/data/edit/%data_ui_table/views'] = array(
       'title' => 'Configure views',
@@ -111,13 +118,14 @@ function data_ui_menu() {
   }
   if (module_exists('devel')) {
     $items['admin/build/data/edit/%data_ui_table/view-schema'] = array(
-      'title' => 'View schema',
+      'title' => 'Devel load',
       'description' => 'Administer data tables.',
       'page callback' => 'data_ui_view_schema',
       'page arguments' => array(4),
       'file' => 'data_ui.admin.inc',
       'access arguments' => array('administer data tables'),
       'type' => MENU_LOCAL_TASK,
+      'weight' => 10,
     );
   }
   $items['admin/build/data/edit/%data_ui_table/join'] = array(
@@ -155,6 +163,13 @@ function data_ui_menu() {
  */
 function data_ui_table_load($table_name) {
   return data_get_table($table_name);
+}
+
+/**
+ * Title callback.
+ */
+function data_ui_title($title) {
+  return t('Edit table !table', array('!table' => $table->get('title')));
 }
 
 /**

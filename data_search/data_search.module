@@ -6,7 +6,7 @@
  */
 function data_search_menu() {
   $items = array();
-  $items['admin/content/data/edit/%data_ui_table/search'] = array(
+  $items['admin/build/data/edit/%data_ui_table/search'] = array(
     'title' => 'Configure search',
     'description' => 'Administer data tables.',
     'page callback' => 'drupal_get_form',

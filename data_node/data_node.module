@@ -87,7 +87,7 @@ function data_node_menu() {
     'access arguments' => array('manage data relations'),
     'type' => MENU_CALLBACK,
     );
-  $items['admin/content/data/edit/%data_ui_table/node'] = array(
+  $items['admin/build/data/edit/%data_ui_table/node'] = array(
     'title' => 'Relate to nodes',
     'description' => 'Administer data tables.',
     'page callback' => 'drupal_get_form',

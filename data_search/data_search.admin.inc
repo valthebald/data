@@ -5,6 +5,8 @@
  * Views handler configuration form.
  */
 function data_search_admin_form(&$form_state, $table) {
+  drupal_set_title($table->get('title'));
+
   $schema = $table->get('table_schema');
   $meta = $table->get('meta');
 
@@ -66,7 +68,7 @@ function theme_data_search_admin_form($form) {
   }
 
   $header = array(t('Name'), t('Search index'));
-  $output .= theme('table', $header, $rows);
+  $output = theme('table', $header, $rows);
   $output .= drupal_render($form);
   return $output;
 }
