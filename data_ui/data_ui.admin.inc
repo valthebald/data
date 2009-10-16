@@ -434,7 +434,7 @@ function data_ui_edit_form(&$form_state, $table) {
       );
       $form['fields'][$field_name]['unsigned'] = array(
         '#type' => 'checkbox',
-        '#default_value' => $field['unsigned'],
+        '#default_value' => isset($field['unsigned']) ? $field['unsigned'] : FALSE,
       );
       $form['fields'][$field_name]['index'] = array(
         '#type' => 'checkbox',
