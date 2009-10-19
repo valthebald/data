@@ -40,7 +40,7 @@ function data_ui_manage() {
     $operations = array();
     if ($table->get('export_type') == EXPORT_IN_CODE) {
       $status = t('Default');
-      $operations[] = l(t('Override'), 'admin/content/build/edit/'. $table->get('name'));
+      $operations[] = l(t('Override'), 'admin/build/data/edit/'. $table->get('name'));
     }
     else if ($table->get('export_type') == (EXPORT_IN_CODE | EXPORT_IN_DATABASE)) {
       $status = t('Overridden');
