@@ -129,6 +129,9 @@ function data_search_search($op = 'search', $keys = NULL) {
  * if all items that have been deleted from table $table should be wiped. In
  * this case, data_search_wipe() is faster than search_wipe().
  *
+ * Note: Like search_wipe(), this function does not reset the word counts in
+ * search_total.
+ *
  * @param $table
  *   DataTable object.
  */
