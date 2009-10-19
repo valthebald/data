@@ -12,6 +12,11 @@ function data_search_admin_form(&$form_state, $table) {
 
   $form = array();
 
+  if (count($schema['primary key']) != 1) {
+    drupal_set_message(t('Only tables with a single-field primary key can be indexed.'), 'error');
+    return $form;
+  }
+
   // Keep table.
   $form['#table'] = $table;
 

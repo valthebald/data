@@ -30,6 +30,22 @@ function data_search_theme() {
 }
 
 /**
+ * Implementation of hook_cron().
+ *
+ * Wipe all orphaned search records.
+ *
+ * @todo: Move clean up of deleted records into DataHandler::delete() once there
+ * is a build query > alter query > execute query pattern implemented.
+ */
+function data_search_cron() {
+  $tables = data_search_get_tables();
+
+  foreach ($tables as $table) {
+    data_search_wipe($table);
+  }
+}
+
+/**
  * Implementation of hook_views_data_alter().
  */
 function data_search_views_data_alter(&$data) {
@@ -106,6 +122,23 @@ function data_search_search($op = 'search', $keys = NULL) {
       }
       return array('remaining' => $remaining, 'total' => $total);
   }
+}
+
+/**
+ * Wipe all orphaned entries for given Data table. Use instead of search_wipe()
+ * if all items that have been deleted from table $table should be wiped. In
+ * this case, data_search_wipe() is faster than search_wipe().
+ *
+ * @param $table
+ *   DataTable object.
+ */
+function data_search_wipe($table) {
+  $schema = $table->get('table_schema');
+  $name = db_escape_table($table->get('name'));
+  $field = db_escape_string(current($schema['primary key']));
+
+  db_query("DELETE s FROM {search_dataset} s LEFT JOIN {{$name}} t ON s.sid = t.$field WHERE s.type = '%s' AND t.$field IS NULL", $table->get('name'));
+  db_query("DELETE s FROM {search_index} s LEFT JOIN {{$name}} t ON s.sid = t.$field WHERE s.type = '%s' AND t.$field IS NULL", $table->get('name'));
 }
 
 /**
