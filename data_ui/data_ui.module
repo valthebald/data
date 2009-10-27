@@ -14,7 +14,12 @@ function data_ui_help($path, $arg) {
       $output = '<p>'. t('View content in data tables. If you would like to edit these tables, visit the !data_manage_page.', array('!data_manage_page' => l(t('Data table management page'), 'admin/build/data'))) .'</p>';
       return $output;
     case 'admin/build/data':
-      $output = '<p>'. t('Manage data tables. If you would like to view the content of these tables, visit the !data_view_page.', array('!data_view_page' => l(t('Data table content page'), 'admin/content/data'))) .'</p>';
+      if (module_exists('views')) {
+        $output = '<p>'. t('Manage data tables. If you would like to view the content of these tables, visit the !data_view_page.', array('!data_view_page' => l(t('Data table content page'), 'admin/content/data'))) .'</p>';
+      }
+      else {
+        $output = '<p>'. t('Manage data tables.') .'</p>';
+      }
       return $output;
   }
 }
@@ -24,13 +29,15 @@ function data_ui_help($path, $arg) {
  */
 function data_ui_menu() {
   $items = array();
-  $items['admin/content/data'] = array(
-    'title' => 'Data tables',
-    'description' => 'View data tables.',
-    'page callback' => 'data_ui_view',
-    'file' => 'data_ui.admin.inc',
-    'access arguments' => array('administer data tables'),
-  );
+  if (module_exists('views')) {
+    $items['admin/content/data'] = array(
+      'title' => 'Data tables',
+      'description' => 'View data tables.',
+      'page callback' => 'data_ui_view',
+      'file' => 'data_ui.admin.inc',
+      'access arguments' => array('administer data tables'),
+    );
+  }
   $items['admin/build/data'] = array(
     'title' => 'Data tables',
     'description' => 'Create, modify and delete data tables.',
