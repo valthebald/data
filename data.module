@@ -329,6 +329,7 @@ function data_build_field_definition($stub) {
   }
   if ($spec['type'] == 'varchar') {
     $spec['length'] = 255;
+    unset($spec['size']);
   }
   return $spec;
 }
