@@ -91,7 +91,7 @@ class DataTable {
       // sure our schema information is up to date.
       // @todo: this is slow, maybe we need to make this an explicit method
       // on DataTable.
-      if (module_exists('_schema')) {
+      if (module_exists('schema')) {
         $schema = schema_invoke('inspect');
         if (isset($schema[$this->name])) {
           $table_schema = $schema[$this->name];
