@@ -132,6 +132,36 @@ class DataTable {
   }
 
   /**
+   * Let Data manage a table that already exists in the database.
+   *
+   * Uses the $name property of the object to determine which database table to
+   * adopt.
+   *
+   * @return
+   *   TRUE if the table was successfully adopted; FALSE if the table was
+   *   already known to Data, if the query failed, or if Schema isn't available.
+   */
+  public function adopt() {
+    if ($this->defined() || !module_exists('schema')) {
+      return FALSE;
+    }
+
+    $schema = schema_invoke('inspect', $this->name);
+    if (isset($schema[$this->name])) {
+      $table = array(
+        'name' => $this->name,
+        'title' => data_natural_name($this->name),
+        'table_schema' => $schema[$this->name],
+      );
+      if (drupal_write_record('data_tables', $table)) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
    * Determine whether a table is defined.
    *
    * @return
@@ -207,8 +237,7 @@ class DataTable {
       $schema['fields'][$field] = $spec;
       $this->update(array('table_schema' => $schema));
 
-      // @todo: maybe move these cache clearing functions to their own method
-      // and let take API users take care of caching.
+      // @todo: use clearCaches().
       drupal_get_schema($this->name, TRUE);
       // Invalidate views caches to use new field immediately.
       if (function_exists('views_invalidate_cache')) {
@@ -472,5 +501,22 @@ class DataTable {
    */
   public function handler() {
     return data_get_handler($this->name);
+  }
+
+  /**
+   * Clear relevant caches. Call after operations that create, delete or modify
+   * tables.
+   */
+  public static function clearCaches() {
+    // Clear the schema cache.
+    drupal_get_schema(NULL, TRUE);
+    // Have views read new views information about table.
+    if (module_exists('views')) {
+      views_invalidate_cache();
+    }
+    // data ui exposes path to a new default view.
+    if (module_exists('data_ui')) {
+      menu_rebuild();
+    }
   }
 }

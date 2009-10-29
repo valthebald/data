@@ -226,6 +226,60 @@ function data_ui_adjust_form_submit_create_table($form, &$form_state) {
 }
 
 /**
+ * Form callback for adopt table form.
+ *
+ * 'Orphaned' tables are database tables that don't have an active schema
+ * definition.
+ */
+function data_ui_adopt_form($form_state) {
+  $form = array();
+
+  // Compile a list of orphaned tables.
+  $drupal_schema = drupal_get_schema(NULL, TRUE);
+  $db_schema = schema_invoke('inspect');
+  $orphaned_tables = array();
+  foreach ($db_schema as $name => $table) {
+    if (!isset($drupal_schema[$name])) {
+      $orphaned_tables[$name] = $name;
+    }
+  }
+
+  $form['orphaned_tables'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Orphaned Tables'),
+    '#options' => $orphaned_tables,
+  );
+  if (count($orphaned_tables) < 1) {
+    $form['no_orphaned_tables'] = array(
+      '#type' => 'item',
+      '#value' => t('There are no orphaned tables in your database.'),
+    );
+  }
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Adopt',
+  );
+  return $form;
+}
+
+/**
+ * Submit handler for adopt table form.
+ */
+function data_ui_adopt_form_submit($form, &$form_state) {
+  data_include('DataTable');
+  $tables = array_keys(array_filter($form_state['values']['orphaned_tables']));
+  foreach ($tables as $table_name) {
+    $table = DataTable::instance($table_name);
+    $table->adopt();
+    unset($table);
+  }
+
+  DataTable::clearCaches();
+
+  $form_state['redirect'] = 'admin/build/data';
+}
+
+/**
  * Form callback for create table form.
  */
 function data_ui_create_form(&$form_state) {

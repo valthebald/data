@@ -13,6 +13,9 @@ function data_ui_help($path, $arg) {
     case 'admin/content/data':
       $output = '<p>'. t('View content in data tables. If you would like to edit these tables, visit the !data_manage_page.', array('!data_manage_page' => l(t('Data table management page'), 'admin/build/data'))) .'</p>';
       return $output;
+    case 'admin/build/data/adopt':
+      $output = '<p>' . t('Manage database tables that aren\'t claimed by other modules. Adopting tables listed here will add them to Data\'s list of tables.') . '</p>';
+      return $output;
     case 'admin/build/data':
       if (module_exists('views')) {
         $output = '<p>'. t('Manage data tables. If you would like to view the content of these tables, visit the !data_view_page.', array('!data_view_page' => l(t('Data table content page'), 'admin/content/data'))) .'</p>';
@@ -68,6 +71,16 @@ function data_ui_menu() {
       'file' => 'data_ui.admin.inc',
       'access arguments' => array('administer data tables'),
       'type' => MENU_LOCAL_TASK,
+    );
+    $items['admin/build/data/adopt'] = array(
+      'title' => 'Adopt tables',
+      'description' => 'Adopt data tables that aren\'t claimed by any module.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('data_ui_adopt_form'),
+      'file' => 'data_ui.admin.inc',
+      'access arguments' => array('administer data tables'),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 10,
     );
   }
   $items['admin/build/data/create'] = array(
