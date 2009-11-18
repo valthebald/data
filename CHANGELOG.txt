@@ -1,0 +1,12 @@
+// $Id$
+
+Data 6.x 1.x, XXXX-XX-XX
+--------------------------
+
+- #615078 bec: Fix creating table with varchar field + size.
+- #616324 bec: adopt tables.
+
+Data 6.x 1.0 Alpha 8, 2009-10-20
+---------------------------------
+
+- Initial release.
