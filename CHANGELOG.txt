@@ -1,7 +1,7 @@
 // $Id$
 
-Data 6.x 1.x, XXXX-XX-XX
---------------------------
+Data 6.x 1.0 Alpha 9, 2009-11-18
+--------------------------------
 
 - #625092 phayes: Geometry support.
 - #623974 phayes: Big text support.
