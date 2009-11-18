@@ -3,6 +3,7 @@
 Data 6.x 1.x, XXXX-XX-XX
 --------------------------
 
+- #623974 phayes: Big text support.
 - #615078 bec: Fix creating table with varchar field + size.
 - #616324 bec: adopt tables.
 

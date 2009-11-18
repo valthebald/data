@@ -165,6 +165,11 @@ function data_get_field_definitions() {
       'type' => 'text',
       'not null' => FALSE,
     ),
+    'bigtext' => array(
+      'type' => 'text',
+      'not null' => FALSE,
+      'size' => 'big',
+    ),
     'float' => array(
       'type' => 'float',
       'size' => 'medium',
