@@ -180,6 +180,11 @@ function data_get_field_definitions() {
       'size' => 'big',
       'not null' => FALSE,
     ),
+    'geometry' => array(
+      'type' => 'geometry',
+      'mysql_type' => 'geometry',
+      'pgsql_type' => 'geometry',
+    ),
   );
 }
 
@@ -335,6 +340,10 @@ function data_build_field_definition($stub) {
   if ($spec['type'] == 'varchar') {
     $spec['length'] = 255;
     unset($spec['size']);
+  }
+  if ($spec['type'] == 'geometry') {
+    $spec['mysql_type'] = 'geometry';
+    $spec['pgsql_type'] = 'GEOMETRY';
   }
   return $spec;
 }
