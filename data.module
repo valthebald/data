@@ -396,7 +396,7 @@ function _data_load_table($name = NULL, $reset = FALSE) {
  * data_tables.
  */
 function _data_override($name) {
-  if (!db_result(db_query('SELECT name FROM {data_tables} WHERE name = "%s"', $name))) {
+  if (!db_result(db_query("SELECT name FROM {data_tables} WHERE name = '%s'", $name))) {
     if ($table = _data_load_table($name)) {
       drupal_write_record('data_tables', $table);
     }
