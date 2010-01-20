@@ -3,6 +3,7 @@
 Data 6.x x.x xxx, 20xx-xx-xx
 ----------------------------
 
+- Rename "manage data relations" to "edit data node relations".
 - #688850 k4ml: Fix incompatible PostgreSQL query.
 
 Data 6.x 1.0 Alpha 9, 2009-11-18

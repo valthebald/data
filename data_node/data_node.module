@@ -103,7 +103,7 @@ function data_node_menu() {
  * Implementation of hook_perm().
  */
 function data_node_perm() {
-  return array('manage data relations');
+  return array('edit data node relations');
 }
 
 /**

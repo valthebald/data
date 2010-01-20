@@ -33,6 +33,13 @@ function data_taxonomy_menu() {
 }
 
 /**
+ * Implementation of hook_perm().
+ */
+function data_taxonomy_perm() {
+  return array('edit data taxonomy relations');
+}
+
+/**
  * Form callback for tagging.
  */
 function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
