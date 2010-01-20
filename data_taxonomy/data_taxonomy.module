@@ -35,11 +35,15 @@ function data_taxonomy_menu() {
 /**
  * Form callback for tagging.
  */
-function data_taxonomy_tagging_form(&$form_state, $vid) {
+function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
   $form = array();
+  $form['#vid'] = $vid;
+  $form['#id'] = $id;
+  $form['#data_table'] = $data_table;
   $form['tags'] = array(
     '#type' => 'textfield',
-    '#default_value' => $vid,
+    '#default_value' => '',
+    '#autocomplete_path' => 'taxonomy/autocomplete/'. $vid,
   );
   $form['submit'] = array(
     '#type' => 'submit',
@@ -52,5 +56,50 @@ function data_taxonomy_tagging_form(&$form_state, $vid) {
  * Submit handler.
  */
 function data_taxonomy_tagging_form_submit($form, &$form_state) {
+  $tids = data_taxonomy_save_terms($form_state['values']['tags'], $form['#vid']);
+  data_taxonomy_save_relations($form['#vid'], $form['#id'], $form['#data_table'], $tids);
+}
 
+/**
+ * Save term_data - data table relationships in data_taxonomy table.
+ */
+function data_taxonomy_save_relations($vid, $id, $data_table, $tids) {
+  db_query("DELETE dt FROM {data_taxonomy} dt JOIN {term_data} td ON dt.tid = td.tid WHERE dt.id = %d AND dt.data_table_name = '%s' AND td.vid = %d", $id, $data_table, $vid);
+  foreach ($tids as $tid) {
+    db_query('INSERT INTO {data_taxonomy} (id, data_table_name, tid) VALUES (%d, "%s", %d)', $id, $data_table, $tid);
+  }
+}
+
+/**
+ * Explode terms from typed input, create new terms.
+ *
+ * @todo: This should actually live in taxonomy module.
+ *
+ * @return
+ *   Array of tids corresponding to the terms in typed_input.
+ */
+function data_taxonomy_save_terms($typed_input, $vid) {
+  $typed_terms = drupal_explode_tags($typed_input);
+
+  $tids = array();
+  foreach ($typed_terms as $typed_term) {
+    // See if the term exists in the chosen vocabulary
+    // and return the tid; otherwise, add a new record.
+    $possibilities = taxonomy_get_term_by_name($typed_term);
+    $typed_term_tid = NULL; // tid match, if any.
+    foreach ($possibilities as $possibility) {
+      if ($possibility->vid == $vid) {
+        $typed_term_tid = $possibility->tid;
+      }
+    }
+
+    if (!$typed_term_tid) {
+      $edit = array('vid' => $vid, 'name' => $typed_term);
+      $status = taxonomy_save_term($edit);
+      $typed_term_tid = $edit['tid'];
+    }
+
+    $tids[$typed_term_tid] = $typed_term_tid;
+  }
+  return $tids;
 }
