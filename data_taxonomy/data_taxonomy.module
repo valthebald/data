@@ -8,7 +8,7 @@
 /**
  * Implementation of hook_views_api().
  */
-function __data_taxonomy_views_api() {
+function data_taxonomy_views_api() {
   return array(
     'api' => '2.0',
     'path' => drupal_get_path('module', 'data_taxonomy') .'/views',
@@ -30,4 +30,27 @@ function data_taxonomy_menu() {
     'type' => MENU_LOCAL_TASK,
   );
   return $items;
+}
+
+/**
+ * Form callback for tagging.
+ */
+function data_taxonomy_tagging_form(&$form_state, $vid) {
+  $form = array();
+  $form['tags'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $vid,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+  return $form;
+}
+
+/**
+ * Submit handler.
+ */
+function data_taxonomy_tagging_form_submit($form, &$form_state) {
+
 }
