@@ -37,12 +37,26 @@ function data_taxonomy_menu() {
  */
 function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
   $form = array();
-  $form['#vid'] = $vid;
-  $form['#id'] = $id;
-  $form['#data_table'] = $data_table;
+  $form['vid'] = array(
+    '#type' => 'hidden',
+    '#value' => $vid,
+  );
+  $form['id'] = array(
+    '#type' => 'hidden',
+    '#value' => $id,
+  );
+  $form['data_table'] = array(
+    '#type' => 'hidden',
+    '#value' => $data_table,
+  );
+  $result = db_query('SELECT td.tid, td.name FROM {term_data} td JOIN {data_taxonomy} dt ON td.tid = dt.tid WHERE dt.data_table_name = "%s" AND dt.id = %d AND td.vid = %d', $data_table, $id, $vid);
+  $terms = array();
+  while ($term = db_fetch_object($result)) {
+    $terms[$term->tid] = $term->name;
+  }
   $form['tags'] = array(
     '#type' => 'textfield',
-    '#default_value' => '',
+    '#default_value' => implode(', ', $terms),
     '#autocomplete_path' => 'taxonomy/autocomplete/'. $vid,
   );
   $form['submit'] = array(
@@ -56,8 +70,11 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
  * Submit handler.
  */
 function data_taxonomy_tagging_form_submit($form, &$form_state) {
-  $tids = data_taxonomy_save_terms($form_state['values']['tags'], $form['#vid']);
-  data_taxonomy_save_relations($form['#vid'], $form['#id'], $form['#data_table'], $tids);
+  // Using clicked_button allows us to use more than one of the same form on
+  // a screen.
+  $post = $form_state['clicked_button']['#post'];
+  $tids = data_taxonomy_save_terms($form_state['values']['tags'], $post['vid']);
+  data_taxonomy_save_relations($post['vid'], $post['id'], $post['data_table'], $tids);
 }
 
 /**
