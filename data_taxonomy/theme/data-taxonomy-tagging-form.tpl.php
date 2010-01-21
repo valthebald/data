@@ -1,3 +1,6 @@
+<?php
+// $Id$
+?>
 <div class='data-taxonomy-tagging-form'>
   <label><?php print $label ?></label>
   <div class='data-taxonomy-tags clear-block'>
