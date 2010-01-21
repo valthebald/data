@@ -18,6 +18,11 @@ function data_taxonomy_views_data() {
       'left_field' => 'tid',
       'field' => 'tid',
     ),
+    'node' => array(
+      'left_table' => 'term_node',
+      'left_field' => 'tid',
+      'field' => 'tid',
+    ),
   );
   $data['data_taxonomy']['tid']['relationship'] = array(
     'title' => t('Term data.'),
@@ -26,9 +31,20 @@ function data_taxonomy_views_data() {
     'base' => 'term_data',
     'base field' => 'tid',
   );
+  $data['data_taxonomy']['tid_2'] = array(
+    'relationship' => array(
+      'handler' => 'views_handler_relationship',
+      'title' => t('Nodes with term.'),
+      'help' => t('Relate data taxonomy to all nodes with same term.'),
+      'label' => t('Relate data taxonomy to nodes with term.'),
+      'base' => 'term_node',
+      'base field' => 'tid',
+      'relationship field' => 'tid',
+    ),
+  );
   $data['data_taxonomy']['item_count'] = array(
     'title' => t('Item count'),
-    'help' => t('A count of the number of data items related to this node.'),
+    'help' => t('A count of the number of data items related to this tid or nid.'),
     'field' => array(
       'handler' => 'data_taxonomy_views_handler_field_item_count',
     ),
@@ -63,6 +79,17 @@ function data_taxonomy_views_data() {
 }
 
 /**
+ * Implementation of hook_views_data_alter().
+ */
+function data_taxonomy_views_data_alter(&$data) {
+  $data['node']['table']['join']['term_node'] = array(
+    'left_table' => 'term_node',
+    'left_field' => 'nid',
+    'field' => 'nid',
+  );
+}
+
+/**
  * Implementation of hook_views_handlers().
  */
 function data_taxonomy_views_handlers() {
@@ -74,7 +101,7 @@ function data_taxonomy_views_handlers() {
       'data_taxonomy_views_handler_field_form' => array(
         'parent' => 'views_handler_field',
       ),
-      'data_node_views_handler_field_node_list' => array(
+      'data_taxonomy_views_handler_field_item_count' => array(
         'parent' => 'views_handler_field',
       ),
     ),
