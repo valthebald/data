@@ -13,10 +13,7 @@ function data_taxonomy_settings_form(&$form_state, $table) {
 
   $form = $vocabularies = array();
   foreach (taxonomy_get_vocabularies() as $v) {
-    error_log(print_r($v, true));
-    if ($v->tags) {
-      $vocabularies[$v->vid] = $v->name;
-    }
+    $vocabularies[$v->vid] = $v->name;
   }
   $meta = $table->get('meta');
   $form['#table'] = $table;
@@ -25,7 +22,7 @@ function data_taxonomy_settings_form(&$form_state, $table) {
     '#title' => t('Vocabularies'),
     '#options' => $vocabularies,
     '#default_value' => $meta['data_taxonomy']['vocabularies'],
-    '#description' => t('Select the vocabulary to whose terms this data table\'s entries can be related to. Note: only free tagging vocabularies are supported.'),
+    '#description' => t('Select the vocabulary to whose terms this data table\'s entries can be related to.'),
   );
   $schema = $table->get('table_schema');
   $fields = drupal_map_assoc(array_keys($schema['fields']));

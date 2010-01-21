@@ -19,10 +19,10 @@ function data_taxonomy_views_data() {
       'field' => 'tid',
     ),
   );
-  // Add an explicit relationship to the node table.
   $data['data_taxonomy']['tid']['relationship'] = array(
-    'help' => t('Relate data_taxonomy to node table.'),
-    'label' => t('Relate data_taxonomy to node table'),
+    'title' => t('Term data.'),
+    'help' => t('Relate data_taxonomy to a term data.'),
+    'label' => t('Relate data_taxonomy to a term data.'),
     'base' => 'term_data',
     'base field' => 'tid',
   );
@@ -42,6 +42,13 @@ function data_taxonomy_views_data() {
       $data['data_taxonomy']['table']['join'][$table->get('name')] = array(
         'left_field' => $meta['data_taxonomy']['id'],
         'field' => 'id',
+      );
+      $data[$table->get('name')][$meta['data_taxonomy']['id']]['relationship'] = array(
+        'title' => t('Term tid.'),
+        'help' => t('Relate a data record to a term tid.'),
+        'label' => t('Relate a data record to a term tid.'),
+        'base' => 'data_taxonomy',
+        'base field' => 'id',
       );
       $data[$table->get('name')]['data_taxonomy_form'] = array(
         'field' => array(
