@@ -8,10 +8,36 @@ class data_taxonomy_views_handler_field_form extends views_handler_field {
   protected $id;
 
   /**
-   * Suppress options.
+   * Describe provided options and default values.
+   */
+  function option_definition() {
+    $options = parent::option_definition();
+    $options['vocabularies'] = array('default' => array());
+    return $options;
+  }
+
+  /**
+   * Suppress other options and provide a selection of vocabularies for which
+   * tagging forms will be displayed.
    */
   function options_form(&$form, &$form_state) {
-    return array();
+    $options = array();
+    $table = data_get_table($this->table);
+    $meta = $table->get('meta');
+    if (!empty($meta['data_taxonomy']['vocabularies'])) {
+      foreach ($meta['data_taxonomy']['vocabularies'] as $vid) {
+        $options[$vid] = taxonomy_vocabulary_load($vid)->name;
+      }
+    }
+    if (!empty($options)) {
+      $form['vocabularies'] = array(
+        '#title' => t('Enabled vocabularies'),
+        '#description' => t('Display a tagging form for each of the selected vocabularies.'),
+        '#type' => 'checkboxes',
+        '#options' => $options,
+        '#default_value' => $this->options['vocabularies'],
+      );
+    }
   }
 
   /**
@@ -41,7 +67,9 @@ class data_taxonomy_views_handler_field_form extends views_handler_field {
       $meta = $table->get('meta');
       if (!empty($meta['data_taxonomy']['vocabularies'])) {
         foreach ($meta['data_taxonomy']['vocabularies'] as $vid) {
-          $output .= drupal_get_form('data_taxonomy_tagging_form', $vid, $values->{$this->id}, $this->table);
+          if (!empty($this->options['vocabularies'][$vid])) {
+            $output .= drupal_get_form('data_taxonomy_tagging_form', $vid, $values->{$this->id}, $this->table);
+          }
         }
       }
     }
