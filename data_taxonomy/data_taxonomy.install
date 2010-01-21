@@ -47,10 +47,12 @@ function data_taxonomy_schema() {
  * Implementation of hook_install().
  */
 function data_taxonomy_install() {
+  drupal_install_schema('data_taxonomy');
 }
 
 /**
  * Implementation of hook_uninstall().
  */
 function data_taxonomy_uninstall() {
+  drupal_uninstall_schema('data_taxonomy');
 }
