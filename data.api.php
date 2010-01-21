@@ -9,19 +9,19 @@
 /**
  * Invoked after a data record has been inserted.
  */
-function hook_data_insert($record) {
+function hook_data_insert($record, $table_name) {
 }
 
 /**
  * Invoked after a data record has been updated.
  */
-function hook_data_update($record) {
+function hook_data_update($record, $table_name) {
 }
 
 /**
  * Invoked before a delete. Add to/remove from a delete query before deleting.
  */
-function hook_data_delete_query_alter(&$query) {
+function hook_data_delete_query_alter(&$query, $table_name) {
 }
 
 /**

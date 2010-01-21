@@ -79,7 +79,7 @@ class DataHandler {
    */
   public function insert(&$record) {
     $result = drupal_write_record($this->table, $record);
-    module_invoke_all('data_insert', $record);
+    module_invoke_all('data_insert', $record, $this->table);
     return $result;
   }
 
@@ -96,7 +96,7 @@ class DataHandler {
    */
   public function update(&$record, $update) {
     $result = drupal_write_record($this->table, $record, $update);
-    module_invoke_all('data_update', $record);
+    module_invoke_all('data_update', $record, $this->table);
     return $result;
   }
 
@@ -119,14 +119,14 @@ class DataHandler {
       $result = drupal_write_record($this->table, $record, $update);
       if (SAVED_UPDATED != $result) {
         $result = drupal_write_record($this->table, $record);
-        module_invoke_all('data_insert', $record);
+        module_invoke_all('data_insert', $record, $this->table);
         return $result;
       }
-      module_invoke_all('data_update', $record);
+      module_invoke_all('data_update', $record, $this->table);
       return $result;
     }
     $result = drupal_write_record($this->table, $record);
-    module_invoke_all('data_insert', $record);
+    module_invoke_all('data_insert', $record, $this->table);
     return $result;
   }
 
@@ -160,7 +160,7 @@ class DataHandler {
       }
       $query->addWhere(db_escape_table($this->table) .'.'. db_escape_string($key) ." ". $operator ." ". db_type_placeholder($fields[$key]['type']), $value);
     }
-    drupal_alter('data_delete_query', $query);
+    drupal_alter('data_delete_query', $query, $this->table);
     if (!empty($query->where)) {
       $query->execute();
     }

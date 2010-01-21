@@ -59,6 +59,33 @@ function data_taxonomy_perm() {
 }
 
 /**
+ * Implementation of hook_feeds_data_processor_targets().
+ */
+function data_taxonomy_feeds_data_processor_targets(&$fields, $data_table) {
+  if ($data_table == mymodule_base_table()) {
+    $fields['data_taxonomy:tid'] = array(
+      'name' => t('Category'),
+      'description' => t('One or more category terms.'),
+      'callback' => 'mymodule_callback',
+    );
+  }
+}
+
+/**
+ * Implementation of hook_data_insert().
+ */
+function data_taxonomy_data_insert($record) {
+
+}
+
+/**
+ * Implementation of hook_data_update().
+ */
+function data_taxonomy_data_update() {
+
+}
+
+/**
  * Form callback for tagging.
  */
 function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
