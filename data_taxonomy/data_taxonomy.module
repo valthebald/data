@@ -59,30 +59,77 @@ function data_taxonomy_perm() {
 }
 
 /**
- * Implementation of hook_feeds_data_processor_targets().
+ * Implementation of hook_feeds_data_processor_targets_alter().
  */
-function data_taxonomy_feeds_data_processor_targets(&$fields, $data_table) {
-  if ($data_table == mymodule_base_table()) {
-    $fields['data_taxonomy:tid'] = array(
-      'name' => t('Category'),
-      'description' => t('One or more category terms.'),
-      'callback' => 'mymodule_callback',
-    );
+function data_taxonomy_feeds_data_processor_targets_alter(&$fields, $data_table) {
+  if ($info = data_taxonomy_get_info($data_table)) {
+    foreach ($info['vocabularies'] as $vid) {
+      $vocabulary = taxonomy_vocabulary_load($vid);
+      $fields['data_taxonomy:'. $vid] = array(
+        'name' => t('Taxonomy: @vocabulary', array("@vocabulary" => $vocabulary->name)),
+        'description' => t('Map to taxonomy terms of @vocabulary vocabulary.', array("@vocabulary" => $vocabulary->name)),
+      );
+    }
   }
 }
 
 /**
  * Implementation of hook_data_insert().
  */
-function data_taxonomy_data_insert($record) {
+function data_taxonomy_data_insert($record, $table_name) {
+  if ($info = data_taxonomy_get_info($data_table)) {
+    $id = $record[$info['id']];
+    foreach ($info['vocabularies'] as $vid) {
+      if (is_array($record['data_taxonomy:'. $vid])) {
+        foreach ($record['data_taxonomy:'. $vid] as $tid) {
+          db_query("INSERT INTO {data_taxonomy}(id, data_table_name, tid) VALUES(%d, '%s', %d)", $id, $table_name, $tid);
+        }
+      }
+    }
+  }
+}
 
+/**
+ * Implementation of hook_data_delete_query_alter().
+ */
+function data_taxonomy_data_delete_query_alter($query, $table_name) {
+  if ($info = data_taxonomy_get_info($table_name)) {
+    $table_name = db_escape_table($table_name);
+    $query->addSubject('data_taxonomy');
+    $query->addJoin('data_taxonomy', "$table_name.{$info['id']} = data_taxonomy.id", 'LEFT JOIN');
+    $query->addWhere("(data_taxonomy.data_table_name = '%s' OR data_taxonomy.data_table_name IS NULL)", $table_name);
+  }
 }
 
 /**
  * Implementation of hook_data_update().
  */
-function data_taxonomy_data_update() {
+function data_taxonomy_data_update($record, $table_name) {
+  if ($info = data_taxonomy_get_info($data_table)) {
+    $id = $record[$info['id']];
+    foreach ($info['vocabularies'] as $vid) {
+      if (is_array($record['data_taxonomy:'. $vid])) {
+        db_query("DELETE dt FROM {data_taxonomy} dt JOIN {term_data} td ON dt.tid = td.tid WHERE td.vid = %d", $vid);
+        foreach ($record['data_taxonomy:'. $vid] as $tid) {
+          db_query("INSERT INTO {data_taxonomy}(id, data_table_name, tid) VALUES(%d, '%s', %d)", $id, $table_name, $tid);
+        }
+      }
+    }
+  }
+}
 
+/**
+ * Get data_taxonomy information for a given data table.
+ */
+function data_taxonomy_get_info($data_table) {
+  static $info;
+  if (empty($info)) {
+    $meta = data_get_table($data_table)->get('meta');
+    if (is_array($meta['data_taxonomy'])) {
+      $info = $meta['data_taxonomy'];
+    }
+  }
+  return $info;
 }
 
 /**
