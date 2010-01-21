@@ -20,6 +20,12 @@ function data_taxonomy_views_api() {
  */
 function data_taxonomy_menu() {
   $items = array();
+  $items['data-taxonomy/ajax-save'] = array(
+    'page callback' => 'data_taxonomy_ajax_save',
+    'page arguments' => array(),
+    'access arguments' => array('edit data taxonomy relations'),
+    'type' => MENU_CALLBACK,
+  );
   $items['admin/build/data/edit/%data_ui_table/taxonomy'] = array(
     'title' => 'Relate to taxonomy',
     'description' => 'Administer data tables.',
@@ -33,6 +39,19 @@ function data_taxonomy_menu() {
 }
 
 /**
+ * Implementation of hook_theme().
+ */
+function data_taxonomy_theme() {
+  return array(
+    'data_taxonomy_tagging_form' => array(
+      'arguments' => array('form' => array()),
+      'path' => drupal_get_path('module', 'data_taxonomy') . '/theme',
+      'template' => 'data-taxonomy-tagging-form',
+    ),
+  );
+}
+
+/**
  * Implementation of hook_perm().
  */
 function data_taxonomy_perm() {
@@ -43,7 +62,7 @@ function data_taxonomy_perm() {
  * Form callback for tagging.
  */
 function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
-  $form = array();
+  $form = array('#theme' => 'data_taxonomy_tagging_form');
   $form['vid'] = array(
     '#type' => 'hidden',
     '#value' => $vid,
@@ -56,20 +75,44 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
     '#type' => 'hidden',
     '#value' => $data_table,
   );
-  $result = db_query('SELECT td.tid, td.name FROM {term_data} td JOIN {data_taxonomy} dt ON td.tid = dt.tid WHERE dt.data_table_name = "%s" AND dt.id = %d AND td.vid = %d', $data_table, $id, $vid);
-  $terms = array();
+  $result = db_query('SELECT td.tid, td.name, td.vid FROM {term_data} td JOIN {data_taxonomy} dt ON td.tid = dt.tid WHERE dt.data_table_name = "%s" AND dt.id = %d AND td.vid = %d', $data_table, $id, $vid);
+  $tags = $terms = array();
   while ($term = db_fetch_object($result)) {
-    $terms[$term->tid] = $term->name;
+    $tags[$term->tid] = $term->name;
+    $terms[$term->tid] = $term;
   }
   $form['tags'] = array(
     '#type' => 'textfield',
-    '#default_value' => implode(', ', $terms),
+    '#default_value' => implode(', ', $tags),
     '#autocomplete_path' => 'taxonomy/autocomplete/'. $vid,
+    '#id' => "edit-tags-data-taxonomy-{$vid}-{$id}",
+    '#ahah' => array(
+      'path' => substr(url('data-taxonomy/ajax-save'), strlen(base_path())),
+      'wrapper' => "data-taxonomy-tags-{$vid}-{$id}",
+      'keypress' => TRUE,
+      'method' => 'replace',
+      'effect' => 'none',
+    ),
   );
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
+
+    // AHAH stack: We need to assign our submit button its own ID as auto
+    // assignment will quickly lead to a situation where our AJAX form button
+    // has a different ID from the original.
+    '#id' => "edit-submit-data-taxonomy-{$vid}-{$id}",
+    '#ahah' => array(
+      'path' => substr(url('data-taxonomy/ajax-save'), strlen(base_path())),
+      'wrapper' => "data-taxonomy-tags-{$vid}-{$id}",
+      'method' => 'replace',
+      'effect' => 'none',
+    ),
   );
+
+  // Pass on key elements for theming.
+  $form['#terms'] = $terms;
+  $form['#vocab'] = taxonomy_vocabulary_load($vid);
   return $form;
 }
 
@@ -114,16 +157,73 @@ function data_taxonomy_save_terms($typed_input, $vid) {
     foreach ($possibilities as $possibility) {
       if ($possibility->vid == $vid) {
         $typed_term_tid = $possibility->tid;
+        $term = $possibility;
+        break;
       }
     }
 
     if (!$typed_term_tid) {
-      $edit = array('vid' => $vid, 'name' => $typed_term);
-      $status = taxonomy_save_term($edit);
-      $typed_term_tid = $edit['tid'];
+      $term = array('vid' => $vid, 'name' => $typed_term);
+      $status = taxonomy_save_term($term);
+      $typed_term_tid = $term['tid'];
     }
 
-    $tids[$typed_term_tid] = $typed_term_tid;
+    // Cast the edit as an object as though it were retrieved from the DB.
+    $tids[$typed_term_tid] = (object) $term;
   }
   return $tids;
+}
+
+/**
+ * AHAH callback for saving terms.
+ */
+function data_taxonomy_ajax_save() {
+  $cached_form_state = array();
+  $files = array();
+
+  $cached_form = form_get_cache($_POST['form_build_id'], $cached_form_state);
+  if ($cached_form) {
+    // Rebuild $form_state['values'].
+    $form_state = array('values' => $_POST);
+    foreach (element_children($cached_form) as $elem) {
+      if ($cached_form[$elem]['#type'] === 'value' && isset($cached_form[$elem]['#value'])) {
+        $form_state['values'][$elem] = $cached_form[$elem]['#value'];
+      }
+    }
+
+    // Process and save terms & relations.
+    $values = $form_state['values'];
+    $terms = data_taxonomy_save_terms($values['tags'], $values['vid']);
+    data_taxonomy_save_relations($values['vid'], $values['id'], $values['data_table'], array_keys($terms));
+    drupal_json(array('status' => 1, 'data' => theme('links', data_taxonomy_tag_links($terms), array('class' => 'links data-taxonomy-tags'))));
+    exit;
+  }
+  drupal_json(array('status' => 1, 'data' => ''));
+  exit;
+}
+
+/**
+ * Generate a links array suitable for use with theme('links') from an array of
+ * taxonomy terms.
+ */
+function data_taxonomy_tag_links($terms) {
+  $tags = array();
+  foreach ($terms as $tid => $term) {
+    $tags[] = array(
+      'title' => $term->name,
+      'href' => taxonomy_term_path($term),
+    );
+  }
+  return $tags;
+}
+
+/**
+ * Preprocessor for theme('data_taxonomy_tagging_form').
+ */
+function template_preprocess_data_taxonomy_tagging_form(&$vars) {
+  drupal_add_js(drupal_get_path('module', 'data_taxonomy') .'/theme/data_taxonomy.js');
+  drupal_add_css(drupal_get_path('module', 'data_taxonomy') .'/theme/data_taxonomy.css');
+  $vars['label'] = $vars['form']['#vocab']->name;
+  $vars['edit'] = l(t('Edit'), $_GET['q'], array('fragment' => 'data-taxonomy-edit', 'attributes' => array('class' => 'data-taxonomy-edit')));
+  $vars['tags'] = theme('links', data_taxonomy_tag_links($vars['form']['#terms']), array('class' => 'links data-taxonomy-tags'));
 }
