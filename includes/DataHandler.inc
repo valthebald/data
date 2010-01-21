@@ -251,7 +251,7 @@ class DataQuery {
       $values[] = $v;
     }
     if (!empty($where)) {
-      $query .= " WHERE ". implode(' ', $where);
+      $query .= " WHERE ". implode(' AND ', $where);
     }
     return db_query($query, $values);
   }
