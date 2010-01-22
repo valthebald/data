@@ -2,7 +2,7 @@
 // $Id$
 
 /**
- * @todo
+ * Provide a form to associate data records with taxonomy terms.
  */
 class data_taxonomy_views_handler_field_form extends views_handler_field {
   protected $id;
