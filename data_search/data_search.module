@@ -60,6 +60,13 @@ function data_search_views_data_alter(&$data) {
       'left_field' => $base_field,
       'field' => 'sid',
     );
+    $data['search_dataset']['table']['join'][$name] = array(
+      'left_table' => 'search_index',
+      'left_field' => 'sid',
+      'field' => 'sid',
+      'extra' => 'search_index.type = search_dataset.type',
+      'type' => 'INNER',
+    );
   }
 }
 
