@@ -269,7 +269,7 @@ function data_taxonomy_ajax_save() {
   $cached_form_state = array();
   $files = array();
   $cached_form = form_get_cache($_POST['form_build_id'], $cached_form_state);
-  if ($cached_form) {
+  if ($cached_form['form_token']['#default_value'] == $_POST['form_token']) {
     // Rebuild $form_state['values'].
     $form_state = array('values' => $_POST);
     foreach (element_children($cached_form) as $elem) {
@@ -285,7 +285,7 @@ function data_taxonomy_ajax_save() {
     drupal_json(array('status' => 1, 'data' => theme('links', data_taxonomy_tag_links($terms, $_POST['path'], explode('&', $_POST['args'])), array('class' => 'links data-taxonomy-tags'))));
     exit;
   }
-  drupal_json(array('status' => 1, 'data' => ''));
+  drupal_json(array('status' => 1, 'data' => 'Error submitting form'));
   exit;
 }
 
