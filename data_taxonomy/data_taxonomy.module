@@ -266,10 +266,8 @@ function data_taxonomy_save_terms($typed_input, $vid) {
  * @todo: Verify form token.
  */
 function data_taxonomy_ajax_save() {
-error_log(print_r($_POST, true));
   $cached_form_state = array();
   $files = array();
-
   $cached_form = form_get_cache($_POST['form_build_id'], $cached_form_state);
   if ($cached_form) {
     // Rebuild $form_state['values'].
@@ -329,6 +327,7 @@ function data_taxonomy_tag_links($terms, $path, $args) {
  */
 function _data_taxonomy_replace_tokens($path, $args) {
   if (is_array($args)) {
+    $args = array_filter($args);
     $pos = strpos($path, '%');
     while ($pos !== FALSE && count($args)) {
       $path = substr_replace($path, array_shift($args), $pos, 1);
