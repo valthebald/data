@@ -19,6 +19,7 @@ Drupal.behaviors.data_taxonomy = function(context) {
           $(tagging_form).removeClass('data-taxonomy-editing');
           $('ul.data-taxonomy-tags', tagging_form).addClass('data-taxonomy-edited');
           $('input.form-submit', tagging_form).mousedown();
+          return false;
         }
       });
       $('input.form-submit', this).mousedown(function() {
