@@ -1,7 +1,7 @@
 // $Id$
 Drupal.behaviors.data_taxonomy = function(context) {
   $('div.data-taxonomy-tagging-form:not(.data-taxonomy-processed)')
-    .addClass('.data-taxonomy-processed')
+    .addClass('data-taxonomy-processed')
     .each(function() {
       var tagging_form = $(this);
       $('a.data-taxonomy-edit', this).click(function() {
@@ -13,12 +13,12 @@ Drupal.behaviors.data_taxonomy = function(context) {
         // Detect enter key.
         if (event.keyCode == 13) {
           var selected = $('.selected', $(this).siblings('#autocomplete:has(.selected)'));
-          if (selected) {
-            $(this).val(selected.autocompleteValue);
+          if (selected.size() > 0) {
+            $(this).val(selected.get(0).autocompleteValue);
           }
           $(tagging_form).removeClass('data-taxonomy-editing');
           $('ul.data-taxonomy-tags', tagging_form).addClass('data-taxonomy-edited');
-          return false;
+          $('input.form-submit', tagging_form).mousedown();
         }
       });
       $('input.form-submit', this).mousedown(function() {

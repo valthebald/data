@@ -160,13 +160,6 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
     '#default_value' => implode(', ', $tags),
     '#autocomplete_path' => 'taxonomy/autocomplete/'. $vid,
     '#id' => "edit-tags-data-taxonomy-{$vid}-{$id}",
-    '#ahah' => array(
-      'path' => substr(url('data-taxonomy/ajax-save'), strlen(base_path())),
-      'wrapper' => "data-taxonomy-tags-{$vid}-{$id}",
-      'keypress' => TRUE,
-      'method' => 'replace',
-      'effect' => 'none',
-    ),
   );
   $form['submit'] = array(
     '#type' => 'submit',
