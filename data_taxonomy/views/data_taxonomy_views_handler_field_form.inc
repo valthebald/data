@@ -43,7 +43,7 @@ class data_taxonomy_views_handler_field_form extends views_handler_field {
       '#type' => 'textfield',
       '#title' => t('Term path'),
       '#default_value' => $this->options['path'],
-      '#description' => t('Path to link terms with. You may use "%" to represent values that will be used for arguments: For example, "data/%/%".'),
+      '#description' => t('Path to link terms with. Use "%" to represent arguments of the current view, use !tid to designate where the term id should be placed. For example "data/%/!tid/%"'),
     );
   }
 
@@ -75,7 +75,7 @@ class data_taxonomy_views_handler_field_form extends views_handler_field {
       if (!empty($meta['data_taxonomy']['vocabularies'])) {
         foreach ($meta['data_taxonomy']['vocabularies'] as $vid) {
           if (!empty($this->options['vocabularies'][$vid])) {
-            $output .= drupal_get_form('data_taxonomy_tagging_form', $vid, $values->{$this->id}, $this->table);
+            $output .= drupal_get_form('data_taxonomy_tagging_form', $vid, $values->{$this->id}, $this->table, $this->options['path'], $this->view->args);
           }
         }
       }

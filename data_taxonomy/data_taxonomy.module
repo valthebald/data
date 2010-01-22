@@ -135,7 +135,7 @@ function data_taxonomy_get_info($data_table) {
 /**
  * Form callback for tagging.
  */
-function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
+function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table, $path, $args) {
   $form = array('#theme' => 'data_taxonomy_tagging_form');
   $form['vid'] = array(
     '#type' => 'hidden',
@@ -148,6 +148,14 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
   $form['data_table'] = array(
     '#type' => 'hidden',
     '#value' => $data_table,
+  );
+  $form['path'] = array(
+    '#type' => 'hidden',
+    '#value' => $path,
+  );
+  $form['args'] = array(
+    '#type' => 'hidden',
+    '#value' => implode('&', $args),
   );
   $result = db_query('SELECT td.tid, td.name, td.vid FROM {term_data} td JOIN {data_taxonomy} dt ON td.tid = dt.tid WHERE dt.data_table_name = "%s" AND dt.id = %d AND td.vid = %d', $data_table, $id, $vid);
   $tags = $terms = array();
@@ -164,11 +172,11 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
 
   // Ensure our path gets rewritten. We don't use url() here because we're
   // not interested in rewrites to parts of the request other than $_GET['q'].
-  $path = 'data-taxonomy/ajax-save';
+  $ajax_path = 'data-taxonomy/ajax-save';
   if (function_exists('custom_url_rewrite_outbound')) {
-    $original_path = $path;
+    $original_path = $ajax_path;
     $options = array();
-    custom_url_rewrite_outbound($path, $options, $original_path);
+    custom_url_rewrite_outbound($ajax_path, $options, $original_path);
   }
   $form['submit'] = array(
     '#type' => 'submit',
@@ -179,7 +187,7 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
     // has a different ID from the original.
     '#id' => "edit-submit-data-taxonomy-{$vid}-{$id}",
     '#ahah' => array(
-      'path' => $path,
+      'path' => $ajax_path,
       'wrapper' => "data-taxonomy-tags-{$vid}-{$id}",
       'method' => 'replace',
       'effect' => 'none',
@@ -188,6 +196,8 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
 
   // Pass on key elements for theming.
   $form['#terms'] = $terms;
+  $form['#path'] = $path;
+  $form['#args'] = $args;
   $form['#vocab'] = taxonomy_vocabulary_load($vid);
   return $form;
 }
@@ -252,8 +262,11 @@ function data_taxonomy_save_terms($typed_input, $vid) {
 
 /**
  * AHAH callback for saving terms.
+ *
+ * @todo: Verify form token.
  */
 function data_taxonomy_ajax_save() {
+error_log(print_r($_POST, true));
   $cached_form_state = array();
   $files = array();
 
@@ -271,7 +284,7 @@ function data_taxonomy_ajax_save() {
     $values = $form_state['values'];
     $terms = data_taxonomy_save_terms($values['tags'], $values['vid']);
     data_taxonomy_save_relations($values['vid'], $values['id'], $values['data_table'], array_keys($terms));
-    drupal_json(array('status' => 1, 'data' => theme('links', data_taxonomy_tag_links($terms), array('class' => 'links data-taxonomy-tags'))));
+    drupal_json(array('status' => 1, 'data' => theme('links', data_taxonomy_tag_links($terms, $_POST['path'], explode('&', $_POST['args'])), array('class' => 'links data-taxonomy-tags'))));
     exit;
   }
   drupal_json(array('status' => 1, 'data' => ''));
@@ -281,16 +294,49 @@ function data_taxonomy_ajax_save() {
 /**
  * Generate a links array suitable for use with theme('links') from an array of
  * taxonomy terms.
+ *
+ * @param $terms
+ *   An array of terms.
+ * @param $path
+ *   The path template to use (e. g. path/%/!tid/%)
+ * @param $args
+ *   The arguments to use in the path template, used to replace %'s in $path.
  */
-function data_taxonomy_tag_links($terms) {
+function data_taxonomy_tag_links($terms, $path, $args) {
   $tags = array();
+  $path = _data_taxonomy_replace_tokens($path, $args);
   foreach ($terms as $tid => $term) {
     $tags[] = array(
       'title' => $term->name,
-      'href' => taxonomy_term_path($term),
+      'href' => str_replace('!tid', $tid, $path),
     );
   }
   return $tags;
+}
+
+/**
+ * Replaces % in $path with arguments.
+ *
+ * @todo: Replace missing % not with 'all' but with value depending on argument
+ * setting.
+ *
+ * @param $path
+ *   A path template like path/%/!tid/%
+ * @param $args
+ *   An array of arguments used to replace % characters in path.
+ * @return
+ *   A path with replaced tokens like path/arg1/!tid/arg2
+ */
+function _data_taxonomy_replace_tokens($path, $args) {
+  if (is_array($args)) {
+    $pos = strpos($path, '%');
+    while ($pos !== FALSE && count($args)) {
+      $path = substr_replace($path, array_shift($args), $pos, 1);
+      $pos = strpos($path, '%');
+    }
+  }
+  $path = str_replace('%', 'all', $path);
+  return $path;
 }
 
 /**
@@ -301,5 +347,5 @@ function template_preprocess_data_taxonomy_tagging_form(&$vars) {
   drupal_add_css(drupal_get_path('module', 'data_taxonomy') .'/theme/data_taxonomy.css');
   $vars['label'] = $vars['form']['#vocab']->name;
   $vars['edit'] = l(t('Edit'), $_GET['q'], array('fragment' => 'data-taxonomy-edit', 'attributes' => array('class' => 'data-taxonomy-edit')));
-  $vars['tags'] = theme('links', data_taxonomy_tag_links($vars['form']['#terms']), array('class' => 'links data-taxonomy-tags'));
+  $vars['tags'] = theme('links', data_taxonomy_tag_links($vars['form']['#terms'], $vars['form']['#path'], $vars['form']['#args']), array('class' => 'links data-taxonomy-tags'));
 }
