@@ -13,6 +13,7 @@ class data_taxonomy_views_handler_field_form extends views_handler_field {
   function option_definition() {
     $options = parent::option_definition();
     $options['vocabularies'] = array('default' => array());
+    $options['path'] = array('default' => '');
     return $options;
   }
 
@@ -32,12 +33,18 @@ class data_taxonomy_views_handler_field_form extends views_handler_field {
     if (!empty($options)) {
       $form['vocabularies'] = array(
         '#title' => t('Enabled vocabularies'),
-        '#description' => t('Display a tagging form for each of the selected vocabularies.'),
+        '#description' => t('Display a tagging form for each of the selected vocabularies. Only vocabularies that are enabled for this table are available. Edit this table\'s definition in admin/build/data to enable vocabularies.'),
         '#type' => 'checkboxes',
         '#options' => $options,
         '#default_value' => $this->options['vocabularies'],
       );
     }
+    $form['path'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Term path'),
+      '#default_value' => $this->options['path'],
+      '#description' => t('Path to link terms with. You may use "%" to represent values that will be used for arguments: For example, "data/%/%".'),
+    );
   }
 
   /**
