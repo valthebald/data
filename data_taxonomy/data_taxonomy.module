@@ -161,6 +161,15 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
     '#autocomplete_path' => 'taxonomy/autocomplete/'. $vid,
     '#id' => "edit-tags-data-taxonomy-{$vid}-{$id}",
   );
+
+  // Ensure our path gets rewritten. We don't use url() here because we're
+  // not interested in rewrites to parts of the request other than $_GET['q'].
+  $path = 'data-taxonomy/ajax-save';
+  if (function_exists('custom_url_rewrite_outbound')) {
+    $original_path = $path;
+    $options = array();
+    custom_url_rewrite_outbound($path, $options, $original_path);
+  }
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
@@ -170,7 +179,7 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table) {
     // has a different ID from the original.
     '#id' => "edit-submit-data-taxonomy-{$vid}-{$id}",
     '#ahah' => array(
-      'path' => substr(url('data-taxonomy/ajax-save'), strlen(base_path())),
+      'path' => $path,
       'wrapper' => "data-taxonomy-tags-{$vid}-{$id}",
       'method' => 'replace',
       'effect' => 'none',
