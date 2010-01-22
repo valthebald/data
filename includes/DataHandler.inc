@@ -228,7 +228,7 @@ class DataQuery {
    * @param $value
    *   The value the clause compares against.
    */
-  public function addWhere($clause, $value) {
+  public function addWhere($clause, $value = NULL) {
     $this->where[$clause] = $value;
   }
 
@@ -248,11 +248,14 @@ class DataQuery {
     $where = $values = array();
     foreach ($this->where as $k => $v) {
       $where[] = $k;
-      $values[] = $v;
+      if ($v !== NULL) {
+        $values[] = $v;
+      }
     }
     if (!empty($where)) {
       $query .= " WHERE ". implode(' AND ', $where);
     }
+error_log($query);
     return db_query($query, $values);
   }
 }
