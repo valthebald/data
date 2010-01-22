@@ -75,4 +75,11 @@ class data_taxonomy_views_handler_field_form extends views_handler_field {
     }
     return $output;
   }
+
+  /**
+   * Omit label output.
+   */
+  function label() {
+    return '';
+  }
 }
