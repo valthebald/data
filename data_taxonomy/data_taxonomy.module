@@ -308,7 +308,7 @@ function data_taxonomy_tag_links($terms, $path, $args) {
   foreach ($terms as $tid => $term) {
     $tags[] = array(
       'title' => $term->name,
-      'href' => str_replace('!tid', $tid, $path),
+      'href' => str_replace('!term', $term->name, str_replace('!tid', $term->tid, $path)),
     );
   }
   return $tags;

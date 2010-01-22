@@ -43,7 +43,7 @@ class data_taxonomy_views_handler_field_form extends views_handler_field {
       '#type' => 'textfield',
       '#title' => t('Term path'),
       '#default_value' => $this->options['path'],
-      '#description' => t('Path to link terms with. Use "%" to represent arguments of the current view, use !tid to designate where the term id should be placed. For example "data/%/!tid/%"'),
+      '#description' => t('Path to link terms with. Use "%" to represent arguments of the current view, use !tid to designate where the term id should be placed, use !term to designate where the term name should be placed. For example "data/%/!tid/%"'),
     );
   }
 
