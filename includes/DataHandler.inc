@@ -191,7 +191,7 @@ class DataQuery {
    */
   public function __construct($table) {
     $this->table = db_escape_table($table);
-    $this->subject = array($this->table);
+    $this->subject = array($this->table => $this->table);
     $this->from = db_escape_table($this->table);
     $this->join = array();
     $this->where = array();
