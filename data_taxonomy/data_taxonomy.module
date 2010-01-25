@@ -96,8 +96,7 @@ function data_taxonomy_data_delete_query_alter($query, $table_name) {
   if ($info = data_taxonomy_get_info($table_name)) {
     $table_name = db_escape_table($table_name);
     $query->addSubject('data_taxonomy');
-    $query->addJoin('data_taxonomy', "$table_name.{$info['id']} = data_taxonomy.id", 'LEFT JOIN');
-    $query->addWhere("(data_taxonomy.data_table_name = '%s' OR data_taxonomy.data_table_name IS NULL)", $table_name);
+    $query->addJoin('data_taxonomy', "$table_name.{$info['id']} = data_taxonomy.id AND data_taxonomy.data_table_name = '$table_name'", 'LEFT JOIN');
   }
 }
 
@@ -168,6 +167,7 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table, $path,
     '#default_value' => implode(', ', $tags),
     '#autocomplete_path' => 'taxonomy/autocomplete/'. $vid,
     '#id' => "edit-tags-data-taxonomy-{$vid}-{$id}",
+    '#access' => user_access('edit data taxonomy relations'),
   );
 
   // Ensure our path gets rewritten. We don't use url() here because we're
@@ -181,6 +181,7 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table, $path,
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
+    '#access' => user_access('edit data taxonomy relations'),
 
     // AHAH stack: We need to assign our submit button its own ID as auto
     // assignment will quickly lead to a situation where our AJAX form button
