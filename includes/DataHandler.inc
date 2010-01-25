@@ -192,7 +192,7 @@ class DataQuery {
   public function __construct($table) {
     $this->table = db_escape_table($table);
     $this->subject = array($this->table => $this->table);
-    $this->from = db_escape_table($this->table);
+    $this->from = $this->table;
     $this->join = array();
     $this->where = array();
   }
@@ -236,13 +236,15 @@ class DataQuery {
    * Build and execute a query.
    */
   public function execute() {
+    $table = db_escape_table($this->table);
     $query = "DELETE ". implode(', ', $this->subject);
-    $query .= " FROM ". $this->table;
+    $query .= " FROM {{$table}} {$table}";
     if (!empty($this->join)) {
       foreach ($this->join as $table => $join) {
+        $table = db_escape_table($table);
         $clause = array_shift($join);
         $join = array_shift($join);
-        $query .= " $join $table ON $clause";
+        $query .= " $join {{$table}} $table ON $clause";
       }
     }
     $where = $values = array();
@@ -255,7 +257,6 @@ class DataQuery {
     if (!empty($where)) {
       $query .= " WHERE ". implode(' AND ', $where);
     }
-error_log($query);
     return db_query($query, $values);
   }
 }
