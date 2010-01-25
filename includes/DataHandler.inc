@@ -115,19 +115,21 @@ class DataHandler {
    *   this update.
    */
   public function save(&$record, $update = array()) {
-    if (is_string($update) || count($update)) {
-      $result = drupal_write_record($this->table, $record, $update);
-      if (SAVED_UPDATED != $result) {
-        $result = drupal_write_record($this->table, $record);
-        module_invoke_all('data_insert', $record, $this->table);
-        return $result;
-      }
-      module_invoke_all('data_update', $record, $this->table);
-      return $result;
+    if (is_string($update)) {
+      $update = array($update);
     }
-    $result = drupal_write_record($this->table, $record);
-    module_invoke_all('data_insert', $record, $this->table);
-    return $result;
+    if (is_array($update)) {
+      $keys = array();
+      foreach ($update as $key) {
+        $keys[$key] = $record[$key];
+      }
+      if (count($keys)) {
+        if ($this->load($keys)) {
+          return $this->update($record, $update);
+        }
+      }
+    }
+    return $this->insert($record);
   }
 
   /**
