@@ -135,26 +135,32 @@ function data_taxonomy_get_info($data_table) {
  * Form callback for tagging.
  */
 function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table, $path, $args) {
+  $access = user_access('edit data taxonomy relations');
   $form = array('#theme' => 'data_taxonomy_tagging_form');
   $form['vid'] = array(
     '#type' => 'hidden',
     '#value' => $vid,
+    '#access' => $access,
   );
   $form['id'] = array(
     '#type' => 'hidden',
     '#value' => $id,
+    '#access' => $access,
   );
   $form['data_table'] = array(
     '#type' => 'hidden',
     '#value' => $data_table,
+    '#access' => $access,
   );
   $form['path'] = array(
     '#type' => 'hidden',
     '#value' => $path,
+    '#access' => $access,
   );
   $form['args'] = array(
     '#type' => 'hidden',
     '#value' => implode('&', $args),
+    '#access' => $access,
   );
   $result = db_query('SELECT td.tid, td.name, td.vid FROM {term_data} td JOIN {data_taxonomy} dt ON td.tid = dt.tid WHERE dt.data_table_name = "%s" AND dt.id = %d AND td.vid = %d', $data_table, $id, $vid);
   $tags = $terms = array();
@@ -167,7 +173,7 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table, $path,
     '#default_value' => implode(', ', $tags),
     '#autocomplete_path' => 'taxonomy/autocomplete/'. $vid,
     '#id' => "edit-tags-data-taxonomy-{$vid}-{$id}",
-    '#access' => user_access('edit data taxonomy relations'),
+    '#access' => $access,
   );
 
   // Ensure our path gets rewritten. We don't use url() here because we're
@@ -181,7 +187,7 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table, $path,
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
-    '#access' => user_access('edit data taxonomy relations'),
+    '#access' => $access,
 
     // AHAH stack: We need to assign our submit button its own ID as auto
     // assignment will quickly lead to a situation where our AJAX form button
@@ -199,6 +205,9 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $data_table, $path,
   $form['#terms'] = $terms;
   $form['#path'] = $path;
   $form['#args'] = $args;
+  if ($access) {
+    $form['#edit'] = l(t('Edit'), $_GET['q'], array('fragment' => 'data-taxonomy-edit', 'attributes' => array('class' => 'data-taxonomy-edit')));
+  }
   $form['#vocab'] = taxonomy_vocabulary_load($vid);
   return $form;
 }
@@ -346,6 +355,8 @@ function template_preprocess_data_taxonomy_tagging_form(&$vars) {
   drupal_add_js(drupal_get_path('module', 'data_taxonomy') .'/theme/data_taxonomy.js');
   drupal_add_css(drupal_get_path('module', 'data_taxonomy') .'/theme/data_taxonomy.css');
   $vars['label'] = $vars['form']['#vocab']->name;
-  $vars['edit'] = l(t('Edit'), $_GET['q'], array('fragment' => 'data-taxonomy-edit', 'attributes' => array('class' => 'data-taxonomy-edit')));
+  if ($vars['form']['#edit']) {
+    $vars['edit'] = $vars['form']['#edit'];
+  }
   $vars['tags'] = theme('links', data_taxonomy_tag_links($vars['form']['#terms'], $vars['form']['#path'], $vars['form']['#args']), array('class' => 'links data-taxonomy-tags'));
 }
