@@ -1,7 +1,7 @@
 // $Id$
 
-Data 6.x x.x xxx, 20xx-xx-xx
-----------------------------
+Data 6.x 1.0 Alpha 10, 2010-01-25
+---------------------------------
 
 - Add observer/visitor hooks for insert/update/delete.
   hook_data_insert()
