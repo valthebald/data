@@ -439,7 +439,9 @@ class DataTable {
    */
   public function drop() {
     if ($this->export_type == EXPORT_IN_DATABASE) {
-      db_drop_table($ret, $this->name);
+      if (db_table_exists($this->name)) {
+        db_drop_table($ret, $this->name);
+      }
       $this->update(array('table_schema' => array()));
       drupal_get_schema($this->name, TRUE);
 
