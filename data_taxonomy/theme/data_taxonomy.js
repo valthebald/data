@@ -22,6 +22,11 @@ Drupal.behaviors.data_taxonomy = function(context) {
           return false;
         }
       });
+      $('input.form-text', this).blur(function() {
+        $(tagging_form).removeClass('data-taxonomy-editing');
+        $('ul.data-taxonomy-tags', tagging_form).addClass('data-taxonomy-edited');
+        $('input.form-submit', tagging_form).mousedown();
+      });
       $('input.form-submit', this).mousedown(function() {
         $(tagging_form).removeClass('data-taxonomy-editing');
         $('ul.data-taxonomy-tags', tagging_form).addClass('data-taxonomy-edited');
