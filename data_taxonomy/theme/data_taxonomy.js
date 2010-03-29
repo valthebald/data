@@ -16,9 +16,7 @@ Drupal.behaviors.data_taxonomy = function(context) {
           if (selected.size() > 0) {
             $(this).val(selected.get(0).autocompleteValue);
           }
-          $(tagging_form).removeClass('data-taxonomy-editing');
-          $('ul.data-taxonomy-tags', tagging_form).addClass('data-taxonomy-edited');
-          $('input.form-submit', tagging_form).mousedown();
+          $(this).blur();
           return false;
         }
       });
