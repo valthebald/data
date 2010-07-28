@@ -413,3 +413,8 @@ function data_include($class) {
     $included[$class] = TRUE;
   }
 }
+
+/**
+ * Base class for any exceptions thrown in Data.
+ */
+class DataException extends Exception {}
