@@ -3,6 +3,7 @@
 Data 6.x xxxxxxxxxxx
 --------------------
 
+- #866476 Fix CTools 1.7 compatibility issues.
 - #780358 Fix PK and index errors on table changes.
 - #867590 Use Exceptions. NOTE: this may require you to update modules that use
   Data's DataTable API.
