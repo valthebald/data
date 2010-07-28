@@ -357,9 +357,14 @@ class DataTable {
    */
   public function addPrimaryKey($fields) {
     $ret = array();
+    $schema = $this->table_schema;
+    foreach ($fields as $field) {
+      if ($schema['fields'][$field]['type'] == 'text') {
+        throw new DataException(t('A text field cannot be made a primary key.'));
+      }
+    }
     db_add_primary_key($ret, $this->name, $fields);
     if ($ret[0]['success']) {
-      $schema = $this->table_schema;
       $schema['primary key'] = $fields;
       $this->update(array('table_schema' => $schema));
       drupal_get_schema($this->name, TRUE);
@@ -408,8 +413,23 @@ class DataTable {
    */
   public function changeField($field, $spec) {
     $ret = array();
+    // If new type is text, check for PK and index restrictions.
+    if ($spec['type'] == 'text') {
+      if (in_array($field, $this->table_schema['primary key'])) {
+        throw new DataException(t('Cannot make a primary key field a text field.'));
+      }
+      foreach ($this->table_schema['indexes'] as $index_name => $index) {
+        foreach ($index as $index_field) {
+          if (is_array($index_field)) {
+            $index_field = array_shift($index_field);
+          }
+          if ($field == $index_field) {
+            $this->dropIndex($index_field);
+          }
+        }
+      }
+    }
     db_change_field($ret, $this->name, $field, $field, $spec);
-
     if ($ret[0]['success']) {
       $schema = $this->table_schema;
       $schema['fields'][$field] = $spec;

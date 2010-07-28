@@ -953,7 +953,11 @@ function theme_data_ui_schema_compare_table($comparison) {
  *
  * Otherwise return FALSE.
  *
- * Currently checked: type, unsigned
+ * Currently checked: type, unsigned, default.
+ *
+ * @todo This is insane, we need to use clean specs instead of converting
+ * existing specs. This will require us also to not allow changes to indexes,
+ * PKs and field specs on the same form.
  */
 function _data_ui_changed($new, $field) {
   $changed = FALSE;
@@ -966,6 +970,9 @@ function _data_ui_changed($new, $field) {
     $changed = TRUE;
   }
   if ($changed) {
+    if ($field['type'] == 'text') {
+      unset($field['default']);
+    }
     return $field;
   }
   return FALSE;
