@@ -1,7 +1,7 @@
 // $Id$
 
-Data 6.x xxxxxxxxxxx
---------------------
+Data 6.x 1.0 Alpha 12, 2010-07-28
+---------------------------------
 
 - #866476 Fix CTools 1.7 compatibility issues.
 - #780358 Fix PK and index errors on table changes.
