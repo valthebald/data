@@ -170,8 +170,6 @@ class DataTestCaseUI extends DataTestCase {
     $fields = $this->randomFields($num_fields);
     $edit = $this->formatEditFields($fields);
     $this->drupalPost(NULL, $edit, 'Create');
-    // Data UI has prefixed the table name.
-    $table_name = data_name($table_name);
     $this->assertText('Created table '. $table_name);
 
     // Test schema in DB.
