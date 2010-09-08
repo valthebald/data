@@ -72,7 +72,8 @@ class data_taxonomy_views_handler_field_form extends views_handler_field {
     if (!empty($meta['data_taxonomy']['vocabularies'])) {
       foreach ($meta['data_taxonomy']['vocabularies'] as $vid) {
         if (!empty($this->options['vocabularies'][$vid])) {
-          $output .= drupal_get_form('data_taxonomy_tagging_form', $vid, $values->{$this->id}, $this->table, $this->options['path'], is_array($this->view->args) ? $this->view->args : array());
+          $vocabulary = data_taxonomy_get_vocabulary($vid);
+          $output .= drupal_get_form('data_taxonomy_tagging_form', $vocabulary->vid, $values->{$this->id}, $this->table, $this->options['path'], is_array($this->view->args) ? $this->view->args : array());
         }
       }
     }
