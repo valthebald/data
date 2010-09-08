@@ -235,7 +235,7 @@ function data_taxonomy_tagging_form_submit($form, &$form_state) {
   // Using clicked_button allows us to use more than one of the same form on
   // a screen.
   $post = $form_state['clicked_button']['#post'];
-  $tids = data_taxonomy_save_terms($form_state['values']['tags'], $post['vid']);
+  $tids = data_taxonomy_save_tags($form_state['values']['tags'], $post['vid']);
   data_taxonomy_save_relations($post['vid'], $post['id'], $post['table_name'], $tids);
 }
 
@@ -252,12 +252,17 @@ function data_taxonomy_save_relations($vid, $id, $table_name, $tids) {
 /**
  * Explode terms from typed input, create new terms.
  *
+ * @param $typed_input
+ *   A comma separated list of terms.
+ * @param $vid
+ *   A <em>numeric</em> vocabulary id (vid).
+ *
  * @todo: This should actually live in taxonomy module.
  *
  * @return
  *   Array of tids corresponding to the terms in typed_input.
  */
-function data_taxonomy_save_terms($typed_input, $vid) {
+function data_taxonomy_save_tags($typed_input, $vid) {
   $typed_terms = drupal_explode_tags($typed_input);
 
   $tids = array();
@@ -306,7 +311,7 @@ function data_taxonomy_ajax_save() {
 
     // Process and save terms & relations.
     $values = $form_state['values'];
-    $terms = data_taxonomy_save_terms($values['tags'], $values['vid']);
+    $terms = data_taxonomy_save_tags($values['tags'], $values['vid']);
     data_taxonomy_save_relations($values['vid'], $values['id'], $values['table_name'], array_keys($terms));
     drupal_json(array('status' => 1, 'data' => theme('links', data_taxonomy_tag_links($terms, $_POST['path'], explode('&', $_POST['args'])), array('class' => 'links data-taxonomy-tags'))));
     exit;
