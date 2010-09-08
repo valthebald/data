@@ -271,8 +271,8 @@ function data_taxonomy_save_term($name, $vid) {
   }
   if (!$term) {
     $term = array('vid' => $vid, 'name' => $name);
-    taxonomy_save_term($term);
   }
+  taxonomy_save_term($term);
   return $term;
 }
 
