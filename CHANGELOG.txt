@@ -3,6 +3,7 @@
 Data 6.x 1.0 xxxxxxxxxxxxxxxxxxxx
 ---------------------------------
 
+- #836878 rsoden, Will White, alex_b: Support mapping of complex terms.
 - #868740 Will White, alex_b: Support exportable vocabularies.
 - #895368 David Goode: data_taxonomy - term_data join for enabled data tables.
 - #693056 David Goode: data_taxonomy - don't override existing relationships.

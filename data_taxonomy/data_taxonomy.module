@@ -82,7 +82,7 @@ function data_taxonomy_data_insert($record, $table_name) {
     $id = $record[$info['id']];
     foreach ($info['vocabularies'] as $vid) {
       if (is_array($record['data_taxonomy:'. $vid])) {
-        _data_taxonomy_save_terms($table_name, $id, $record['data_taxonomy:'. $vid], $vocabulary);
+        _data_taxonomy_save_terms($table_name, $id, $record['data_taxonomy:'. $vid], data_taxonomy_get_vocabulary($vid));
       }
     }
   }
@@ -107,17 +107,35 @@ function data_taxonomy_data_update($record, $table_name) {
 /**
  * Helper function, inserts a series of taxonomy terms for a record.
  *
+ * Creates new taxonomy terms on the fly for vocabularies that are tags.
+ *
  * @param $table_name
  *   Table name of the record.
  * @param $id
  *   Record identifier.
  * @param $terms
- *   An array of term tids.
+ *   An array of terms. Can be an array of tids, term names, term arrays or
+ *   objects that can be casted into a term array. If the target vocabulary is
+ *   a tag vocabulary, non-existing terms will be created on the fly.
  * @param $vocabulary
  *   A vocuabulary object.
  */
 function _data_taxonomy_save_terms($table_name, $id, $terms, $vocabulary) {
   foreach ($terms as $term) {
+    if (is_string($term)) {
+      $term = data_taxonomy_save_term_name($term, $vocabulary->vid, $vocabulary->tags);
+    }
+    else {
+      if (is_object($term)) {
+        $term = (array)$term;
+      }
+      if (is_array($term)) {
+        $term = data_taxonomy_save_term_array($term, $vocabulary->vid, $vocabulary->tags);
+      }
+    }
+    if (is_array($term)) {
+      $term = isset($term['tid']) ? $term['tid'] : FALSE;
+    }
     if (is_numeric($term)) {
       db_query("INSERT INTO {data_taxonomy}(id, data_table_name, tid) VALUES(%d, '%s', %d)", $id, $table_name, $term);
     }
@@ -255,25 +273,78 @@ function data_taxonomy_save_relations($vid, $id, $table_name, $tids) {
  * Save a term, create a new one if it does not exist yet.
  *
  * @param $name
- *   The taxonomy term to look up.
+ *   A taxonomy term name to look up and save.
  * @param $vid
  *   A <em>numeric</em> vocabulary id (vid).
  *
  * @return
  *   A taxonomy term array.
  */
-function data_taxonomy_save_term($name, $vid) {
-  foreach (taxonomy_get_term_by_name($name) as $possibility) {
-    if ($possibility->vid == $vid) {
-      $term = $possibility;
-      break;
-    }
+function data_taxonomy_save_term_name($name, $vid) {
+  if ($term = data_taxonomy_lookup_term($name, $vid)) {
+    return $term;
   }
-  if (!$term) {
-    $term = array('vid' => $vid, 'name' => $name);
+  $term = array(
+    'vid' => $vid,
+    'name' => $name,
+  );
+  taxonomy_save_term($term);
+  return $term;
+}
+
+/**
+ * Save a term array, create a new one if it does not exist yet.
+ *
+ * @param $term
+ *   A taxonomy term array to look up and save.
+ * @param $vid
+ *   A <em>numeric</em> vocabulary id (vid).
+ *
+ * @return
+ *   A taxonomy term array.
+ */
+function data_taxonomy_save_term_array($term, $vid) {
+  if (!isset($term[$vid])) {
+    $term['vid'] = $vid;
+  }
+  if (!isset($term['tid']) || $term['vid'] != $vid) {
+    $term += data_taxonomy_lookup_term($term['name'], $vid);
   }
   taxonomy_save_term($term);
   return $term;
+}
+
+/**
+ * Look up a term by name and vid.
+ *
+ * @param $name
+ *   Term name.
+ * @param $vid
+ *   A <em>numeric</em> vocabulary id (vid).
+ *
+ * @return
+ *   A taxonomy term array if there is a term for $name/$vid, NULL otherwise.
+ */
+function data_taxonomy_lookup_term($name, $vid) {
+  foreach (data_taxonomy_get_term_by_name_vid($name, $vid) as $term) {
+    if ($term->vid == $vid) {
+      return (array)$term;
+    }
+  }
+}
+
+/**
+ * Look up a term by name and vocabulary id.
+ *
+ * @see taxonomy_get_term_by_name().
+ */
+function data_taxonomy_get_term_by_name_vid($name, $vid) {
+  $db_result = db_query(db_rewrite_sql("SELECT t.tid, t.* FROM {term_data} t WHERE t.vid = %d AND LOWER(t.name) = LOWER('%s')", 't', 'tid'), $vid, trim($name));
+  $result = array();
+  while ($term = db_fetch_object($db_result)) {
+    $result[] = $term;
+  }
+  return $result;
 }
 
 /**
