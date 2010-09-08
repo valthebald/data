@@ -250,6 +250,31 @@ function data_taxonomy_save_relations($vid, $id, $table_name, $tids) {
 }
 
 /**
+ * Look up a taxonomy term by name, create it if it does not exist yet.
+ *
+ * @param $name
+ *   The taxonomy term to look up.
+ * @param $vid
+ *   A <em>numeric</em> vocabulary id (vid).
+ *
+ * @return
+ *   A taxonomy term array.
+ */
+function data_taxonomy_get_term_by_name($name, $vid) {
+  foreach (taxonomy_get_term_by_name($name) as $possibility) {
+    if ($possibility->vid == $vid) {
+      $term = $possibility;
+      break;
+    }
+  }
+  if (!$term) {
+    $term = array('vid' => $vid, 'name' => $name);
+    $status = taxonomy_save_term($term);
+  }
+  return $term;
+}
+
+/**
  * Explode terms from typed input, create new terms.
  *
  * @param $typed_input
@@ -263,30 +288,11 @@ function data_taxonomy_save_relations($vid, $id, $table_name, $tids) {
  *   Array of tids corresponding to the terms in typed_input.
  */
 function data_taxonomy_save_tags($typed_input, $vid) {
-  $typed_terms = drupal_explode_tags($typed_input);
-
   $tids = array();
-  foreach ($typed_terms as $typed_term) {
-    // See if the term exists in the chosen vocabulary
-    // and return the tid; otherwise, add a new record.
-    $possibilities = taxonomy_get_term_by_name($typed_term);
-    $typed_term_tid = NULL; // tid match, if any.
-    foreach ($possibilities as $possibility) {
-      if ($possibility->vid == $vid) {
-        $typed_term_tid = $possibility->tid;
-        $term = $possibility;
-        break;
-      }
-    }
-
-    if (!$typed_term_tid) {
-      $term = array('vid' => $vid, 'name' => $typed_term);
-      $status = taxonomy_save_term($term);
-      $typed_term_tid = $term['tid'];
-    }
-
+  foreach (drupal_explode_tags($typed_input) as $typed_term) {
+    $term = data_taxonomy_get_term_by_name($typed_term, $vid);
     // Cast the edit as an object as though it were retrieved from the DB.
-    $tids[$typed_term_tid] = (object) $term;
+    $tids[$term['tid']] = (object) $term;
   }
   return $tids;
 }
