@@ -101,5 +101,11 @@ function data_update_6002() {
   );
   db_change_field($ret, 'data_tables', 'name', 'name', $spec);
   db_add_primary_key($ret, 'data_tables', array('name'));
+  // reset cTools static cache of this table; otherwise it throws an error about
+  // lacking a primary key, which just adds insult to injury as we're trying to fix that!
+  drupal_get_schema('data_tables', TRUE);
+  if (function_exists('ctools_static_reset')) {
+    ctools_static_reset('ctools_export_get_schema');
+  }
   return $ret;
 }
