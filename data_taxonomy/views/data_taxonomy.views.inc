@@ -59,12 +59,14 @@ function data_taxonomy_views_data() {
         'left_field' => $meta['data_taxonomy']['id'],
         'field' => 'id',
       );
-      $data[$table->get('name')][$meta['data_taxonomy']['id']]['relationship'] = array(
+      // don't want to overwrite any other relationships this might have...
+      $data[$table->get('name')]['data_taxonomy_'. $meta['data_taxonomy']['id']]['relationship'] = array(
         'title' => t('Term tid.'),
         'help' => t('Relate a data record to a term tid.'),
         'label' => t('Relate a data record to a term tid.'),
         'base' => 'data_taxonomy',
         'base field' => 'id',
+        'relationship field' => $meta['data_taxonomy']['id'],
       );
       $data[$table->get('name')]['data_taxonomy_form'] = array(
         'field' => array(
@@ -80,6 +82,9 @@ function data_taxonomy_views_data() {
 
 /**
  * Implementation of hook_views_data_alter().
+ *
+ * Expose node table fields/filters for terms as base table.
+ * @todo This really doesn't belong here.
  */
 function data_taxonomy_views_data_alter(&$data) {
   $data['node']['table']['join']['term_node'] = array(

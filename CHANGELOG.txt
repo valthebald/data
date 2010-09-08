@@ -3,6 +3,7 @@
 Data 6.x 1.0 xxxxxxxxxxxxxxxxxxxx
 ---------------------------------
 
+- #693056 David Goode: data_taxonomy - don't override existing relationships.
 - #866476 David Goode: Fix notice with CTools 1.7 upgrade.
 
 Data 6.x 1.0 Alpha 12, 2010-07-28
