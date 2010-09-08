@@ -82,7 +82,7 @@ function data_taxonomy_data_insert($record, $table_name) {
     $id = $record[$info['id']];
     foreach ($info['vocabularies'] as $vid) {
       if (is_array($record['data_taxonomy:'. $vid])) {
-        _data_taxonomy_save_terms($table_name, $id, $record['data_taxonomy:'. $vid], $vid);
+        _data_taxonomy_save_terms($table_name, $id, $record['data_taxonomy:'. $vid], $vocabulary->vid);
       }
     }
   }
@@ -98,7 +98,7 @@ function data_taxonomy_data_update($record, $table_name) {
       if (is_array($record['data_taxonomy:'. $vid])) {
         $vocabulary = data_taxonomy_get_vocabulary($vid);
         db_query("DELETE dt FROM {data_taxonomy} dt JOIN {term_data} td ON dt.tid = td.tid WHERE td.vid = %d", $vocabulary->vid);
-        _data_taxonomy_save_terms($table_name, $id, $record['data_taxonomy:'. $vid], $vid);
+        _data_taxonomy_save_terms($table_name, $id, $record['data_taxonomy:'. $vid], $vocabulary->vid);
       }
     }
   }
@@ -114,7 +114,7 @@ function data_taxonomy_data_update($record, $table_name) {
  * @param $terms
  *   An array of term tids.
  * @param $vid
- *   The module or vid identifier of a vocabulary.
+ *   The numeric vid identifier of a vocabulary.
  */
 function _data_taxonomy_save_terms($table_name, $id, $terms, $vid) {
   foreach ($terms as $tid) {
