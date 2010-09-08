@@ -21,7 +21,7 @@ function data_taxonomy_settings_form(&$form_state, $table) {
     '#type' => 'checkboxes',
     '#title' => t('Vocabularies'),
     '#options' => $vocabularies,
-    '#default_value' => $meta['data_taxonomy']['vocabularies'],
+    '#default_value' => isset($meta['data_taxonomy']['vocabularies']) ? $meta['data_taxonomy']['vocabularies'] : array(),
     '#description' => t('Select the vocabulary to whose terms this data table\'s entries can be related to.'),
   );
   $schema = $table->get('table_schema');
