@@ -310,7 +310,9 @@ function data_taxonomy_save_term_array($term, $vid) {
     $term['vid'] = $vid;
   }
   if (!isset($term['tid']) || $term['vid'] != $vid) {
-    $term += data_taxonomy_lookup_term($term['name'], $vid);
+    if ($lookup = data_taxonomy_lookup_term($term['name'], $vid)) {
+      $term = $term + $lookup;
+    }
   }
   taxonomy_save_term($term);
   return $term;
