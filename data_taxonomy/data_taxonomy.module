@@ -77,7 +77,7 @@ function data_taxonomy_feeds_data_processor_targets_alter(&$fields, $data_table)
  * Implementation of hook_data_insert().
  */
 function data_taxonomy_data_insert($record, $table_name) {
-  if ($info = data_taxonomy_get_info($data_table)) {
+  if ($info = data_taxonomy_get_info($table_name)) {
     $id = $record[$info['id']];
     foreach ($info['vocabularies'] as $vid) {
       if (is_array($record['data_taxonomy:'. $vid])) {
@@ -91,7 +91,7 @@ function data_taxonomy_data_insert($record, $table_name) {
  * Implementation of hook_data_update().
  */
 function data_taxonomy_data_update($record, $table_name) {
-  if ($info = data_taxonomy_get_info($data_table)) {
+  if ($info = data_taxonomy_get_info($table_name)) {
     $id = $record[$info['id']];
     foreach ($info['vocabularies'] as $vid) {
       if (is_array($record['data_taxonomy:'. $vid])) {
