@@ -90,17 +90,6 @@ function data_taxonomy_data_insert($record, $table_name) {
 }
 
 /**
- * Implementation of hook_data_delete_query_alter().
- */
-function data_taxonomy_data_delete_query_alter($query, $table_name) {
-  if ($info = data_taxonomy_get_info($table_name)) {
-    $table_name = db_escape_table($table_name);
-    $query->addSubject('data_taxonomy');
-    $query->addJoin('data_taxonomy', "$table_name.{$info['id']} = data_taxonomy.id AND data_taxonomy.data_table_name = '$table_name'", 'LEFT JOIN');
-  }
-}
-
-/**
  * Implementation of hook_data_update().
  */
 function data_taxonomy_data_update($record, $table_name) {
@@ -115,6 +104,17 @@ function data_taxonomy_data_update($record, $table_name) {
         }
       }
     }
+  }
+}
+
+/**
+ * Implementation of hook_data_delete_query_alter().
+ */
+function data_taxonomy_data_delete_query_alter($query, $table_name) {
+  if ($info = data_taxonomy_get_info($table_name)) {
+    $table_name = db_escape_table($table_name);
+    $query->addSubject('data_taxonomy');
+    $query->addJoin('data_taxonomy', "$table_name.{$info['id']} = data_taxonomy.id AND data_taxonomy.data_table_name = '$table_name'", 'LEFT JOIN');
   }
 }
 
