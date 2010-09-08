@@ -27,7 +27,7 @@ class data_taxonomy_views_handler_field_form extends views_handler_field {
     $meta = $table->get('meta');
     if (!empty($meta['data_taxonomy']['vocabularies'])) {
       foreach ($meta['data_taxonomy']['vocabularies'] as $vid) {
-        $options[$vid] = taxonomy_vocabulary_load($vid)->name;
+        $options[$vid] = data_taxonomy_get_vocabulary($vid)->name;
       }
     }
     if (!empty($options)) {

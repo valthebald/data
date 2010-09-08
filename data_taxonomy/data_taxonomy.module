@@ -64,7 +64,7 @@ function data_taxonomy_perm() {
 function data_taxonomy_feeds_data_processor_targets_alter(&$fields, $data_table) {
   if ($info = data_taxonomy_get_info($data_table)) {
     foreach ($info['vocabularies'] as $vid) {
-      $vocabulary = taxonomy_vocabulary_load($vid);
+      $vocabulary = data_taxonomy_get_vocabulary($vid);
       $fields['data_taxonomy:'. $vid] = array(
         'name' => t('Taxonomy: @vocabulary', array("@vocabulary" => $vocabulary->name)),
         'description' => t('Map to taxonomy terms of @vocabulary vocabulary.', array("@vocabulary" => $vocabulary->name)),
@@ -108,7 +108,8 @@ function data_taxonomy_data_update($record, $table_name) {
     $id = $record[$info['id']];
     foreach ($info['vocabularies'] as $vid) {
       if (is_array($record['data_taxonomy:'. $vid])) {
-        db_query("DELETE dt FROM {data_taxonomy} dt JOIN {term_data} td ON dt.tid = td.tid WHERE td.vid = %d", $vid);
+        $vocabulary = data_taxonomy_get_vocabulary($vid);
+        db_query("DELETE dt FROM {data_taxonomy} dt JOIN {term_data} td ON dt.tid = td.tid WHERE td.vid = %d", $vocabulary->vid);
         foreach ($record['data_taxonomy:'. $vid] as $tid) {
           db_query("INSERT INTO {data_taxonomy}(id, data_table_name, tid) VALUES(%d, '%s', %d)", $id, $table_name, $tid);
         }
@@ -349,6 +350,18 @@ function _data_taxonomy_replace_tokens($path, $args) {
 }
 
 /**
+ * Load a vocabulary by its module name.
+ */
+function _data_taxonomy_vocabulary_load_by_module($module) {
+  $vocabularies = taxonomy_get_vocabularies();
+  foreach ($vocabularies as $vocabulary) {
+    if ($vocabulary->module == $module) {
+      return $vocabulary;
+    }
+  }
+}
+
+/**
  * Preprocessor for theme('data_taxonomy_tagging_form').
  */
 function template_preprocess_data_taxonomy_tagging_form(&$vars) {
@@ -359,4 +372,44 @@ function template_preprocess_data_taxonomy_tagging_form(&$vars) {
     $vars['edit'] = $vars['form']['#edit'];
   }
   $vars['tags'] = theme('links', data_taxonomy_tag_links($vars['form']['#terms'], $vars['form']['#path'], $vars['form']['#args']), array('class' => 'links data-taxonomy-tags'));
+}
+
+/**
+ * Get a vocabulary by vid or module name.
+ *
+ * @param $id
+ *   A module name or a numeric vocabulary id.
+ *
+ * @return
+ *   An object of type stdClass that represents a vocabulary.
+ */
+function data_taxonomy_get_vocabulary($id) {
+  static $vocabularies;
+  if (!isset($vocabularies[$id])) {
+    foreach (taxonomy_get_vocabularies() as $vocabulary) {
+      if ($vocabulary->vid == $id) {
+        $vocabularies[$id] = $vocabulary;
+        break;
+      }
+      elseif ($vocabulary->module == $id) {
+        $vocabularies[$id] = $vocabulary;
+        break;
+      }
+    }
+  }
+  return $vocabularies[$id];
+}
+
+/**
+ * Return the vocabulary identifier, the vocabulary's vid or module.
+ *
+ * @return
+ *   Vocabulary's module name if it is a features vocabulary (= exportable),
+ *   vocabulary's vid otherwise.
+ */
+function data_taxonomy_vocabulary_id($vocabulary) {
+  if (strpos($vocabulary->module, 'features_') === 0) {
+    return $vocabulary->module;
+  }
+  return $vocabulary->vid;
 }

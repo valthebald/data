@@ -13,7 +13,12 @@ function data_taxonomy_settings_form(&$form_state, $table) {
 
   $form = $vocabularies = array();
   foreach (taxonomy_get_vocabularies() as $v) {
-    $vocabularies[$v->vid] = $v->name;
+    if (strpos($v->module, 'features_') === 0) {
+      $vocabularies[filter_xss_admin($v->module)] = check_plain($v->name);
+    }
+    else {
+      $vocabularies[$v->vid] = check_plain($v->name);
+    }
   }
   $meta = $table->get('meta');
   $form['#table'] = $table;
