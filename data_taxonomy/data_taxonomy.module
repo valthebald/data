@@ -135,10 +135,10 @@ function data_taxonomy_data_delete_query_alter($query, $table_name) {
 /**
  * Get data_taxonomy information for a given data table.
  */
-function data_taxonomy_get_info($data_table) {
+function data_taxonomy_get_info($table_name) {
   static $info;
   if (empty($info)) {
-    $meta = data_get_table($data_table)->get('meta');
+    $meta = data_get_table($table_name)->get('meta');
     if (is_array($meta['data_taxonomy'])) {
       $info = $meta['data_taxonomy'];
     }
