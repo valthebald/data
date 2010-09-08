@@ -262,7 +262,7 @@ function data_taxonomy_save_relations($vid, $id, $table_name, $tids) {
  * @return
  *   A taxonomy term array.
  */
-function data_taxonomy_get_term_by_name($name, $vid) {
+function data_taxonomy_get_term($name, $vid) {
   foreach (taxonomy_get_term_by_name($name) as $possibility) {
     if ($possibility->vid == $vid) {
       $term = $possibility;
@@ -271,7 +271,7 @@ function data_taxonomy_get_term_by_name($name, $vid) {
   }
   if (!$term) {
     $term = array('vid' => $vid, 'name' => $name);
-    $status = taxonomy_save_term($term);
+    taxonomy_save_term($term);
   }
   return $term;
 }
@@ -292,7 +292,7 @@ function data_taxonomy_get_term_by_name($name, $vid) {
 function data_taxonomy_save_tags($typed_input, $vid) {
   $tids = array();
   foreach (drupal_explode_tags($typed_input) as $typed_term) {
-    $term = data_taxonomy_get_term_by_name($typed_term, $vid);
+    $term = data_taxonomy_get_term($typed_term, $vid);
     // Cast the edit as an object as though it were retrieved from the DB.
     $tids[$term['tid']] = (object) $term;
   }
