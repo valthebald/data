@@ -3,6 +3,7 @@
 Data 6.x 1.0 xxxxxxxxxxxxxxxxxxxx
 ---------------------------------
 
+- #895368 David Goode: data_taxonomy - term_data join for enabled data tables.
 - #693056 David Goode: data_taxonomy - don't override existing relationships.
 - #866476 David Goode: Fix notice with CTools 1.7 upgrade.
 

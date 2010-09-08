@@ -59,6 +59,12 @@ function data_taxonomy_views_data() {
         'left_field' => $meta['data_taxonomy']['id'],
         'field' => 'id',
       );
+      // allow term data to join directly to affected data tables
+      $data['term_data']['table']['join'][$table->get('name')] = array(
+        'left_table' => 'data_taxonomy',
+        'left_field' => 'tid',
+        'field' => 'tid',
+      );
       // don't want to overwrite any other relationships this might have...
       $data[$table->get('name')]['data_taxonomy_'. $meta['data_taxonomy']['id']]['relationship'] = array(
         'title' => t('Term tid.'),
