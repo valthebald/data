@@ -117,8 +117,10 @@ function data_taxonomy_data_update($record, $table_name) {
  *   The numeric vid identifier of a vocabulary.
  */
 function _data_taxonomy_save_terms($table_name, $id, $terms, $vid) {
-  foreach ($terms as $tid) {
-    db_query("INSERT INTO {data_taxonomy}(id, data_table_name, tid) VALUES(%d, '%s', %d)", $id, $table_name, $tid);
+  foreach ($terms as $term) {
+    if (is_numeric($term)) {
+      db_query("INSERT INTO {data_taxonomy}(id, data_table_name, tid) VALUES(%d, '%s', %d)", $id, $table_name, $term);
+    }
   }
 }
 
