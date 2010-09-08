@@ -328,11 +328,15 @@ function data_taxonomy_save_term_array($term, $vid) {
  *   A taxonomy term array if there is a term for $name/$vid, NULL otherwise.
  */
 function data_taxonomy_lookup_term($name, $vid) {
-  foreach (data_taxonomy_get_term_by_name_vid($name, $vid) as $term) {
-    if ($term->vid == $vid) {
-      return (array)$term;
+  static $terms;
+  if (!isset($terms[$vid][$name])) {
+    foreach (data_taxonomy_get_term_by_name_vid($name, $vid) as $term) {
+      if ($term->vid == $vid) {
+        $terms[$vid][$name] = (array)$term;
+      }
     }
   }
+  return isset($terms[$vid][$name]) ? $terms[$vid][$name] : NULL;
 }
 
 /**
