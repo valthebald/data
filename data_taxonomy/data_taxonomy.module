@@ -105,6 +105,15 @@ function data_taxonomy_data_update($record, $table_name) {
 }
 
 /**
+ * Implementation of hook_taxonomy().
+ */
+function data_taxonomy_taxonomy($op = NULL, $type = NULL, $term = NULL) {
+  if ($type =='term' && $term['tid'] && $op == 'delete') {
+    db_query("DELETE FROM {data_taxonomy} WHERE tid = %d", $term['tid']);
+  }
+}
+
+/**
  * Helper function, inserts a series of taxonomy terms for a record.
  *
  * Creates new taxonomy terms on the fly for vocabularies that are tags.
