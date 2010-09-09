@@ -194,7 +194,7 @@ function data_ui_adjust_form_submit_alter_table($form, &$form_state) {
   if (isset($form['#comparison']['reasons'])) {
     foreach ($form['#comparison']['reasons'] as $field_reason) {
       try {
-        _data_ui_alter_table($form['#table'], $field_reason);
+        data_alter_table($form['#table'], $field_reason);
         $resolved[] = $field_reason;
       }
       catch (Exception $e) {
@@ -1026,50 +1026,4 @@ function _data_ui_get_join($join, $field) {
     }
   }
   return FALSE;
-}
-
-/**
- * Helper function for adjusting a table's real schema.
- * @todo: this should live in schema module and should use better defined $reason keys.
- *
- * @throws DataException on error.
- */
-function _data_ui_alter_table($table, $field_reason) {
-  list($field, $reason) = explode(': ', $field_reason);
-  $schema = $table->get('table_schema');
-
-  switch ($reason) {
-    case 'not in database':
-      if (isset($schema['fields'][$field])) {
-        $table->addField($field, $schema['fields'][$field]);
-      }
-      break;
-
-    case 'missing in database':
-      list($type, $field) = explode(' ', $field);
-      // @todo: support multiple keys.
-      if ($type == 'indexes') {
-        $table->addIndex($field);
-      }
-      elseif ($type == 'unique keys') {
-        $table->addUniqueKey($field);
-      }
-      elseif ($type == 'primary key') {
-        $table->addPrimaryKey($schema['primary keys']);
-      }
-      break;
-
-    case 'primary key:<br />declared': // @todo: yikes!
-      $table->dropPrimaryKey();
-      $table->changePrimaryKey($schema['primary keys']);
-    case 'missing in schema':
-      if ($field == 'primary key') {
-        $table->dropPrimaryKey();
-      }
-      break;
-
-    case 'unexpected column in database':
-      $table->dropField($field);
-      break;
-  }
 }
