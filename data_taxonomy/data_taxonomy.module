@@ -81,7 +81,7 @@ function data_taxonomy_data_insert($record, $table_name) {
   if ($info = data_taxonomy_get_info($table_name)) {
     $id = $record[$info['id']];
     foreach ($info['vocabularies'] as $vid) {
-      if (is_array($record['data_taxonomy:'. $vid])) {
+      if (isset($record['data_taxonomy:'. $vid])) {
         _data_taxonomy_insert_terms($table_name, $id, $record['data_taxonomy:'. $vid], data_taxonomy_get_vocabulary($vid));
       }
     }
@@ -95,7 +95,7 @@ function data_taxonomy_data_update($record, $table_name) {
   if ($info = data_taxonomy_get_info($table_name)) {
     $id = $record[$info['id']];
     foreach ($info['vocabularies'] as $vid) {
-      if (is_array($record['data_taxonomy:'. $vid])) {
+      if (isset($record['data_taxonomy:'. $vid])) {
         $vocabulary = data_taxonomy_get_vocabulary($vid);
         db_query("DELETE dt FROM {data_taxonomy} dt JOIN {term_data} td ON dt.tid = td.tid WHERE td.vid = %d", $vocabulary->vid);
         _data_taxonomy_insert_terms($table_name, $id, $record['data_taxonomy:'. $vid], $vocabulary);
@@ -121,6 +121,9 @@ function data_taxonomy_data_update($record, $table_name) {
  *   A vocuabulary object.
  */
 function _data_taxonomy_insert_terms($table_name, $id, $terms, $vocabulary) {
+  if (!is_array($terms)) {
+    $terms = array($terms);
+  }
   $tids = array();
   foreach ($terms as $term) {
     if (is_string($term)) {
