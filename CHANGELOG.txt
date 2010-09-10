@@ -1,6 +1,6 @@
 // $Id$
 
-Data 6.x 1.0 xxxxxxxxxxxxxxxxxxxx
+Data 6.x 1.0 Alpha 13, 2010-07-28
 ---------------------------------
 
 - #836878 rsoden, Will White, alex_b: Support mapping of complex terms.
