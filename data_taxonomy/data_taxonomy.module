@@ -469,18 +469,6 @@ function _data_taxonomy_replace_tokens($path, $args) {
 }
 
 /**
- * Load a vocabulary by its module name.
- */
-function _data_taxonomy_vocabulary_load_by_module($module) {
-  $vocabularies = taxonomy_get_vocabularies();
-  foreach ($vocabularies as $vocabulary) {
-    if ($vocabulary->module == $module) {
-      return $vocabulary;
-    }
-  }
-}
-
-/**
  * Preprocessor for theme('data_taxonomy_tagging_form').
  */
 function template_preprocess_data_taxonomy_tagging_form(&$vars) {
