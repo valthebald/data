@@ -1,6 +1,6 @@
 // $Id$
 
-Data 6.x 1.0 xxxxxxxxxxxxxxxxxxxx
+Data 6.x 1.0 Alpha 14, 2010-08-28
 ---------------------------------
 
 - #883090 batje, alex_b: Fix static caching in data_taxonomy_get_info().
