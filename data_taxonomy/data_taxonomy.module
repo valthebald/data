@@ -136,6 +136,7 @@ function _data_taxonomy_insert_terms($table_name, $id, $terms, $vocabulary) {
   $tids = array();
   foreach ($terms as $term) {
     if (is_string($term)) {
+      $term = data_taxonomy_sanitize($term, $vocabulary->vid);
       $term = data_taxonomy_save_term_name($term, $vocabulary->vid, $vocabulary->tags);
     }
     else {
@@ -143,6 +144,7 @@ function _data_taxonomy_insert_terms($table_name, $id, $terms, $vocabulary) {
         $term = (array)$term;
       }
       if (is_array($term)) {
+        $term['name'] = data_taxonomy_sanitize($term['name'], $vocabulary->vid);
         $term = data_taxonomy_save_term_array($term, $vocabulary->vid, $vocabulary->tags);
       }
     }
@@ -328,6 +330,18 @@ function data_taxonomy_save_term_array($term, $vid) {
   }
   taxonomy_save_term($term);
   return $term;
+}
+
+/**
+ * Sanitize a term name depending on its vocabulary settings.
+ */
+function data_taxonomy_sanitize($name, $vid) {
+  $vocabulary = taxonomy_vocabulary_load($vid);
+  if ($vocabulary->tags) {
+    // Make sure there aren't any terms with a comma (=tag delimiter) in it.
+    return preg_replace('/\s*,\s*/', ' ', $name);
+  }
+  return $name;
 }
 
 /**

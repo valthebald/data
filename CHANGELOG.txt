@@ -1,5 +1,10 @@
 // $Id$
 
+Data 6.x 1.0 xxxxxxxxxxxxxxxxxxxx
+---------------------------------
+
+- #922868 jscm, alex_b: Don't allow commas in tag names.
+
 Data 6.x 1.0 Alpha 13, 2010-07-28
 ---------------------------------
 
