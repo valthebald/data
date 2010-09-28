@@ -57,4 +57,8 @@ opposed to escaped when using views.
 RECOMMENDATIONS
 ===============
 
-Check out FeedAPI Data module for using Data as a storage engine for feed items.
+Check out Feeds for importing content into Data tables. A working example
+thereof can be found in Managing News.
+
+http://drupal.org/project/feeds
+http://managingnews.com
