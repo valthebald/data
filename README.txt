@@ -54,7 +54,7 @@ opposed to escaped when using views.
    the 'views_handler_field_data_markup'
 
 
-RECOMMENDATIONS
+Recommendations
 ===============
 
 Check out Feeds for importing content into Data tables. A working example
