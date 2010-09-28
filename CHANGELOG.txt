@@ -3,6 +3,7 @@
 Data 6.x 1.0 xxxxxxxxxxxxxxxxxxxx
 ---------------------------------
 
+- #883090 batje, alex_b: Fix static caching in data_taxonomy_get_info().
 - #901944 markdorison: Document HTML Fields.
 - #922868 jscm, alex_b: Don't allow commas in tag names.
 

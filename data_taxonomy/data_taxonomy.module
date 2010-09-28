@@ -173,14 +173,15 @@ function data_taxonomy_data_delete_query_alter($query, $table_name) {
  * Get data_taxonomy information for a given data table.
  */
 function data_taxonomy_get_info($table_name) {
-  static $info;
-  if (empty($info)) {
+  static $info = array();
+  if (!isset($info[$table_name])) {
+    $info[$table_name] = FALSE;
     $meta = data_get_table($table_name)->get('meta');
     if (is_array($meta['data_taxonomy'])) {
-      $info = $meta['data_taxonomy'];
+      $info[$table_name] = $meta['data_taxonomy'];
     }
   }
-  return $info;
+  return $info[$table_name];
 }
 
 /**
