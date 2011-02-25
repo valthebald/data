@@ -1,5 +1,4 @@
 <?php
-// $Id$
 ?>
 <div class='data-taxonomy-tagging-form'>
   <label><?php print $label ?></label>

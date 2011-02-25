@@ -1,4 +1,3 @@
-; $Id$
 name = "Data Search"
 description = "Provides search and views search integration for Data tables."
 package = Data

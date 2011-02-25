@@ -1,4 +1,3 @@
-// $Id$
 
 Drupal.behaviors.data_node = function(context) {
   // Link AHAH

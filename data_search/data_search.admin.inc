@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Views handler configuration form.

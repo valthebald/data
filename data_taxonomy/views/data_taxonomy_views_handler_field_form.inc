@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Provide a form to associate data records with taxonomy terms.

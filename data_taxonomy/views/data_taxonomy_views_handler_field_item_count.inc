@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Class defition for data_node_views_handler_field_item_count.

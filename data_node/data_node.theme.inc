@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Theme functions for Data Node module.
