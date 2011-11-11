@@ -68,7 +68,7 @@ function data_ui_views_default_views() {
         'style_options' => array(),
         'wildcard' => 'all',
         'wildcard_substitution' => 'All',
-        'title' => $table->get('title') .' %1',
+        'title' => $table->get('title') . ' %1',
         'id' => $first,
         'table' => $table->get('name'),
         'field' => $first,

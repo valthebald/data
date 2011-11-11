@@ -5,7 +5,9 @@
  */
 
 class data_node_views_handler_field_item_count extends views_handler_field {
-  function query() { return; }
+  function query() {
+    return;
+  }
 
   function pre_render($result) {
     $this->items = array();

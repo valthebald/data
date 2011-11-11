@@ -11,7 +11,7 @@
 function data_taxonomy_views_api() {
   return array(
     'api' => '2.0',
-    'path' => drupal_get_path('module', 'data_taxonomy') .'/views',
+    'path' => drupal_get_path('module', 'data_taxonomy') . '/views',
   );
 }
 
@@ -65,7 +65,7 @@ function data_taxonomy_feeds_data_processor_targets_alter(&$fields, $table_name)
   if ($info = data_taxonomy_get_info($table_name)) {
     foreach ($info['vocabularies'] as $vid) {
       $vocabulary = data_taxonomy_get_vocabulary($vid);
-      $fields['data_taxonomy:'. $vid] = array(
+      $fields['data_taxonomy:' . $vid] = array(
         'name' => t('Taxonomy: @vocabulary', array("@vocabulary" => $vocabulary->name)),
         'description' => t('Map to taxonomy terms of @vocabulary vocabulary.', array("@vocabulary" => $vocabulary->name)),
       );
@@ -80,8 +80,8 @@ function data_taxonomy_data_insert($record, $table_name) {
   if ($info = data_taxonomy_get_info($table_name)) {
     $id = $record[$info['id']];
     foreach ($info['vocabularies'] as $vid) {
-      if (isset($record['data_taxonomy:'. $vid])) {
-        _data_taxonomy_insert_terms($table_name, $id, $record['data_taxonomy:'. $vid], data_taxonomy_get_vocabulary($vid));
+      if (isset($record['data_taxonomy:' . $vid])) {
+        _data_taxonomy_insert_terms($table_name, $id, $record['data_taxonomy:' . $vid], data_taxonomy_get_vocabulary($vid));
       }
     }
   }
@@ -94,10 +94,10 @@ function data_taxonomy_data_update($record, $table_name) {
   if ($info = data_taxonomy_get_info($table_name)) {
     $id = $record[$info['id']];
     foreach ($info['vocabularies'] as $vid) {
-      if (isset($record['data_taxonomy:'. $vid])) {
+      if (isset($record['data_taxonomy:' . $vid])) {
         $vocabulary = data_taxonomy_get_vocabulary($vid);
         db_query("DELETE dt FROM {data_taxonomy} dt JOIN {term_data} td ON dt.tid = td.tid WHERE td.vid = %d", $vocabulary->vid);
-        _data_taxonomy_insert_terms($table_name, $id, $record['data_taxonomy:'. $vid], $vocabulary);
+        _data_taxonomy_insert_terms($table_name, $id, $record['data_taxonomy:' . $vid], $vocabulary);
       }
     }
   }
@@ -107,7 +107,7 @@ function data_taxonomy_data_update($record, $table_name) {
  * Implementation of hook_taxonomy().
  */
 function data_taxonomy_taxonomy($op = NULL, $type = NULL, $term = NULL) {
-  if ($type =='term' && $term['tid'] && $op == 'delete') {
+  if ($type == 'term' && $term['tid'] && $op == 'delete') {
     db_query("DELETE FROM {data_taxonomy} WHERE tid = %d", $term['tid']);
   }
 }
@@ -140,7 +140,7 @@ function _data_taxonomy_insert_terms($table_name, $id, $terms, $vocabulary) {
     }
     else {
       if (is_object($term)) {
-        $term = (array)$term;
+        $term = (array) $term;
       }
       if (is_array($term)) {
         $term['name'] = data_taxonomy_sanitize($term['name'], $vocabulary->vid);
@@ -223,7 +223,7 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $table_name, $path,
   $form['tags'] = array(
     '#type' => 'textfield',
     '#default_value' => implode(', ', $tags),
-    '#autocomplete_path' => 'taxonomy/autocomplete/'. $vid,
+    '#autocomplete_path' => 'taxonomy/autocomplete/' . $vid,
     '#id' => "edit-tags-data-taxonomy-{$vid}-{$id}",
     '#access' => $access,
   );
@@ -240,7 +240,6 @@ function data_taxonomy_tagging_form(&$form_state, $vid, $id, $table_name, $path,
     '#type' => 'submit',
     '#value' => t('Save'),
     '#access' => $access,
-
     // AHAH stack: We need to assign our submit button its own ID as auto
     // assignment will quickly lead to a situation where our AJAX form button
     // has a different ID from the original.
@@ -360,7 +359,7 @@ function data_taxonomy_lookup_term($name, $vid) {
   if (!isset($terms[$vid][$name])) {
     foreach (data_taxonomy_get_term_by_name_vid($name, $vid) as $term) {
       if ($term->vid == $vid) {
-        $terms[$vid][$name] = (array)$term;
+        $terms[$vid][$name] = (array) $term;
       }
     }
   }
@@ -486,8 +485,8 @@ function _data_taxonomy_replace_tokens($path, $args) {
  * Preprocessor for theme('data_taxonomy_tagging_form').
  */
 function template_preprocess_data_taxonomy_tagging_form(&$vars) {
-  drupal_add_js(drupal_get_path('module', 'data_taxonomy') .'/theme/data_taxonomy.js');
-  drupal_add_css(drupal_get_path('module', 'data_taxonomy') .'/theme/data_taxonomy.css');
+  drupal_add_js(drupal_get_path('module', 'data_taxonomy') . '/theme/data_taxonomy.js');
+  drupal_add_css(drupal_get_path('module', 'data_taxonomy') . '/theme/data_taxonomy.css');
   $vars['label'] = $vars['form']['#vocab']->name;
   if ($vars['form']['#edit']) {
     $vars['edit'] = $vars['form']['#edit'];

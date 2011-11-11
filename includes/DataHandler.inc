@@ -53,12 +53,12 @@ class DataHandler {
       if (!isset($fields[$key]['type'])) {
         return FALSE;
       }
-      $where[] = db_escape_string($key) ." = ". db_type_placeholder($fields[$key]['type']);
+      $where[] = db_escape_string($key) . " = " . db_type_placeholder($fields[$key]['type']);
       $values[] = $value;
     }
 
     if (!empty($where)) {
-      $result = db_query('SELECT * FROM {'. db_escape_table($this->table) .'} WHERE '. implode(' AND ', $where), $values);
+      $result = db_query('SELECT * FROM {' . db_escape_table($this->table) . '} WHERE ' . implode(' AND ', $where), $values);
       $results = array();
       while ($row = db_fetch_array($result)) {
         $results[] = $row;
@@ -159,7 +159,7 @@ class DataHandler {
         $operator = array_shift($value);
         $value = array_shift($value);
       }
-      $query->addWhere(db_escape_table($this->table) .'.'. db_escape_string($key) ." ". $operator ." ". db_type_placeholder($fields[$key]['type']), $value);
+      $query->addWhere(db_escape_table($this->table) . '.' . db_escape_string($key) . " " . $operator . " " . db_type_placeholder($fields[$key]['type']), $value);
     }
     drupal_alter('data_delete_query', $query, $this->table);
     if (!empty($query->where)) {
@@ -172,7 +172,7 @@ class DataHandler {
    * Empty data table.
    */
   public function truncate() {
-    db_query('TRUNCATE TABLE {'. db_escape_table($this->table) .'}');
+    db_query('TRUNCATE TABLE {' . db_escape_table($this->table) . '}');
   }
 }
 
@@ -238,7 +238,7 @@ class DataQuery {
    */
   public function execute() {
     $table = db_escape_table($this->table);
-    $query = "DELETE ". implode(', ', $this->subject);
+    $query = "DELETE " . implode(', ', $this->subject);
     $query .= " FROM {{$table}} {$table}";
     if (!empty($this->join)) {
       foreach ($this->join as $table => $join) {
@@ -256,7 +256,7 @@ class DataQuery {
       }
     }
     if (!empty($where)) {
-      $query .= " WHERE ". implode(' AND ', $where);
+      $query .= " WHERE " . implode(' AND ', $where);
     }
     return db_query($query, $values);
   }

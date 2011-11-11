@@ -10,7 +10,7 @@
 function data_node_views_api() {
   return array(
     'api' => '2.0',
-    'path' => drupal_get_path('module', 'data_node') .'/views',
+    'path' => drupal_get_path('module', 'data_node') . '/views',
   );
 }
 
@@ -55,7 +55,7 @@ function data_node_block($op = 'list', $delta = 0) {
         return array(
           'subject' => t('Active !type', array('!type' => $type_name)),
           'content' => drupal_get_form('data_node_active_form', $table),
-         );
+        );
       }
   }
 }
@@ -71,21 +71,21 @@ function data_node_menu() {
     'access callback' => 'user_access',
     'access arguments' => array('manage data relations'),
     'type' => MENU_CALLBACK,
-    );
+  );
   $items['data-node/remove/%data_ui_table/%/%/%'] = array(
     'page callback' => 'data_node_remove_page',
     'page arguments' => array(2, 3, 4, 5),
     'access callback' => 'user_access',
     'access arguments' => array('manage data relations'),
     'type' => MENU_CALLBACK,
-    );
+  );
   $items['data-node/active/%data_ui_table/%'] = array(
     'page callback' => 'data_node_active_page',
     'page arguments' => array(2, 3),
     'access callback' => 'user_access',
     'access arguments' => array('manage data relations'),
     'type' => MENU_CALLBACK,
-    );
+  );
   $items['admin/build/data/edit/%data_ui_table/node'] = array(
     'title' => 'Relate to nodes',
     'description' => 'Administer data tables.',
@@ -113,7 +113,6 @@ function data_node_active_form(&$form_state, $table) {
     '#attributes' => array('class' => 'data-node-active-form'),
     '#table' => $table,
     '#theme' => 'data_node_active_form',
-
     // These three are here to keep JS from doing reconstructive URL surgery.
     'ajax_url' => array(
       '#type' => 'hidden',
@@ -132,7 +131,7 @@ function data_node_active_form(&$form_state, $table) {
     ),
   );
 
-  $nodes = array(0 => '--'. t('Select') .'--');
+  $nodes = array(0 => '--' . t('Select') . '--');
   $nodes += data_node_get_nodes($table);
 
   // Grab the node type name and provide a creation option
@@ -140,7 +139,7 @@ function data_node_active_form(&$form_state, $table) {
   $names = node_get_types('names');
   $type_name = check_plain($names[$meta['data_node']['content_type']]);
   if (node_access('create', $meta['data_node']['content_type'])) {
-    $nodes['new'] = '< '. t('New !type', array('!type' => $type_name)) .' >';
+    $nodes['new'] = '< ' . t('New !type', array('!type' => $type_name)) . ' >';
   }
 
   $form['nid'] = array(
@@ -203,7 +202,7 @@ function data_node_active_form_create_submit($form, &$form_state) {
     $node->title = $title;
     $node->type = $form_state['values']['type'];
     $node->body = '';
-    foreach (variable_get('node_options_'. $node->type, array('status')) as $key) {
+    foreach (variable_get('node_options_' . $node->type, array('status')) as $key) {
       $node->{$key} = 1;
     }
     node_save($node);
@@ -239,7 +238,6 @@ function data_node_add_page($table, $id, $nid, $token) {
       'id' => $id,
       'nid' => $nid,
       'labels' => data_node_render_labels($table, $id),
-
       'add_link' => data_node_render_remove_link($table, $id, $nid),
       'remove_link' => data_node_render_add_link($table, $id, $nid),
     );
@@ -292,7 +290,6 @@ function data_node_remove_page($table, $id, $nid, $token) {
       'id' => $id,
       'nid' => $nid,
       'labels' => data_node_render_labels($table, $id),
-
       'add_link' => data_node_render_remove_link($table, $id, $nid),
       'remove_link' => data_node_render_add_link($table, $id, $nid),
     );
@@ -404,7 +401,7 @@ function data_node_add_path($table, $id, $nid) {
 function data_node_render_labels($table, $id) {
   $nids = data_node_get_nids($table, $id);
   foreach ($nids as $nid) {
-    $title = _data_node_get_title($nid);;
+    $title = _data_node_get_title($nid);
     $output .= theme('data_node_label', $table, $id, $nid, $title);
   }
   $table_name = $table->get('name');

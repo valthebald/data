@@ -65,7 +65,7 @@ function data_taxonomy_views_data() {
         'field' => 'tid',
       );
       // don't want to overwrite any other relationships this might have...
-      $data[$table->get('name')]['data_taxonomy_'. $meta['data_taxonomy']['id']]['relationship'] = array(
+      $data[$table->get('name')]['data_taxonomy_' . $meta['data_taxonomy']['id']]['relationship'] = array(
         'title' => t('Term tid.'),
         'help' => t('Relate a data record to a term tid.'),
         'label' => t('Relate a data record to a term tid.'),
@@ -105,7 +105,7 @@ function data_taxonomy_views_data_alter(&$data) {
 function data_taxonomy_views_handlers() {
   return array(
     'info' => array(
-      'path' => drupal_get_path('module', 'data_taxonomy') .'/views',
+      'path' => drupal_get_path('module', 'data_taxonomy') . '/views',
     ),
     'handlers' => array(
       'data_taxonomy_views_handler_field_form' => array(

@@ -252,7 +252,7 @@ function data_get_index_definition($field_name, $spec) {
  * @todo: make overridable.
  */
 function data_name($table) {
-  return 'data_table_'. $table;
+  return 'data_table_' . $table;
 }
 
 /**
@@ -280,7 +280,7 @@ function data_safe_name($name) {
   if (is_numeric($simple)) {
     // We need to escape numerics because Drupal's drupal_write_record()
     // does not properly escape token MYSQL names.
-    $simple = '__num_'. $simple;
+    $simple = '__num_' . $simple;
   }
   return db_escape_table($simple);
 }
@@ -454,7 +454,7 @@ function _data_override($name) {
 function data_include($class) {
   static $included;
   if (!isset($included[$class])) {
-    include drupal_get_path('module', 'data') .'/includes/'. $class .'.inc';
+    include drupal_get_path('module', 'data') . '/includes/' . $class . '.inc';
     $included[$class] = TRUE;
   }
 }
@@ -462,4 +462,4 @@ function data_include($class) {
 /**
  * Base class for any exceptions thrown in Data.
  */
-class DataException extends Exception {}
+class DataException extends Exception { }

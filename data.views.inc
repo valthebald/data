@@ -6,7 +6,7 @@
 
 /**
  * Implementation of hook_views_data().
- * 
+ *
  * Dynamically create views integration for any table Data manages.
  */
 function data_views_data() {
@@ -26,7 +26,7 @@ function data_views_data() {
     $table_data = array();
     $table_data['table'] = array(
       'group' => $table->get('title'),
-      );
+    );
     foreach ($schema['fields'] as $field_name => $field) {
       // If there is no label, generate one from field name.
       $title = empty($meta['fields'][$field_name]['label']) ? data_natural_name($field_name) : $meta['fields'][$field_name]['label'];
@@ -61,7 +61,7 @@ function data_views_data() {
         'field' => current($schema['primary key']),
         'title' => $table->get('title'),
         'help' => t('Data table'),
-        'weight' => 10, 
+        'weight' => 10,
       );
     }
 
@@ -220,7 +220,7 @@ function data_get_views_handler($type, $table, $field_name, $default = FALSE) {
         case 'datetime':
           return 'views_handler_argument_date';
         case 'varchar':
-        return 'views_handler_argument_string';
+          return 'views_handler_argument_string';
       }
       return 'views_handler_argument';
 

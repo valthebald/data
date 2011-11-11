@@ -2,7 +2,7 @@
 
 /**
  * Implementation of hook_install().
- * 
+ *
  * @todo: Should use db_change_field()
  * @todo: What happens if data_search and search are installed at the same time?
  */

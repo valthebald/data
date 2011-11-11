@@ -28,7 +28,7 @@ function theme_data_node_active_form($form) {
 
   $output = '';
   $output .= drupal_render($form['nid']);
-  $output .= "<div class='new-node clear-block'>". drupal_render($form['new']) ."</div>";
+  $output .= "<div class='new-node clear-block'>" . drupal_render($form['new']) . "</div>";
   $output .= drupal_render($form);
   return $output;
 }

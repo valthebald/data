@@ -73,7 +73,7 @@ function data_search_views_data_alter(&$data) {
  * Implementation of hook_update_index().
  */
 function data_search_update_index() {
-  $limit = (int)variable_get('search_cron_limit', 100);
+  $limit = (int) variable_get('search_cron_limit', 100);
 
   $tables = data_search_get_tables();
   foreach ($tables as $table) {
