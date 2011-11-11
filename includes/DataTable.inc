@@ -39,7 +39,7 @@ class DataTable {
   // @todo: change $table_schema to $schema.
   // @todo: change $name to $id.
   // Unfortunately drupal_write_record does not escape field names. $table_schema instead of $schema it is.
-  protected $name, $title, $table_schema, $meta, $export_type;
+  public $name, $title, $table_schema, $meta, $export_type;
 
   /**
    * Instiate a DataTable object. Use this function instead of new DataTable.
@@ -80,8 +80,10 @@ class DataTable {
     if (!_data_load_table($this->name, TRUE) && !db_table_exists($this->name)) {
 
       // Create table.
-      db_create_table($this->name, $table_schema);
-      if ($ret[0]['success'] != 1) {
+      try {
+        db_create_table($this->name, $table_schema);
+      }
+      catch (DatabaseSchemaObjectExistsException $e) {
         drupal_set_message(t('Error creating table.'), 'error');
         return FALSE;
       }
@@ -260,15 +262,17 @@ class DataTable {
     $schema = $this->table_schema;
     if ($schema['fields'][$field]) {
       $index = data_get_index_definition($field, $schema['fields'][$field]);
-      db_add_index($this->name, $field, $index);
-      if ($ret[0]['success']) {
-        $schema['indexes'][$field] = $index;
-        $this->update(array('table_schema' => $schema));
-        drupal_get_schema($this->name, TRUE);
-        return;
+      try {
+        db_add_index($this->name, $field, $index);
       }
+      catch (DatabaseSchemaObjectExistsException $e) {
+        throw new DataException(t('Error adding index.'));
+      }
+
+      $schema['indexes'][$field] = $index;
+      $this->update(array('table_schema' => $schema));
+      drupal_get_schema($this->name, TRUE);
     }
-    throw new DataException(t('Error adding index.'));
   }
 
   /**
@@ -277,9 +281,8 @@ class DataTable {
    * @throws DataException
    */
   public function dropIndex($field) {
-    $ret = array();
-    db_drop_index($this->name, $field);
-    if ($ret[0]['success']) {
+    $success = db_drop_index($this->name, $field);
+    if ($success) {
       $schema = $this->table_schema;
       unset($schema['indexes'][$field]);
       $this->update(array('table_schema' => $schema));
@@ -297,17 +300,20 @@ class DataTable {
   public function addUniqueKey($field) {
     $schema = $this->table_schema;
     if ($schema['fields'][$field]) {
-      $ret = array();
       $index = data_get_index_definition($field, $schema['fields'][$field]);
-      db_add_unique_key($this->name, $field, $index);
-      if ($ret[0]['success']) {
+      try {
+        $success = db_add_unique_key($this->name, $field, $index);
+      }
+      catch (DatabaseSchemaObjectExistsException $e) {
+        throw new DataException(t('Error adding unique key.'));
+      }
+      if ($success) {
         $schema['unique keys'][$field] = array($field);
         $this->update(array('table_schema' => $schema));
         drupal_get_schema($this->name, TRUE);
         return;
       }
     }
-    throw new DataException(t('Error adding unique key.'));
   }
 
   /**
@@ -316,9 +322,8 @@ class DataTable {
    * @throws DataException
    */
   public function dropUniqueKey($field) {
-    $ret = array();
-    db_drop_unique_key($this->name, $field);
-    if ($ret[0]['success']) {
+    $success = db_drop_unique_key($this->name, $field);
+    if ($success) {
       $schema = $this->table_schema;
       unset($schema['unique keys'][$field]);
       $this->update(array('table_schema' => $schema));
@@ -357,21 +362,23 @@ class DataTable {
    * @throws DataException
    */
   public function addPrimaryKey($fields) {
-    $ret = array();
     $schema = $this->table_schema;
     foreach ($fields as $field) {
       if ($schema['fields'][$field]['type'] == 'text') {
         throw new DataException(t('A text field cannot be made a primary key.'));
       }
     }
-    db_add_primary_key($this->name, $fields);
-    if ($ret[0]['success']) {
-      $schema['primary key'] = $fields;
-      $this->update(array('table_schema' => $schema));
-      drupal_get_schema($this->name, TRUE);
-      return;
+
+    try {
+      db_add_primary_key($this->name, $fields);
     }
-    throw new DataException(t('Error creating primary key.'));
+    catch (DatabaseSchemaObjectExistsException $e) {
+      throw new DataException(t('Error creating primary key.'));
+    }
+
+    $schema['primary key'] = $fields;
+    $this->update(array('table_schema' => $schema));
+    drupal_get_schema($this->name, TRUE);
   }
 
   /**
@@ -380,16 +387,13 @@ class DataTable {
    * @throws DataException
    */
   public function dropPrimaryKey() {
-    $ret = array();
     db_drop_primary_key($this->name);
-    if ($ret[0]['success']) {
-      $schema = $this->table_schema;
-      $schema['primary key'] = array();
-      $this->update(array('table_schema' => $schema));
-      drupal_get_schema($this->name, TRUE);
-      return;
-    }
-    throw new DataException(t('Error dropping primary key.'));
+
+    $schema = $this->table_schema;
+    $schema['primary key'] = array();
+    $this->update(array('table_schema' => $schema));
+    drupal_get_schema($this->name, TRUE);
+    return;
   }
 
   /**
@@ -413,7 +417,6 @@ class DataTable {
    * @throws DataException
    */
   public function changeField($field, $spec) {
-    $ret = array();
     // If new type is text, check for PK and index restrictions.
     if ($spec['type'] == 'text') {
       if (in_array($field, $this->table_schema['primary key'])) {
@@ -430,15 +433,17 @@ class DataTable {
         }
       }
     }
-    db_change_field($this->name, $field, $field, $spec);
-    if ($ret[0]['success']) {
-      $schema = $this->table_schema;
-      $schema['fields'][$field] = $spec;
-      $this->update(array('table_schema' => $schema));
-      drupal_get_schema($this->name, TRUE);
-      return;
+    try {
+      db_change_field($this->name, $field, $field, $spec);
     }
-    throw new DataException(t('Cannot change field.'));
+    catch (DatabaseSchemaObjectDoesNotExistException $e) {
+      throw new DataException(t('Cannot change field.'));
+    }
+
+    $schema = $this->table_schema;
+    $schema['fields'][$field] = $spec;
+    $this->update(array('table_schema' => $schema));
+    drupal_get_schema($this->name, TRUE);
   }
 
   /**
@@ -447,10 +452,9 @@ class DataTable {
    * @throws DataException
    */
   public function dropField($field) {
-    $ret = array();
-    db_drop_field($this->name, $field);
+    $success = db_drop_field($this->name, $field);
 
-    if ($ret[0]['success']) {
+    if ($success) {
       $schema = $this->table_schema;
       unset($schema['fields'][$field]);
       $meta = $this->meta;
