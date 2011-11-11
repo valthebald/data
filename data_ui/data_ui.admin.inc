@@ -267,7 +267,6 @@ function data_ui_adopt_form($form, $form_state) {
  * Submit handler for adopt table form.
  */
 function data_ui_adopt_form_submit($form, &$form_state) {
-  data_include('DataTable');
   $tables = array_keys(array_filter($form_state['values']['orphaned_tables']));
   foreach ($tables as $table_name) {
     $table = DataTable::instance($table_name);

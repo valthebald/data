@@ -56,7 +56,6 @@ function data_schema_alter(&$schema) {
  *   A DataTable object if one could be created, FALSE otherwise.
  */
 function data_create_table($name, $schema, $title = NULL) {
-  data_include('DataTable');
   $table = DataTable::instance($name);
   if ($table->create($schema)) {
     if (!empty($title)) {
@@ -83,7 +82,6 @@ function data_create_table($name, $schema, $title = NULL) {
  * DataTable object.
  */
 function data_get_table($name) {
-  data_include('DataTable');
   $table = DataTable::instance($name);
   if ($table->defined()) {
     return $table;
@@ -128,7 +126,6 @@ function data_get_all_tables($reset = FALSE) {
  *   DataHandler object that provides access to a table's data.
  */
 function data_get_handler($table_name) {
-  data_include('DataHandler');
   return DataHandler::instance($table_name);
 }
 
@@ -445,17 +442,6 @@ function _data_override($name) {
     if ($table = _data_load_table($name)) {
       drupal_write_record('data_tables', $table);
     }
-  }
-}
-
-/**
- * Include class file.
- */
-function data_include($class) {
-  static $included;
-  if (!isset($included[$class])) {
-    include DRUPAL_ROOT . '/' . drupal_get_path('module', 'data') . '/includes/' . $class . '.inc';
-    $included[$class] = TRUE;
   }
 }
 
