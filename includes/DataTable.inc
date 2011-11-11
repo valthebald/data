@@ -229,11 +229,9 @@ class DataTable {
    * @todo: Check wether field name is available, otherwise change.
    */
   public function addField($field, $spec) {
+    try {
+      db_add_field($this->name, $field, $spec);
 
-    $ret = array();
-    db_add_field($this->name, $field, $spec);
-
-    if ($ret[0]['success']) {
       $schema = $this->table_schema;
       $schema['fields'][$field] = $spec;
       $this->update(array('table_schema' => $schema));
@@ -246,6 +244,10 @@ class DataTable {
       }
       return $field;
     }
+    catch (DatabaseSchemaObjectExistsException $e) {
+      throw new DataException(t('Error adding field.'));
+    }
+
     throw new DataException(t('Error adding field.'));
   }
 
