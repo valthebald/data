@@ -176,7 +176,7 @@ function data_ui_adjust_form($form, &$form_state, $table) {
  */
 function data_ui_adjust_form_submit_update_schema($form, &$form_state) {
   $table = $form['#table'];
-  $schema = schema_invoke('inspect');
+  $schema = schema_dbobject()->inspect();
   if (isset($schema[$table->get('name')])) {
     $table->update(array('table_schema' => $schema[$table->get('name')]));
     drupal_set_message(t('Updated schema for !table', array('!table' => $table->get('name'))));
@@ -237,7 +237,7 @@ function data_ui_adopt_form($form, $form_state) {
 
   // Compile a list of orphaned tables.
   $drupal_schema = drupal_get_schema(NULL, TRUE);
-  $db_schema = schema_invoke('inspect');
+  $db_schema = schema_dbobject()->inspect();
   $orphaned_tables = array();
   foreach ($db_schema as $name => $table) {
     if (!isset($drupal_schema[$name])) {

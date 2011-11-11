@@ -91,7 +91,7 @@ class DataTable {
       // @todo: this is slow, maybe we need to make this an explicit method
       // on DataTable.
       if (module_exists('schema')) {
-        $schema = schema_invoke('inspect');
+        $schema = schema_dbobject()->inspect();
         if (isset($schema[$this->name])) {
           $table_schema = $schema[$this->name];
         }
@@ -145,7 +145,7 @@ class DataTable {
       return FALSE;
     }
 
-    $schema = schema_invoke('inspect', $this->name);
+    $schema = schema_dbobject()->inspect(variable_get('schema_database_connection', 'default'), $this->name);
     if (isset($schema[$this->name])) {
       $table = array(
         'name' => $this->name,
