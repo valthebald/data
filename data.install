@@ -108,8 +108,8 @@ function data_update_6002() {
   // reset cTools static cache of this table; otherwise it throws an error about
   // lacking a primary key, which just adds insult to injury as we're trying to fix that!
   drupal_get_schema('data_tables', TRUE);
-  if (function_exists('ctools_static_reset')) {
-    ctools_static_reset('ctools_export_get_schema');
+  if (function_exists('drupal_static_reset')) {
+    drupal_static_reset('ctools_export_get_schema');
   }
   // hook_update_N() no longer returns a $ret array. Instead, return
   // nothing or a translated string indicating the update ran successfully.

@@ -373,8 +373,8 @@ function data_export($name, $indent = '') {
 function _data_load_table($name = NULL, $reset = FALSE) {
   ctools_include('export');
   if ($reset) {
-    ctools_static_reset('ctools_export_load_object');
-    ctools_static_reset('ctools_export_load_object_all');
+    drupal_static_reset('ctools_export_load_object');
+    drupal_static_reset('ctools_export_load_object_all');
   }
   if ($name === NULL) {
     return ctools_export_load_object('data_tables', 'all', array());
