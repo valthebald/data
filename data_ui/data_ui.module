@@ -32,7 +32,7 @@ function data_ui_help($path, $arg) {
 function data_ui_menu() {
   $items = array();
   if (module_exists('views')) {
-    $items['admin/content/data'] = array(
+    $items['admin/structure/data'] = array(
       'title' => 'Data tables',
       'description' => 'View data tables.',
       'page callback' => 'data_ui_view',
