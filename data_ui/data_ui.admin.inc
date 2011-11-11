@@ -477,7 +477,7 @@ function data_ui_edit_form($form, &$form_state, $table) {
       $form['fields'][$field_name]['label'] = array(
         '#type' => 'textfield',
         '#size' => 20,
-        '#default_value' => $meta['fields'][$field_name]['label'],
+        '#default_value' => isset($meta['fields'][$field_name]['label']) ? $meta['fields'][$field_name]['label'] : '',
       );
       $form['fields'][$field_name]['type'] = array(
         '#type' => 'select',
