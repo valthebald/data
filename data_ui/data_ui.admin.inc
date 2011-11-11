@@ -124,7 +124,7 @@ function data_ui_adjust_form($form, &$form_state, $table) {
       '#title' => t('Option 1: Update schema information'),
     );
     $form['update_schema']['description'] = array(
-      '#value' => t('<p>This option will update the schema information about this table.</p>'),
+      '#markup' => t('<p>This option will update the schema information about this table.</p>'),
     );
     $form['update_schema']['submit'] = array(
       '#type' => 'submit',
@@ -136,7 +136,7 @@ function data_ui_adjust_form($form, &$form_state, $table) {
       '#title' => t('Option 2: Alter table'),
     );
     $form['alter_table']['description'] = array(
-      '#value' => t('<p>Review the changes above carefully!
+      '#markup' => t('<p>Review the changes above carefully!
         This option will alter the database table and can very
         easily cause data loss.</p>'),
     );
@@ -152,7 +152,7 @@ function data_ui_adjust_form($form, &$form_state, $table) {
       '#title' => t('Create table'),
     );
     $form['alter_table']['description'] = array(
-      '#value' => t('<p>Create a new table from schema information.</p>'),
+      '#markup' => t('<p>Create a new table from schema information.</p>'),
     );
     $form['alter_table']['submit'] = array(
       '#type' => 'submit',
@@ -310,7 +310,7 @@ function data_ui_create_form($form, &$form_state) {
     );
   }
   else {
-    $form['help']['#value'] = t('Define the fields of the new table.');
+    $form['help']['#markup'] = t('Define the fields of the new table.');
     $form['fields'] = array(
       '#tree' => TRUE,
     );
@@ -473,7 +473,7 @@ function data_ui_edit_form($form, &$form_state, $table) {
       $form['fields'][$field_name]['selected'] = array(
         '#type' => 'checkbox',
       );
-      $form['fields'][$field_name]['name'] = array('#value' => $field_name);
+      $form['fields'][$field_name]['name'] = array('#markup' => $field_name);
       $form['fields'][$field_name]['label'] = array(
         '#type' => 'textfield',
         '#size' => 20,
@@ -508,7 +508,7 @@ function data_ui_edit_form($form, &$form_state, $table) {
         $join = t('<none>');
       }
       $join = l($join, 'admin/structure/data/edit/' . $table->get('name') . '/join/' . $field_name);
-      $form['fields'][$field_name]['join']['#value'] = $join;
+      $form['fields'][$field_name]['join']['#markup'] = $join;
     }
   }
 
@@ -682,7 +682,7 @@ function data_ui_views_form($form, &$form_state, $table) {
   if (isset($schema['fields'])) {
     foreach ($schema['fields'] as $field_name => $field) {
       $form['fields'][$field_name] = array();
-      $form['fields'][$field_name]['name'] = array('#value' => $field_name);
+      $form['fields'][$field_name]['name'] = array('#markup' => $field_name);
       $form['fields'][$field_name]['views_field_handler'] = array(
         '#type' => 'select',
         '#options' => data_get_views_handler_options('field'),
