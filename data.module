@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_views_api().
+ * Implements hook_views_api().
  */
 function data_views_api() {
   return array(
@@ -15,7 +15,7 @@ function data_views_api() {
 }
 
 /**
- * Implementation of hook_schema_alter().
+ * Implements hook_schema_alter().
  *
  * This is a central piece of data module:
  * Here we tack schema information that has been defined through the API in data_tables
@@ -441,7 +441,7 @@ function data_alter_table($table, $field_reason) {
  * data_tables.
  */
 function _data_override($name) {
-  if (!db_result(db_query("SELECT name FROM {data_tables} WHERE name = '%s'", $name))) {
+  if (!db_query("SELECT name FROM {data_tables} WHERE name = :name", array(':name' => $name))->fetchField()) {
     if ($table = _data_load_table($name)) {
       drupal_write_record('data_tables', $table);
     }
@@ -454,7 +454,7 @@ function _data_override($name) {
 function data_include($class) {
   static $included;
   if (!isset($included[$class])) {
-    include drupal_get_path('module', 'data') . '/includes/' . $class . '.inc';
+    include DRUPAL_ROOT . '/' . drupal_get_path('module', 'data') . '/includes/' . $class . '.inc';
     $included[$class] = TRUE;
   }
 }

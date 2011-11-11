@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_views_data().
+ * Implements hook_views_data().
  *
  * Dynamically create views integration for any table Data manages.
  */
@@ -92,7 +92,7 @@ function data_views_data() {
 }
 
 /**
- * Implementation of hook_views_handlers().
+ * Implements hook_views_handlers().
  */
 function data_views_handlers() {
   return array(

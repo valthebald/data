@@ -58,6 +58,7 @@ class DataHandler {
     }
 
     if (!empty($where)) {
+      // TODO Please convert this statement to the D7 database API syntax.
       $result = db_query('SELECT * FROM {' . db_escape_table($this->table) . '} WHERE ' . implode(' AND ', $where), $values);
       $results = array();
       while ($row = db_fetch_array($result)) {
@@ -172,6 +173,7 @@ class DataHandler {
    * Empty data table.
    */
   public function truncate() {
+    // TODO Please convert this statement to the D7 database API syntax.
     db_query('TRUNCATE TABLE {' . db_escape_table($this->table) . '}');
   }
 }
@@ -258,6 +260,7 @@ class DataQuery {
     if (!empty($where)) {
       $query .= " WHERE " . implode(' AND ', $where);
     }
+    // TODO Please convert this statement to the D7 database API syntax.
     return db_query($query, $values);
   }
 }

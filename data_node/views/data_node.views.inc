@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_views_data().
+ * Implements hook_views_data().
  */
 function data_node_views_data() {
   $data = array();
@@ -74,7 +74,7 @@ function data_node_views_data() {
 }
 
 /**
- * Implementation of hook_views_handlers().
+ * Implements hook_views_handlers().
  */
 function data_node_views_handlers() {
   return array(

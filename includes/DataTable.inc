@@ -80,7 +80,7 @@ class DataTable {
     if (!_data_load_table($this->name, TRUE) && !db_table_exists($this->name)) {
 
       // Create table.
-      db_create_table($ret, $this->name, $table_schema);
+      db_create_table($this->name, $table_schema);
       if ($ret[0]['success'] != 1) {
         drupal_set_message(t('Error creating table.'), 'error');
         return FALSE;
@@ -231,7 +231,7 @@ class DataTable {
   public function addField($field, $spec) {
 
     $ret = array();
-    db_add_field($ret, $this->name, $field, $spec);
+    db_add_field($this->name, $field, $spec);
 
     if ($ret[0]['success']) {
       $schema = $this->table_schema;
@@ -258,7 +258,7 @@ class DataTable {
     $schema = $this->table_schema;
     if ($schema['fields'][$field]) {
       $index = data_get_index_definition($field, $schema['fields'][$field]);
-      db_add_index($ret, $this->name, $field, $index);
+      db_add_index($this->name, $field, $index);
       if ($ret[0]['success']) {
         $schema['indexes'][$field] = $index;
         $this->update(array('table_schema' => $schema));
@@ -276,7 +276,7 @@ class DataTable {
    */
   public function dropIndex($field) {
     $ret = array();
-    db_drop_index($ret, $this->name, $field);
+    db_drop_index($this->name, $field);
     if ($ret[0]['success']) {
       $schema = $this->table_schema;
       unset($schema['indexes'][$field]);
@@ -297,7 +297,7 @@ class DataTable {
     if ($schema['fields'][$field]) {
       $ret = array();
       $index = data_get_index_definition($field, $schema['fields'][$field]);
-      db_add_unique_key($ret, $this->name, $field, $index);
+      db_add_unique_key($this->name, $field, $index);
       if ($ret[0]['success']) {
         $schema['unique keys'][$field] = array($field);
         $this->update(array('table_schema' => $schema));
@@ -315,7 +315,7 @@ class DataTable {
    */
   public function dropUniqueKey($field) {
     $ret = array();
-    db_drop_unique_key($ret, $this->name, $field);
+    db_drop_unique_key($this->name, $field);
     if ($ret[0]['success']) {
       $schema = $this->table_schema;
       unset($schema['unique keys'][$field]);
@@ -362,7 +362,7 @@ class DataTable {
         throw new DataException(t('A text field cannot be made a primary key.'));
       }
     }
-    db_add_primary_key($ret, $this->name, $fields);
+    db_add_primary_key($this->name, $fields);
     if ($ret[0]['success']) {
       $schema['primary key'] = $fields;
       $this->update(array('table_schema' => $schema));
@@ -379,7 +379,7 @@ class DataTable {
    */
   public function dropPrimaryKey() {
     $ret = array();
-    db_drop_primary_key($ret, $this->name);
+    db_drop_primary_key($this->name);
     if ($ret[0]['success']) {
       $schema = $this->table_schema;
       $schema['primary key'] = array();
@@ -428,7 +428,7 @@ class DataTable {
         }
       }
     }
-    db_change_field($ret, $this->name, $field, $field, $spec);
+    db_change_field($this->name, $field, $field, $spec);
     if ($ret[0]['success']) {
       $schema = $this->table_schema;
       $schema['fields'][$field] = $spec;
@@ -446,7 +446,7 @@ class DataTable {
    */
   public function dropField($field) {
     $ret = array();
-    db_drop_field($ret, $this->name, $field);
+    db_drop_field($this->name, $field);
 
     if ($ret[0]['success']) {
       $schema = $this->table_schema;
@@ -469,12 +469,16 @@ class DataTable {
   public function drop() {
     if ($this->export_type == EXPORT_IN_DATABASE) {
       if (db_table_exists($this->name)) {
-        db_drop_table($ret, $this->name);
+        db_drop_table($this->name);
       }
       $this->update(array('table_schema' => array()));
       drupal_get_schema($this->name, TRUE);
 
-      db_query('DELETE FROM {data_tables} WHERE name = "%s"', $this->name);
+      // TODO Please review the conversion of this statement to the D7 database API syntax.
+      /* db_query('DELETE FROM {data_tables} WHERE name = "%s"', $this->name) */
+      db_delete('data_tables')
+  ->condition('name', $this->name)
+  ->execute();
       $this->title = '';
       $this->table_schema = $this->meta = array();
       return TRUE;
@@ -492,7 +496,11 @@ class DataTable {
    */
   public function revert() {
     if ($this->export_type & EXPORT_IN_CODE) {
-      db_query('DELETE FROM {data_tables} WHERE name = "%s"', $this->name);
+      // TODO Please review the conversion of this statement to the D7 database API syntax.
+      /* db_query('DELETE FROM {data_tables} WHERE name = "%s"', $this->name) */
+      db_delete('data_tables')
+  ->condition('name', $this->name)
+  ->execute();
       return TRUE;
     }
     return FALSE;

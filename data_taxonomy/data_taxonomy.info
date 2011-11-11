@@ -4,4 +4,5 @@ package = Data
 dependencies[] = data
 dependencies[] = data_ui
 dependencies[] = taxonomy
-core = 6.x
+core = 7.x
+

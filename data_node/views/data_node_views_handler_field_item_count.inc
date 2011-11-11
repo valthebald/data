@@ -14,7 +14,7 @@ class data_node_views_handler_field_item_count extends views_handler_field {
     foreach ($result as $row) {
       if (!empty($row->{$this->view->base_field})) {
         $nid = $row->{$this->view->base_field};
-        $this->items[$nid] = db_result(db_query("SELECT COUNT(id) AS count FROM {data_table_node} WHERE nid = %d", $nid));
+        $this->items[$nid] = db_query("SELECT COUNT(id) AS count FROM {data_table_node} WHERE nid = :nid", array(':nid' => $nid))->fetchField();
       }
     }
   }

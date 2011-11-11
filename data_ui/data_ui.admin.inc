@@ -11,10 +11,11 @@ function data_ui_view() {
   $tables = data_get_all_tables();
   $rows = array();
   foreach ($tables as $table) {
+    // TODO Please convert this statement to the D7 database API syntax.
     $row = array(
       $table->get('title'),
       $table->get('name'),
-      db_result(db_query('SELECT COUNT(*) FROM {' . db_escape_table($table->get('name')) . '}')),
+      db_query('SELECT COUNT(*) FROM {' . db_escape_table($table->get('name')) . '}')->fetchField(),
     );
     if (module_exists('views')) {
       $row[] = l(t('View'), data_ui_get_default_path($table->get('name')));
@@ -25,7 +26,7 @@ function data_ui_view() {
   if (module_exists('views')) {
     $header[] = '&nbsp;';
   }
-  return theme('table', $header, $rows);
+  return theme('table', array('header' => $header, 'rows' => $rows));
 }
 
 /**
@@ -39,20 +40,20 @@ function data_ui_manage() {
     $operations = array();
     if ($table->get('export_type') == EXPORT_IN_CODE) {
       $status = t('Default');
-      $operations[] = l(t('Override'), 'admin/build/data/edit/' . $table->get('name'));
+      $operations[] = l(t('Override'), 'admin/structure/data/edit/' . $table->get('name'));
     }
     else if ($table->get('export_type') == (EXPORT_IN_CODE | EXPORT_IN_DATABASE)) {
       $status = t('Overridden');
-      $operations[] = l(t('Edit'), 'admin/build/data/edit/' . $table->get('name'));
-      $operations[] = l(t('Revert'), 'admin/build/data/revert/' . $table->get('name'));
+      $operations[] = l(t('Edit'), 'admin/structure/data/edit/' . $table->get('name'));
+      $operations[] = l(t('Revert'), 'admin/structure/data/revert/' . $table->get('name'));
     }
     else {
       $status = t('Normal');
-      $operations[] = l(t('Edit'), 'admin/build/data/edit/' . $table->get('name'));
-      $operations[] = l(t('Drop'), 'admin/build/data/drop/' . $table->get('name'));
+      $operations[] = l(t('Edit'), 'admin/structure/data/edit/' . $table->get('name'));
+      $operations[] = l(t('Drop'), 'admin/structure/data/drop/' . $table->get('name'));
     }
     if (module_exists('ctools')) {
-      $operations[] = l(t('Export'), 'admin/build/data/export/' . $table->get('name'));
+      $operations[] = l(t('Export'), 'admin/structure/data/export/' . $table->get('name'));
     }
 
     $row = array();
@@ -64,13 +65,13 @@ function data_ui_manage() {
     $rows[] = $row;
   }
   $rows[] = array(
-    l(t('Create new table'), 'admin/build/data/create'),
+    l(t('Create new table'), 'admin/structure/data/create'),
     '&nbsp;',
     '&nbsp;',
     '&nbsp;',
   );
   $header = array(t('Title'), t('Name'), t('Status'), t('Operations'));
-  return theme('table', $header, $rows);
+  return theme('table', array('header' => $header, 'rows' => $rows));
 }
 
 /**
@@ -85,14 +86,14 @@ function data_ui_compare() {
     $row[] = $table->get('name');
     $status = $comp['status'];
     if ($status != 'same') {
-      $status .= ' - ' . l(t('adjust'), 'admin/build/data/compare/' . $table->get('name'));
+      $status .= ' - ' . l(t('adjust'), 'admin/structure/data/compare/' . $table->get('name'));
     }
     $row[] = $status;
     $row[] = empty($comp['warning']) ? '-' : $comp['warning'];
     $rows[] = $row;
   }
   $header = array(t('Name'), t('Status'), t('Warnings'));
-  return theme('table', $header, $rows);
+  return theme('table', array('header' => $header, 'rows' => $rows));
 }
 
 /**
@@ -103,19 +104,19 @@ function data_ui_compare() {
  * - adjust database or
  * - leave it.
  */
-function data_ui_adjust_form(&$form_state, $table) {
+function data_ui_adjust_form($form, &$form_state, $table) {
   drupal_set_title(t('Adjust !table', array('!table' => $table->get('name'))));
   $comparison = $table->compareSchema();
 
   $form = array();
-  $form['#redirect'] = 'admin/build/data/compare';
+  $form_state['#redirect'] = 'admin/structure/data/compare';
   $form['#table'] = $table;
   $form['#comparison'] = $comparison;
   $form['comparison'] = array(
     '#type' => 'fieldset',
     '#title' => t('Comparison'),
   );
-  $form['comparison']['comparison']['#value'] = theme('data_ui_schema_compare_table', $comparison);
+  $form['comparison']['comparison']['#value'] = theme('data_ui_schema_compare_table', array('comparison' => $comparison));
 
   if ($comparison['status'] == 'different') {
     $form['update_schema'] = array(
@@ -202,10 +203,10 @@ function data_ui_adjust_form_submit_alter_table($form, &$form_state) {
     }
   }
   if (count($resolved)) {
-    drupal_set_message(t('Resolved') . theme('item_list', $resolved));
+    drupal_set_message(t('Resolved') . theme('item_list', array('items' => $resolved)));
   }
   if (count($unresolved)) {
-    drupal_set_message(t('Could not resolve') . theme('item_list', $unresolved), 'error');
+    drupal_set_message(t('Could not resolve') . theme('item_list', array('items' => $unresolved)), 'error');
   }
 }
 
@@ -215,7 +216,7 @@ function data_ui_adjust_form_submit_alter_table($form, &$form_state) {
 function data_ui_adjust_form_submit_create_table($form, &$form_state) {
   $table = $form['#table'];
   $ret = array();
-  db_create_table($ret, $table->get('name'), $table->get('table_schema'));
+  db_create_table($table->get('name'), $table->get('table_schema'));
   drupal_get_schema($table->get('name'), TRUE);
   if ($ret[0]['success']) {
     drupal_set_message(t('Created table !table', array('!table' => $table->get('name'))));
@@ -231,7 +232,7 @@ function data_ui_adjust_form_submit_create_table($form, &$form_state) {
  * 'Orphaned' tables are database tables that don't have an active schema
  * definition.
  */
-function data_ui_adopt_form($form_state) {
+function data_ui_adopt_form($form, $form_state) {
   $form = array();
 
   // Compile a list of orphaned tables.
@@ -276,13 +277,13 @@ function data_ui_adopt_form_submit($form, &$form_state) {
 
   DataTable::clearCaches();
 
-  $form_state['redirect'] = 'admin/build/data';
+  $form_state['redirect'] = 'admin/structure/data';
 }
 
 /**
  * Form callback for create table form.
  */
-function data_ui_create_form(&$form_state) {
+function data_ui_create_form($form, &$form_state) {
   $form = array();
   if (!$form_state['storage']['field_num']) {
     $form['name'] = array(
@@ -397,21 +398,21 @@ function data_ui_create_form_submit($form, &$form_state) {
 
     // Unset storage to enable redirect.
     unset($form_state['storage']);
-    $form_state['redirect'] = 'admin/build/data';
+    $form_state['redirect'] = 'admin/structure/data';
   }
 }
 
 /**
  * Form callback for revert table form.
  */
-function data_ui_revert_form(&$form_state, $table) {
+function data_ui_revert_form($form, &$form_state, $table) {
   $form = array();
-  $form['#redirect'] = 'admin/build/data';
+  $form_state['#redirect'] = 'admin/structure/data';
   $form['#table'] = $table;
 
   return confirm_form($form,
     t('Revert this table?'),
-    'admin/build/data',
+    'admin/structure/data',
     t('Are you sure you would like to revert table !table? This will reset all information about this table its definition in code. This action cannot be undone.', array('!table' => $table->get('name'))),
     t('Revert'), t('Cancel')
   );
@@ -428,14 +429,14 @@ function data_ui_revert_form_submit($form, &$form_state) {
 /**
  * Form callback for drop table form.
  */
-function data_ui_drop_form(&$form_state, $table) {
+function data_ui_drop_form($form, &$form_state, $table) {
   $form = array();
-  $form['#redirect'] = 'admin/build/data';
+  $form_state['#redirect'] = 'admin/structure/data';
   $form['#table'] = $table;
 
   return confirm_form($form,
     t('Drop this table?'),
-    'admin/build/data',
+    'admin/structure/data',
     t('Are you sure you would like to drop table !table? This action cannot be undone.', array('!table' => $table->get('name'))),
     t('Drop'), t('Cancel')
   );
@@ -452,7 +453,7 @@ function data_ui_drop_form_submit($form, &$form_state) {
 /**
  * Form callback for editing a table.
  */
-function data_ui_edit_form(&$form_state, $table) {
+function data_ui_edit_form($form, &$form_state, $table) {
   drupal_set_title($table->get('title'));
 
   $schema = $table->get('table_schema');
@@ -507,7 +508,7 @@ function data_ui_edit_form(&$form_state, $table) {
       else {
         $join = t('<none>');
       }
-      $join = l($join, 'admin/build/data/edit/' . $table->get('name') . '/join/' . $field_name);
+      $join = l($join, 'admin/structure/data/edit/' . $table->get('name') . '/join/' . $field_name);
       $form['fields'][$field_name]['join']['#value'] = $join;
     }
   }
@@ -554,7 +555,7 @@ function data_ui_edit_form_submit($form, &$form_state) {
   if (!db_table_exists($table->get('name'))) {
     drupal_set_message(t('Table does not exist in database.'), 'error');
     if (module_exists('schema')) {
-      drupal_set_message(t('Go to !compare to resolve conflicts.', array('!compare' => l(t('Compare schemas'), 'admin/build/data/compare'))), 'error');
+      drupal_set_message(t('Go to !compare to resolve conflicts.', array('!compare' => l(t('Compare schemas'), 'admin/structure/data/compare'))), 'error');
     }
     return;
   }
@@ -636,7 +637,7 @@ function data_ui_edit_form_submit($form, &$form_state) {
 /**
  * Edit title form.
  */
-function data_ui_edit_title_form(&$form_state, $table) {
+function data_ui_edit_title_form($form, &$form_state, $table) {
   drupal_set_title($table->get('title'));
 
   $form = array();
@@ -665,7 +666,7 @@ function data_ui_edit_title_form_submit($form, &$form_state) {
 /**
  * Views handler configuration form.
  */
-function data_ui_views_form(&$form_state, $table) {
+function data_ui_views_form($form, &$form_state, $table) {
   drupal_set_title($table->get('title'));
 
   module_load_include('inc', 'data', 'data.views');
@@ -733,7 +734,7 @@ function data_ui_views_form_submit($form, &$form_state) {
 /**
  * Join form.
  */
-function data_ui_join_form(&$form_state, $table, $field_name) {
+function data_ui_join_form($form, &$form_state, $table, $field_name) {
   // drupal_set_title(t('Join field'));
 
   $schema = $table->get('table_schema');
@@ -742,7 +743,7 @@ function data_ui_join_form(&$form_state, $table, $field_name) {
   // Validate input.
   if (!isset($field_name) || !isset($schema['fields'][$field_name])) {
     drupal_set_message(t('Invalid field.'), 'error');
-    drupal_goto('admin/build/data/edit/' . $table->get('name'));
+    drupal_goto('admin/structure/data/edit/' . $table->get('name'));
   }
 
   // List all tables that schema API knows about as optoins.
@@ -762,7 +763,7 @@ function data_ui_join_form(&$form_state, $table, $field_name) {
   $form = array();
   $form['#table'] = $table;
   $form['#field_name'] = $field_name;
-  $form['#redirect'] = 'admin/build/data/edit/' . $table->get('name');
+  $form_state['#redirect'] = 'admin/structure/data/edit/' . $table->get('name');
   $join = _data_ui_get_join($meta['join'], $field_name);
   $form['#original_join'] = $join;
   $form['left'] = array(
@@ -781,7 +782,7 @@ function data_ui_join_form(&$form_state, $table, $field_name) {
   // Use confirm form for its formatting.
   $form = confirm_form($form,
     t('Join field'),
-    'admin/build/data/edit/' . $table->get('name'),
+    'admin/structure/data/edit/' . $table->get('name'),
     '',
     t('Save'), t('Cancel')
   );
@@ -816,7 +817,7 @@ function data_ui_join_form_submit_delete($form, &$form_state) {
 /**
  * Export form.
  */
-function data_ui_export_form(&$form_state, $table) {
+function data_ui_export_form($form, &$form_state, $table) {
   $code = data_export($table->get('name'));
 
   $form['export'] = array(
@@ -845,7 +846,8 @@ function data_ui_view_schema($table) {
 /**
  * Theme data_ui_create_form.
  */
-function theme_data_ui_create_form($form) {
+function theme_data_ui_create_form($variables) {
+  $form = $variables['form'];
 
   // Render field definition form elements in a table.
   if (isset($form['fields'])) {
@@ -860,18 +862,19 @@ function theme_data_ui_create_form($form) {
       $rows[] = $row;
     }
     $header = array(t('Name *'), t('Label'), t('Type'), t('Size'), t('Unsigned'), t('Index'), t('Primary key'));
-    $output .= theme('table', $header, $rows);
+    $output .= theme('table', array('header' => $header, 'rows' => $rows));
 
     $output .= drupal_render($form);
     return $output;
   }
-  return drupal_render($form);
+  return drupal_render_children($form);
 }
 
 /**
  * Theme data_ui_edit_form.
  */
-function theme_data_ui_edit_form($form) {
+function theme_data_ui_edit_form($variables) {
+  $form = $variables['form'];
 
   // Format existing fields.
   $rows = array();
@@ -892,15 +895,16 @@ function theme_data_ui_edit_form($form) {
   $rows[] = $row;
 
   $header = array(t('Select'), t('Name'), t('Label'), t('Type'), t('Size'), t('Unsigned'), t('Index'), t('Primary key'), t('Joins'));
-  $output = theme('table', $header, $rows);
-  $output .= drupal_render($form);
+  $output = theme('table', array('header' => $header, 'rows' => $rows));
+  $output .= drupal_render_children($form);
   return $output;
 }
 
 /**
  * Theme data_ui_views_form.
  */
-function theme_data_ui_views_form($form) {
+function theme_data_ui_views_form($variables) {
+  $form = $variables['form'];
 
   // Format existing fields.
   $rows = array();
@@ -914,8 +918,8 @@ function theme_data_ui_views_form($form) {
   }
 
   $header = array(t('Name'), t('Field handler'), t('Filter handler'), t('Argument handler'), t('Sort handler'));
-  $output = theme('table', $header, $rows);
-  $output .= drupal_render($form);
+  $output = theme('table', array('header' => $header, 'rows' => $rows));
+  $output .= drupal_render_children($form);
   return $output;
 }
 
@@ -924,7 +928,8 @@ function theme_data_ui_views_form($form) {
  *
  * @todo: move to schema module - write a patch.
  */
-function theme_data_ui_schema_compare_table($comparison) {
+function theme_data_ui_schema_compare_table($variables) {
+  $comparison = $variables['comparison'];
   $output = '';
   foreach ($comparison as $k => $v) {
     if (!empty($v)) {
@@ -936,7 +941,7 @@ function theme_data_ui_schema_compare_table($comparison) {
           $output .= $v;
         }
         elseif (is_array($v)) {
-          $output .= theme('item_list', $v);
+          $output .= theme('item_list', array('items' => $v));
         }
         $output .= '</dd>';
         $output .= '</dl>';
