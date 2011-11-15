@@ -26,8 +26,8 @@ function data_views_api() {
  * we are actually rebuilding it - follow path through
  * data_get_all_tables() ... _data_load_table() ... ctools_export_load_object().
  */
-// TODO upgrade: this produces spectacular crashes! 
-function Xdata_schema_alter(&$schema) {
+// TODO: this has produced some spectacular crashes on module enable and that sort of thing!
+function data_schema_alter(&$schema) {
   $tables = data_get_all_tables(TRUE);
   foreach ($tables as $table) {
     // Only add table if not yet present or the table at hand is defined in DB.
