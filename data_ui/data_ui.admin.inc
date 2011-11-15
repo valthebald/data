@@ -968,6 +968,9 @@ function _data_ui_changed($new, $field) {
     $field['type'] = $new['type'];
     $changed = TRUE;
   }
+  if (!isset($field['unsigned'])) {
+    $field['unsigned'] = FALSE;
+  }
   if ($field['unsigned'] != $new['unsigned']) {
     $field['unsigned'] = $new['unsigned'];
     $changed = TRUE;
