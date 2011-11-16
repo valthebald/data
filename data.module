@@ -357,8 +357,6 @@ function data_build_field_definition($stub) {
  *
  * @return
  *   Exportable code.
- *
- * Only available if ctools is installed.
  */
 function data_export($name, $indent = '') {
   ctools_include('export');
