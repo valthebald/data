@@ -58,9 +58,11 @@ function data_schema() {
  * Implements hook_install().
  */
 function data_install() {
-  // Create tables.
-  // TODO The drupal_(un)install_schema functions are called automatically in D7.
-  // drupal_install_schema('data')
+  // Refresh the schema to include it.
+  // This ensures we include all our schema tables once our initial
+  // installation is done, as data_schema_alter() sidesteps our schema tables
+  // during installation.
+  drupal_get_schema(NULL, TRUE);
 }
 
 /**

@@ -28,13 +28,16 @@ function data_views_api() {
  */
 // TODO: this has produced some spectacular crashes on module enable and that sort of thing!
 function data_schema_alter(&$schema) {
-  $tables = data_get_all_tables(TRUE);
-  foreach ($tables as $table) {
-    // Only add table if not yet present or the table at hand is defined in DB.
-    // This allows other modules to "own" data managed tables which in turn makes Drupal
-    // track schema versions - the prerequisit for using hook_update_N() on data tables.
-    if (!isset($schema[$table->get('name')]) || (EXPORT_IN_DATABASE & $table->get('export_type'))) {
-      $schema[$table->get('name')] = $table->get('table_schema');
+  // Sidestep this during installation, as otherwise this is circular.
+  if (drupal_get_installed_schema_version('data') != SCHEMA_UNINSTALLED) {
+    $tables = data_get_all_tables(TRUE);
+    foreach ($tables as $table) {
+      // Only add table if not yet present or the table at hand is defined in DB.
+      // This allows other modules to "own" data managed tables which in turn makes Drupal
+      // track schema versions - the prerequisit for using hook_update_N() on data tables.
+      if (!isset($schema[$table->get('name')]) || (EXPORT_IN_DATABASE & $table->get('export_type'))) {
+        $schema[$table->get('name')] = $table->get('table_schema');
+      }
     }
   }
 }
