@@ -82,15 +82,14 @@ function data_schema_alter(&$schema) {
       // track schema versions - the prerequisit for using hook_update_N() on data tables.
       if (!isset($schema[$table->get('name')]) || (EXPORT_IN_DATABASE & $table->get('export_type'))) {
         $table_schema = $table->get('table_schema');
-        /*
-        // TODO: because we add these here, the 'module' is not set on our tables
-        // However, the code below doesn't work because for WTF reasons, we sometimes
-        // get here and get nada for $table_schema.
-        $table_schema += array(
-          'module' => 'data',
-        );
-        */
-        $schema[$table->get('name')] = $table_schema;
+        // @todo: figure out why we need this check here and why for WTF
+        // reasons, we sometimes get here and get nada for $table_schema.
+        if (isset($table_schema)) {
+          $table_schema += array(
+            'module' => 'data',
+          );
+          $schema[$table->get('name')] = $table_schema;
+        }
       }
     }
   }
