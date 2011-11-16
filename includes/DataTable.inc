@@ -163,6 +163,20 @@ class DataTable {
       }
     }
 
+    // Clear caches.
+    drupal_get_schema($this->name, TRUE);
+
+    // Have views read new views information about table.
+    // @todo: this doesn't seem to quite cut it.
+    if (module_exists('views')) {
+      views_invalidate_cache();
+    }
+
+    // data ui exposes path to a new default view.
+    if (module_exists('data_ui')) {
+      menu_rebuild();
+    }
+
     return FALSE;
   }
 
