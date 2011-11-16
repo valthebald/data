@@ -447,6 +447,8 @@ function data_ui_drop_form($form, &$form_state, $table) {
 function data_ui_drop_form_submit($form, &$form_state) {
   $table = $form['#table'];
   data_drop_table($table->get('name'));
+
+  $form_state['redirect'] = 'admin/structure/data';
 }
 
 /**
