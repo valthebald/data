@@ -116,7 +116,7 @@ function data_ui_menu() {
     'page arguments' => array('data_ui_edit_form', 4),
     'file' => 'data_ui.admin.inc',
     'access arguments' => array('administer data tables'),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_NORMAL_ITEM,
   );
   $items['admin/structure/data/edit/%data_ui_table/edit'] = array(
     'title' => 'Edit schema',
