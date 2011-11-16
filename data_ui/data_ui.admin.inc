@@ -615,7 +615,10 @@ function data_ui_edit_form_submit($form, &$form_state) {
           }
         }
         $table->changeIndex($new_index);
-        $table->changePrimaryKey($new_primary_key);
+        // Change the primary key only if requested.
+        if ($schema['primary key'] != $new_primary_key) {
+          $table->changePrimaryKey($new_primary_key);
+        }
 
         // Update meta data.
         $meta = $table->get('meta');
