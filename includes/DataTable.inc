@@ -153,6 +153,10 @@ class DataTable {
         'name' => $this->name,
         'title' => data_natural_name($this->name),
         'table_schema' => $schema[$this->name],
+        // Add in an empty meta array with the field names so other modules can rely on it.
+        'meta' => array(
+          'fields' => array_fill_keys(array_keys($schema[$this->name]['fields']), array()),
+        ),
       );
       if (drupal_write_record('data_tables', $table)) {
         return TRUE;
