@@ -40,6 +40,21 @@ function data_schema_alter(&$schema) {
 }
 
 /**
+ * Load all data tables.
+ */
+function data_get_all_tables($reset = FALSE) {
+  $tables = array();
+  if ($tables = _data_load_table(NULL, $reset)) {
+    foreach ($tables as $table_name => $table) {
+      if ($table = data_get_table($table_name)) {
+        $tables[$table_name] = $table;
+      }
+    }
+  }
+  return $tables;
+}
+
+/**
  * Create a table.
  *
  * @see DataTable class.
@@ -98,21 +113,6 @@ function data_drop_table($name) {
   if ($table = data_get_table($name)) {
     $table->drop();
   }
-}
-
-/**
- * Load all data tables.
- */
-function data_get_all_tables($reset = FALSE) {
-  $tables = array();
-  if ($tables = _data_load_table(NULL, $reset)) {
-    foreach ($tables as $table_name => $table) {
-      if ($table = data_get_table($table_name)) {
-        $tables[$table_name] = $table;
-      }
-    }
-  }
-  return $tables;
 }
 
 /**
