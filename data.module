@@ -369,7 +369,12 @@ function data_export($name, $indent = '') {
 }
 
 /**
- * Loads data table info from the database.
+ * Loads data table info from the database and from CTools exportables.
+ *
+ * @param $name
+ *  The name of a table to load. If NULL or omitted, all tables are loaded.
+ * @param $reset
+ *  Whether to reset CTools' static cache.
  */
 function _data_load_table($name = NULL, $reset = FALSE) {
   ctools_include('export');
