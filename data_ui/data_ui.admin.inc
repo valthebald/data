@@ -50,6 +50,7 @@ function data_ui_manage() {
     else {
       $status = t('Normal');
       $operations[] = l(t('Edit'), 'admin/structure/data/edit/' . $table->get('name'));
+      $operations[] = l(t('Disown'), 'admin/structure/data/disown/' . $table->get('name'));
       $operations[] = l(t('Drop'), 'admin/structure/data/drop/' . $table->get('name'));
     }
     if (module_exists('ctools')) {
@@ -450,6 +451,35 @@ function data_ui_drop_form_submit($form, &$form_state) {
 
   $form_state['redirect'] = 'admin/structure/data';
 }
+
+/**
+ * Form callback for disown table form.
+ */
+function data_ui_disown_form($form, &$form_state, $table) {
+  $form = array();
+  $form_state['#redirect'] = 'admin/structure/data';
+  $form['#table'] = $table;
+
+  return confirm_form($form,
+    t('Disown this table?'),
+    'admin/structure/data',
+    t("Are you sure you would like to disown table !table? This will remove all of Data module's customizations, while leaving the original table in the database. This action cannot be undone.", array('!table' => $table->get('name'))),
+    t('Disown'), t('Cancel')
+  );
+}
+
+/**
+ * Submit handler for data_ui_disown_form().
+ */
+function data_ui_disown_form_submit($form, &$form_state) {
+  $table = $form['#table'];
+  $table->disown();
+
+  drupal_set_message(t('Table !table has been disowned.', array('!table' => $table->get('name'))));
+
+  $form_state['redirect'] = 'admin/structure/data';
+}
+
 
 /**
  * Form callback for editing a table.

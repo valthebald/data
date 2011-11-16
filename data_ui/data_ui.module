@@ -100,6 +100,15 @@ function data_ui_menu() {
     'access arguments' => array('administer data tables'),
     'type' => MENU_CALLBACK,
   );
+  $items['admin/structure/data/disown/%data_ui_table'] = array(
+    'title' => 'Disown table',
+    'description' => 'Disown a data table.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('data_ui_disown_form', 4),
+    'file' => 'data_ui.admin.inc',
+    'access arguments' => array('administer data tables'),
+    'type' => MENU_CALLBACK,
+  );
   $items['admin/structure/data/edit/%data_ui_table'] = array(
     'title' => 'Data table',
     'description' => 'Administer data tables.',
