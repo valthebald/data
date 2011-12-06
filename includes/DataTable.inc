@@ -56,7 +56,8 @@ class DataTable {
    * Constructor. Do not call directly, but use DataTable::instance($name) instead.
    */
   protected function __construct($name) {
-    $this->name = $name;
+    // Set our name after sanitizing it.
+    $this->name = db_escape_table($name);
 
     // Try to load table information.
     if ($table = _data_load_table($name)) {
