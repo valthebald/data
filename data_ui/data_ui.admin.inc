@@ -56,6 +56,12 @@ function data_ui_manage() {
     if (module_exists('ctools')) {
       $operations[] = l(t('Export'), 'admin/structure/data/export/' . $table->get('name'));
     }
+    if (module_exists('views')) {
+      $operations[] = l(t('View records'), 'admin/content/data/view/' . $table->get('name'));
+      if (user_access('administer views')) {
+        $operations[] = l(t('Edit view'), 'admin/structure/views/view/' . $table->get('name') . '/edit');
+      }
+    }
 
     $row = array();
     $row[] = $table->get('title');
