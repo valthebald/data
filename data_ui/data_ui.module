@@ -236,7 +236,8 @@ function data_ui_permission() {
   return array(
     'administer data tables' => array(
       'title' => t('administer data tables'),
-      'description' => t('TODO Add a description for \'administer data tables\''),
+      'description' => t('Adopt and configure data tables.'),
+      'restrict access' => TRUE,
     ),
   );
 }
