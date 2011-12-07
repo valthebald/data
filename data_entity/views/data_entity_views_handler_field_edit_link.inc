@@ -12,6 +12,14 @@ class data_entity_views_handler_field_edit_link extends views_handler_field {
     // Fake field, do nothing.
   }
 
+  /**
+   * Grant access to the field if the user can access the page it links to.
+   */
+  function access() {
+    $table = $this->view->base_table;
+    return user_access('edit data in table ' . $table);
+  }
+
   function render($values) {
     $table = $this->view->base_table;
     $base_field = $this->view->base_field;

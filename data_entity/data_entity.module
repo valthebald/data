@@ -50,17 +50,52 @@ function data_entity_entity_info() {
 
   foreach ($tables as $table_name => $table) {
     $id_field = data_entity_get_id_field($table);
+    $entity_type = 'data_' . $table_name;
 
-    $info['data_' . $table_name] = array(
-      'label'       => $table->title,
+    $info[$entity_type] = array(
+      'label' => $table->title,
       'controller class' => 'DataEntityController',
       'base table'  => $table_name,
+      'fieldable' => TRUE,
       'entity keys' => array(
         'id' => $id_field,
       ),
-      'bundles' => array(),
+      'bundles' => array(
+        $entity_type => array(
+          'label' => $table->title,
+          'admin' => array(
+            // This is fraught with difficulties with the menu system tabs.
+            // We can't give 'admin/structure/data/edit/%data_ui_table' as a
+            // path, because that would cause all data table entities to store
+            // the same router path and thus only the last entity defined here
+            // would win.
+            // On the other hand, giving the table name literally as $table_name
+            // messes up the tabs, as the nearest tab parent found for this is
+            // the base data admin tab set at 'admin/structure/data' rather
+            // than that for the table.
+            // In *theory*, the tab parentage should be fixable by tweaking it
+            // in hook_menu_alter(), but that doesn't seem to be working.
+            // In short, ARGH! and please file a patch if you can make sense of this.
+
+            // This does not work because multiple entities store the same router path!
+            /*
+            'path'      => 'admin/structure/data/edit/%data_ui_table',
+            'real path' => 'admin/structure/data/edit/' . $table_name,
+            */
+
+            // This messes up the tabs.
+            'path' => 'admin/structure/data/edit/' . $table_name,
+
+            'access arguments' => array('administer data tables'),
+          ),
+        ),
+      ),
       'view modes' => array(),
       'uri callback' => 'data_entity_uri',
+      // Entity API properties.
+      'module' => 'data_entity',
+      'views controller class' => FALSE, // This prevents EntityAPI trying to
+        // provide views integration because we've specified 'module'.
     );
   }
 
@@ -71,16 +106,6 @@ function data_entity_entity_info() {
  * Implements hook_menu().
  */
 function data_entity_menu() {
-  $items['admin/content/data/entity/%data_ui_table/%data_entity_item'] = array(
-    'title' => 'Edit data item',
-    'load arguments' => array(4),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('data_entity_entity_edit_form', 4, 5),
-    'file' => 'data_entity.pages.inc',
-    'access callback' => 'data_entity_table_access',
-    'access arguments' => array(4),
-  );
-
   $items['admin/structure/data/edit/%data_ui_table/entity-form'] = array(
     'title' => 'Configure entity form',
     'description' => 'Administer data tables.',
@@ -91,13 +116,44 @@ function data_entity_menu() {
     'type' => MENU_LOCAL_TASK,
   );
 
+  $items['admin/content/data/entity/%data_ui_table/%data_entity_item'] = array(
+    'title' => 'Edit data item',
+    'load arguments' => array(4),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('data_entity_entity_edit_form', 4, 5),
+    'file' => 'data_entity.pages.inc',
+    'access callback' => 'data_entity_table_menu_access',
+    'access arguments' => array(4),
+  );
+
   return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function data_entity_menu_alter(&$items) {
+  // Attempt at fixing tab parentage for Field UI items.
+  // @see data_entity_entity_info() for more details.
+  $tables = data_entity_get_entity_tables();
+  $info = array();
+
+  /*
+  // This breaks access on these menu items!
+  foreach ($tables as $table_name => $table) {
+    $field_ui_base_path = "admin/structure/data/edit/$table_name";
+    foreach (array('fields', 'fields/%', 'display') as $path_suffix) {
+      $items[$field_ui_base_path . '/' . $path_suffix]['tab_parent']  = 'admin/structure/data/edit/%';
+      $items[$field_ui_base_path . '/' . $path_suffix]['tab_root']    = 'admin/structure/data/edit/%';
+    }
+  }
+  */
 }
 
 /**
  * Menu access callback.
  */
-function data_entity_table_access($table) {
+function data_entity_table_menu_access($table) {
   return user_access('edit data in table ' . $table->name);
 }
 
