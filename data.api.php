@@ -75,3 +75,13 @@ function hook_ctools_plugin_api() {
     return array("version" => 1);
   }
 }
+
+/**
+ * Declare additional Views handlers to the views data configuration options.
+ *
+ * Handlers that are not used by anything declared in hook_views_data() should
+ * use this hook to add themselves to the options on the 'Configure views' page.
+ */
+function data_data_views_handlers_alter(&$handlers) {
+  $handlers['field']['views_handler_field_data_markup'] = 'views_handler_field_data_markup';
+}

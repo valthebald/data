@@ -752,6 +752,9 @@ function data_ui_views_form($form, &$form_state, $table) {
       );
     }
   }
+  $form['notice'] = array(
+    '#markup' => '<p>' . t('Note that not every handler will make sense or function correctly with every type of field.') . '</p>',
+  );
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
