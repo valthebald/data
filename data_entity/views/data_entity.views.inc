@@ -30,13 +30,16 @@ function data_entity_views_default_views_alter(&$views) {
 
   foreach ($tables as $table) {
     $view_name = $table_name = $table->get('name');
-    $view = $views[$view_name];
+    // Not all tables have views, eg if they have no primary key.
+    if (isset($views[$view_name])) {
+      $view = $views[$view_name];
 
-    $handler =& $view->display['default']->handler;
-    /* Field: User: Name */
-    $handler->display->display_options['fields']['edit_link']['id'] = 'edit_link';
-    $handler->display->display_options['fields']['edit_link']['table'] = $table_name;
-    $handler->display->display_options['fields']['edit_link']['field'] = 'edit_link';
+      $handler =& $view->display['default']->handler;
+      /* Field: User: Name */
+      $handler->display->display_options['fields']['edit_link']['id'] = 'edit_link';
+      $handler->display->display_options['fields']['edit_link']['table'] = $table_name;
+      $handler->display->display_options['fields']['edit_link']['field'] = 'edit_link';
+    }
   }
 }
 
