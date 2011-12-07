@@ -32,9 +32,11 @@ function data_entity_meta_add_defaults(&$meta) {
  * @todo: consider moving this to the DataTable class.
  */
 function data_entity_get_id_field($table) {
-  // @todo: whopping assumption that there's a single primary key field.
-  $id_field = $table->table_schema['primary key'][0];
-  return $id_field;
+  if (isset($table->table_schema['primary key'])) {
+    // @todo: whopping assumption that there's a single primary key field.
+    $id_field = $table->table_schema['primary key'][0];
+    return $id_field;
+  }
 }
 
 /**
@@ -49,6 +51,11 @@ function data_entity_entity_info() {
   $info = array();
 
   foreach ($tables as $table_name => $table) {
+    if (!isset($table->table_schema['primary key'])) {
+      // Skip tables that don't have a primary key.
+      continue;
+    }
+
     $id_field = data_entity_get_id_field($table);
     $entity_type = 'data_' . $table_name;
 
