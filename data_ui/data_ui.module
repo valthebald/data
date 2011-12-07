@@ -8,9 +8,14 @@
  * Implements hook_help().
  */
 function data_ui_help($path, $arg) {
+  $no_primary_key_text = '<p>' .
+    t("Some tables may not have a 'view' link; this happens when a table doesn't have a primary key or is not joined to another table with a primary key. You can add a primary key field or a join from the table's 'Edit schema' page.") .
+    '</p>';
+
   switch ($path) {
     case 'admin/content/data':
       $output = '<p>' . t('View content in data tables. If you would like to edit these tables, visit the !data_manage_page.', array('!data_manage_page' => l(t('Data table management page'), 'admin/structure/data'))) . '</p>';
+      $output .= $no_primary_key_text;
       return $output;
     case 'admin/structure/data/adopt':
       $output = '<p>' . t('Manage database tables that aren\'t claimed by other modules. Adopting tables listed here will add them to Data\'s list of tables.') . '</p>';
@@ -18,6 +23,7 @@ function data_ui_help($path, $arg) {
     case 'admin/structure/data':
       if (module_exists('views')) {
         $output = '<p>' . t('Manage data tables. If you would like to view the content of these tables, visit the !data_view_page.', array('!data_view_page' => l(t('Data table content page'), 'admin/content/data'))) . '</p>';
+        $output .= $no_primary_key_text;
       }
       else {
         $output = '<p>' . t('Manage data tables.') . '</p>';
@@ -247,7 +253,13 @@ function data_ui_permission() {
  */
 function data_ui_get_default_path($name) {
   if ($table = data_get_table($name)) {
-    // Check, whether there is a data mananged table to the left.
+    // Check whether this can be a Views base table.
+    $table_schema = $table->get('table_schema');
+    if (isset($table_schema['primary key'])) {
+      return 'admin/content/data/view/' . $name;
+    }
+
+    // Check whether there is a data mananged table to the left.
     // @todo: go all the way to the left.
     $path = '';
     $meta = $table->get('meta');
@@ -256,8 +268,8 @@ function data_ui_get_default_path($name) {
       if ($left_table = data_get_table($left_table_name)) {
         $path .= $left_table_name . '/';
       }
+      return 'admin/content/data/view/' . $path . $name;
     }
-    return 'admin/content/data/view/' . $path . $name;
   }
   return '';
 }

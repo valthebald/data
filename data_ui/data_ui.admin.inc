@@ -18,7 +18,8 @@ function data_ui_view() {
       db_query('SELECT COUNT(*) FROM {' . db_escape_table($table->get('name')) . '}')->fetchField(),
     );
     if (module_exists('views')) {
-      $row[] = l(t('View'), data_ui_get_default_path($table->get('name')));
+      $path = data_ui_get_default_path($table->get('name'));
+      $row[] = $path ? l(t('View'), $path) : l(t('Edit schema'), 'admin/structure/data/edit/' . $table->get('name'));
     }
     $rows[] = $row;
   }
@@ -57,9 +58,13 @@ function data_ui_manage() {
       $operations[] = l(t('Export'), 'admin/structure/data/export/' . $table->get('name'));
     }
     if (module_exists('views')) {
-      $operations[] = l(t('View records'), 'admin/content/data/view/' . $table->get('name'));
-      if (user_access('administer views')) {
-        $operations[] = l(t('Edit view'), 'admin/structure/views/view/' . $table->get('name') . '/edit');
+      // The existence of a path serves as a test that a view is provided.
+      $path = data_ui_get_default_path($table->get('name'));
+      if ($path) {
+        $operations[] = l(t('View records'), 'admin/content/data/view/' . $table->get('name'));
+        if (user_access('administer views')) {
+          $operations[] = l(t('Edit view'), 'admin/structure/views/view/' . $table->get('name') . '/edit');
+        }
       }
     }
 
