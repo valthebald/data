@@ -45,26 +45,18 @@ class DataHandler {
    * Load a record.
    */
   public function load($keys) {
-    $where = $values = array();
     $schema = drupal_get_schema($this->table);
     $fields = $schema['fields'];
+    $query = db_select(db_escape_table($this->table))->fields(db_escape_table($this->table));
     foreach ($keys as $key => $value) {
-      // Return if a key does not exist.
       if (!isset($fields[$key]['type'])) {
         return FALSE;
       }
-      $where[] = db_escape_string($key) . " = " . db_type_placeholder($fields[$key]['type']);
-      $values[] = $value;
+      $query->condition($key, $value, is_array($value) ? 'IN' : '=');
     }
-
-    if (!empty($where)) {
-      // TODO Please convert this statement to the D7 database API syntax.
-      $result = db_query('SELECT * FROM {' . db_escape_table($this->table) . '} WHERE ' . implode(' AND ', $where), $values);
-      $results = array();
-      while ($row = db_fetch_array($result)) {
-        $results[] = $row;
-      }
-      return count($results) ? $results : FALSE;
+    if ($query->getArguments()) {
+      $results = $query->execute()->fetchAll(PDO::FETCH_ASSOC);
+      return empty($results) ? FALSE : $results;
     }
     return FALSE;
   }
