@@ -69,7 +69,7 @@ class DataHandler {
    * @param $record
    *   An array that is the record to save to this handler's table.
    */
-  public function insert(&$record) {
+  public function insert($record) {
     $result = drupal_write_record($this->table, $record);
     module_invoke_all('data_insert', $record, $this->table);
     return $result;
@@ -86,7 +86,7 @@ class DataHandler {
    *   A string or an array of strings that defines the keys to use for
    *   this update.
    */
-  public function update(&$record, $update) {
+  public function update($record, $update) {
     $result = drupal_write_record($this->table, $record, $update);
     module_invoke_all('data_update', $record, $this->table);
     return $result;
@@ -106,7 +106,7 @@ class DataHandler {
    *   A string or an array of strings that defines the keys to use for
    *   this update.
    */
-  public function save(&$record, $update = array()) {
+  public function save($record, $update = array()) {
     if (is_string($update)) {
       $update = array($update);
     }

@@ -189,7 +189,7 @@ function data_taxonomy_get_info($table_name) {
   if (!isset($info[$table_name])) {
     $info[$table_name] = FALSE;
     $meta = data_get_table($table_name)->get('meta');
-    if (is_array($meta['data_taxonomy'])) {
+    if (!empty($meta['data_taxonomy']) && is_array($meta['data_taxonomy'])) {
       $info[$table_name] = $meta['data_taxonomy'];
     }
   }
