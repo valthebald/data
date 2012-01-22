@@ -222,7 +222,7 @@ function data_get_views_handler($type, $table, $field_name, $default = FALSE) {
       switch ($schema['fields'][$field_name]['type']) {
         case 'float':
         case 'numeric':
-          return 'views_handler_filter_float';
+          return 'views_handler_filter_numeric';
         case 'int':
         case 'serial':
           return 'views_handler_filter_numeric';
