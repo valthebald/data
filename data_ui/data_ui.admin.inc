@@ -295,8 +295,9 @@ function data_ui_adopt_form_submit($form, &$form_state) {
  * Form callback for create table form.
  */
 function data_ui_create_form($form, &$form_state) {
-  $form = array();
-  if (!$form_state['storage']['field_num']) {
+  // Multistep form.
+  if (!isset($form_state['storage']['field_num'])) {
+    // First form, ask for the database table name.
     $form['name'] = array(
       '#type' => 'textfield',
       '#title' => t('Table name'),
@@ -322,6 +323,7 @@ function data_ui_create_form($form, &$form_state) {
     );
   }
   else {
+    // Second form, ask for the database field names.
     $form['help']['#markup'] = t('Define the fields of the new table.');
     $form['fields'] = array(
       '#tree' => TRUE,
@@ -341,7 +343,8 @@ function data_ui_create_form($form, &$form_state) {
  * Validate handler for create table form.
  */
 function data_ui_create_form_validate($form, &$form_state) {
-  if (data_get_table(trim($form_state['storage']['name']))) {
+  // The table name is sanitized by the DataTable constructor.
+  if (isset($form_state['storage']['name']) && data_get_table(trim($form_state['storage']['name']))) {
     form_set_error('name', t('Name is already taken.'));
   }
   if (isset($form_state['values']['field_num'])) {
@@ -358,10 +361,10 @@ function data_ui_create_form_validate($form, &$form_state) {
   if (isset($form_state['values']['fields'])) {
     $names = array();
     foreach ($form_state['values']['fields'] as $field) {
-      if (is_numeric($names[$field['name']])) {
+      if (is_numeric($field['name'])) {
         form_set_error('name', t('Names can\'t be numbers.'));
       }
-      if (!isset($names[$field['name']])) {
+      elseif (!isset($names[$field['name']])) {
         $names[$field['name']] = $field['name'];
       }
       else {
@@ -376,11 +379,11 @@ function data_ui_create_form_validate($form, &$form_state) {
  */
 function data_ui_create_form_submit($form, &$form_state) {
 
-  if (isset($form_state['values']['field_num'])) {
+  if (!isset($form_state['values']['fields'])) {
     $form_state['storage'] = $form_state['values'];
+    $form_state['rebuild'] = TRUE;
   }
-  elseif (isset($form_state['values']['fields'])) {
-
+  else {
     // Create a schema from user input.
     $schema = $index = $primary = $meta = array();
     foreach ($form_state['values']['fields'] as $field) {
@@ -918,7 +921,7 @@ function theme_data_ui_create_form($variables) {
     $header = array(t('Name *'), t('Label'), t('Type'), t('Size'), t('Unsigned'), t('Index'), t('Primary key'));
     $output .= theme('table', array('header' => $header, 'rows' => $rows));
 
-    $output .= drupal_render($form);
+    $output .= drupal_render_children($form);
     return $output;
   }
   return drupal_render_children($form);
