@@ -172,6 +172,8 @@ function _data_taxonomy_insert_terms($table_name, $id, $terms, $vocabulary) {
 
 /**
  * Implements hook_data_delete_query_alter().
+ *
+ * @todo: replace this with hook_data_table_delete_rows().
  */
 function data_taxonomy_data_delete_query_alter($query, $table_name) {
   if ($info = data_taxonomy_get_info($table_name)) {

@@ -18,9 +18,9 @@ function hook_data_update($record, $table_name) {
 }
 
 /**
- * Invoked before a delete. Add to/remove from a delete query before deleting.
+ * Invoked before data record(s) have been deleted.
  */
-function hook_data_delete_query_alter(&$query, $table_name) {
+function hook_data_table_delete_rows($table_handler, $clause) {
 }
 
 /**

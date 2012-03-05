@@ -143,22 +143,25 @@ class DataHandler {
    *   );
    */
   public function delete($clause) {
-    $query = new DataQuery($this->table);
-    $schema = drupal_get_schema($this->table);
-    $fields = $schema['fields'];
-    foreach ($clause as $key => $value) {
-      $operator = '=';
-      if (is_array($value)) {
-        $operator = array_shift($value);
-        $value = array_shift($value);
+    $query = db_delete($this->table);
+
+    // Add the clauses.
+    foreach ($clause as $column => $clause_data) {
+      if (is_array($clause_data)) {
+        list($operator, $value) = $clause_data;
       }
-      $query->addWhere(db_escape_table($this->table) . '.' . db_escape_string($key) . " " . $operator . " " . db_type_placeholder($fields[$key]['type']), $value);
+      else {
+        $operator = '=';
+        $value = $clause_data;
+      }
+      $query->condition($column, $value, $operator);
     }
-    drupal_alter('data_delete_query', $query, $this->table);
-    if (!empty($query->where)) {
-      $query->execute();
-    }
-    return db_affected_rows();
+
+    // Invoke hook_data_table_delete_rows().
+    module_invoke_all('data_table_delete_rows', $this, $clause);
+
+    // Return the number of deleted rows.
+    return $query->execute();
   }
 
   /**
@@ -167,92 +170,5 @@ class DataHandler {
   public function truncate() {
     // TODO Please convert this statement to the D7 database API syntax.
     db_query('TRUNCATE TABLE {' . db_escape_table($this->table) . '}');
-  }
-}
-
-/**
- * Builds and executes a query, only delete queries are supported at the moment.
- */
-class DataQuery {
-
-  public $subject, $table, $from, $join, $where;
-
-  /**
-   * Creates an empty query.
-   *
-   * @param $table
-   *   Base table to operate on, also the subject table to delete
-   *   from.
-   */
-  public function __construct($table) {
-    $this->table = db_escape_table($table);
-    $this->subject = array($this->table => $this->table);
-    $this->from = $this->table;
-    $this->join = array();
-    $this->where = array();
-  }
-
-  /**
-   * Add a subject table.
-   */
-  public function addSubject($table) {
-    $this->subject[$table] = $table;
-  }
-
-  /**
-   * Add a join.
-   *
-   * @param $table
-   *   The table to join to.
-   * @param $join
-   *   The columns to join on.
-   */
-  public function addJoin($table, $join, $type = 'INNER JOIN') {
-    $this->join[$table] = array(
-      $join,
-      $type,
-    );
-  }
-
-  /**
-   * Add a where clause.
-   *
-   * @param $clause
-   *   The actual clause. Caller is responsible for referring to existing fields
-   *   and supplying correct placeholder for value.
-   * @param $value
-   *   The value the clause compares against.
-   */
-  public function addWhere($clause, $value = NULL) {
-    $this->where[$clause] = $value;
-  }
-
-  /**
-   * Build and execute a query.
-   */
-  public function execute() {
-    $table = db_escape_table($this->table);
-    $query = "DELETE " . implode(', ', $this->subject);
-    $query .= " FROM {{$table}} {$table}";
-    if (!empty($this->join)) {
-      foreach ($this->join as $table => $join) {
-        $table = db_escape_table($table);
-        $clause = array_shift($join);
-        $join = array_shift($join);
-        $query .= " $join {{$table}} $table ON $clause";
-      }
-    }
-    $where = $values = array();
-    foreach ($this->where as $k => $v) {
-      $where[] = $k;
-      if ($v !== NULL) {
-        $values[] = $v;
-      }
-    }
-    if (!empty($where)) {
-      $query .= " WHERE " . implode(' AND ', $where);
-    }
-    // TODO Please convert this statement to the D7 database API syntax.
-    return db_query($query, $values);
   }
 }
