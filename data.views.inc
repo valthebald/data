@@ -238,10 +238,6 @@ function data_get_views_handler($type, $table, $field_name, $default = FALSE) {
         case 'serial':
           return 'views_handler_filter_numeric';
         case 'datetime':
-          // @TODO: make this conditional on whether the time is stored as a timestamp/datetime
-          if (module_exists('date_api')) {
-            return 'date_api_filter_handler';
-          }
           return 'views_handler_filter_date';
       }
       return 'views_handler_filter_string';
