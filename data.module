@@ -113,7 +113,7 @@ function data_get_handler($table_name) {
  * The keys are simplified handles.
  */
 function data_get_field_definitions() {
-  return array(
+  $built_in = array(
     'int' => array(
       'type' => 'int',
       'not null' => FALSE,
@@ -158,6 +158,8 @@ function data_get_field_definitions() {
       'pgsql_type' => 'geometry',
     ),
   );
+  drupal_alter('data_field_definitions', $built_in);
+  return $built_in;
 }
 
 /**
