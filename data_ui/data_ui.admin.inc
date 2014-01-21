@@ -117,6 +117,8 @@ function data_ui_compare() {
  * - leave it.
  */
 function data_ui_adjust_form($form, &$form_state, $table) {
+  $table = data_get_table($table);
+
   drupal_set_title(t('Adjust !table', array('!table' => $table->get('name'))));
   $comparison = $table->compareSchema();
 
@@ -422,6 +424,8 @@ function data_ui_create_form_submit($form, &$form_state) {
  * Form callback for revert table form.
  */
 function data_ui_revert_form($form, &$form_state, $table) {
+  $table = data_get_table($table);
+
   $form = array();
   $form_state['#redirect'] = 'admin/structure/data';
   $form['#table'] = $table;
@@ -446,6 +450,8 @@ function data_ui_revert_form_submit($form, &$form_state) {
  * Form callback for drop table form.
  */
 function data_ui_drop_form($form, &$form_state, $table) {
+  $table = data_get_table($table);
+
   $form = array();
   $form_state['#redirect'] = 'admin/structure/data';
   $form['#table'] = $table;
@@ -472,6 +478,8 @@ function data_ui_drop_form_submit($form, &$form_state) {
  * Form callback for disown table form.
  */
 function data_ui_disown_form($form, &$form_state, $table) {
+  $table = data_get_table($table);
+
   $form = array();
   $form_state['#redirect'] = 'admin/structure/data';
   $form['#table'] = $table;
@@ -501,6 +509,8 @@ function data_ui_disown_form_submit($form, &$form_state) {
  * Form callback for editing a table.
  */
 function data_ui_edit_form($form, &$form_state, $table) {
+  $table = data_get_table($table);
+
   drupal_set_title($table->get('title'));
 
   $schema = $table->get('table_schema');
@@ -694,6 +704,8 @@ function data_ui_edit_form_submit($form, &$form_state) {
  * Edit title form.
  */
 function data_ui_edit_title_form($form, &$form_state, $table) {
+  $table = data_get_table($table);
+
   drupal_set_title($table->get('title'));
 
   $form = array();
@@ -724,6 +736,8 @@ function data_ui_edit_title_form_submit($form, &$form_state) {
  * Views handler configuration form.
  */
 function data_ui_views_form($form, &$form_state, $table) {
+  $table = data_get_table($table);
+
   drupal_set_title($table->get('title'));
 
   module_load_include('inc', 'data', 'data.views');
@@ -795,6 +809,8 @@ function data_ui_views_form_submit($form, &$form_state) {
  * Join form.
  */
 function data_ui_join_form($form, &$form_state, $table, $field_name) {
+  $table = data_get_table($table);
+
   // drupal_set_title(t('Join field'));
 
   $schema = $table->get('table_schema');
@@ -878,6 +894,8 @@ function data_ui_join_form_submit_delete($form, &$form_state) {
  * Export form.
  */
 function data_ui_export_form($form, &$form_state, $table) {
+  $table = data_get_table($table);
+
   $code = data_export($table->get('name'));
 
   $form['export'] = array(
@@ -893,6 +911,8 @@ function data_ui_export_form($form, &$form_state, $table) {
  * View table with krumo().
  */
 function data_ui_view_schema($table) {
+  $table = data_get_table($table);
+
   drupal_set_title($table->get('title'));
   $output = '<H3>' . t('Schema') . '</H3>';
   $output .= kprint_r($table->get('table_schema'), TRUE);

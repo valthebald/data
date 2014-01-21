@@ -8,6 +8,10 @@
  * Form builder for table entity options.
  */
 function data_entity_admin_entity_form($form, &$form_state, $table) {
+  $table = data_get_table($table);
+
+  $form = array();
+
   drupal_set_title($table->get('title'));
 
   $schema = $table->get('table_schema');

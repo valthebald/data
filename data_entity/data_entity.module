@@ -71,9 +71,7 @@ function data_entity_entity_info() {
         $entity_type => array(
           'label' => $table->title,
           'admin' => array(
-            'path'      => 'admin/structure/data/edit/%data_ui_table',
-            'real path' => 'admin/structure/data/edit/' . $table_name,
-            'bundle argument' => 4,
+            'path' => 'admin/structure/data/edit/' . $table_name,
             'access arguments' => array('administer data tables'),
           ),
         ),
@@ -94,15 +92,22 @@ function data_entity_entity_info() {
  * Implements hook_menu().
  */
 function data_entity_menu() {
-  $items['admin/structure/data/edit/%data_ui_table/entity-form'] = array(
-    'title' => 'Configure entity form',
-    'description' => 'Administer data tables.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('data_entity_admin_entity_form', 4),
-    'file' => 'data_entity.admin.inc',
-    'access arguments' => array('administer data tables'),
-    'type' => MENU_LOCAL_TASK,
-  );
+  $tables = data_entity_get_entity_tables();
+
+  foreach ($tables as $table_name => $table) {
+    // Items that are in the same tab set as Field UI tabs need to have separate
+    // menu router items.
+    $items['admin/structure/data/edit/' . $table_name . '/entity-form'] = array(
+      'title' => 'Configure entity form',
+      'description' => 'Administer data tables.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('data_entity_admin_entity_form', 4),
+      'file' => 'data_entity.admin.inc',
+      'access arguments' => array('administer data tables'),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => -2,
+    );
+  }
 
   $items['admin/content/data/entity/%data_ui_table/%data_entity_item'] = array(
     'title' => 'Edit data item',
