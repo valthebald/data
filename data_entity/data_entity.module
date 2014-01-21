@@ -24,19 +24,10 @@ function data_entity_meta_add_defaults(&$meta) {
       'required' => FALSE,
     );
   }
-}
-
-/**
- * Get the name of a table entity's id.
- *
- * @todo: consider moving this to the DataTable class.
- */
-function data_entity_get_id_field($table) {
-  if (isset($table->table_schema['primary key'])) {
-    // @todo: whopping assumption that there's a single primary key field.
-    $id_field = $table->table_schema['primary key'][0];
-    return $id_field;
-  }
+  $meta += array(
+    'is_entity_type' => FALSE,
+    'entity_id' => '',
+  );
 }
 
 /**
@@ -51,12 +42,13 @@ function data_entity_entity_info() {
   $info = array();
 
   foreach ($tables as $table_name => $table) {
-    if (!isset($table->table_schema['primary key'])) {
-      // Skip tables that don't have a primary key.
+    data_entity_meta_add_defaults($table->meta);
+    $meta = $table->get('meta');
+
+    if (empty($meta['is_entity_type'])) {
       continue;
     }
 
-    $id_field = data_entity_get_id_field($table);
     $entity_type = 'data_' . $table_name;
 
     $info[$entity_type] = array(
@@ -65,7 +57,7 @@ function data_entity_entity_info() {
       'base table'  => $table_name,
       'fieldable' => TRUE,
       'entity keys' => array(
-        'id' => $id_field,
+        'id' => $meta['entity_id'],
       ),
       'bundles' => array(
         $entity_type => array(
@@ -97,6 +89,17 @@ function data_entity_menu() {
   foreach ($tables as $table_name => $table) {
     // Items that are in the same tab set as Field UI tabs need to have separate
     // menu router items.
+    $items['admin/structure/data/edit/' . $table_name . '/entity-type'] = array(
+      'title' => 'Entity type',
+      'description' => 'Configure the entity type for the data table.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('data_entity_admin_entity_type_form', 4),
+      'file' => 'data_entity.admin.inc',
+      'access arguments' => array('administer data tables'),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => -3,
+    );
+ 
     $items['admin/structure/data/edit/' . $table_name . '/entity-form'] = array(
       'title' => 'Configure entity form',
       'description' => 'Administer data tables.',
