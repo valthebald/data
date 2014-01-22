@@ -23,6 +23,7 @@ function data_entity_meta_add_defaults(&$meta) {
       'locked' => FALSE,
       'required' => FALSE,
     );
+    $meta += array('label_field' => '');
   }
   $meta += array(
     'is_entity_type' => FALSE,
@@ -75,6 +76,13 @@ function data_entity_entity_info() {
       'views controller class' => FALSE, // This prevents EntityAPI trying to
         // provide views integration because we've specified 'module'.
     );
+    // Use label if specified
+    if (isset($table->meta['label_field'])) {
+      $info[$entity_type]['entity keys']['label'] = $table->meta['label_field'];
+    }
+    else {
+      $info[$entity_type]['label callback'] = 'data_entity_label';
+    }
   }
 
   return $info;
@@ -178,6 +186,13 @@ function data_entity_permission() {
   }
 
   return $permissions;
+}
+
+/**
+ * Entity Label callback.
+ */
+function data_entity_label($entity, $entity_type) {
+  return t('No label');
 }
 
 /**

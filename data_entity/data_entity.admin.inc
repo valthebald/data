@@ -126,6 +126,12 @@ function data_entity_admin_entity_form($form, &$form_state, $table) {
         '#type' => 'checkbox',
         '#default_value' => $meta['fields'][$field_name]['required'],
       );
+      $form['fields'][$field_name]['label_field'] = array(
+        '#type' => 'radio',
+        '#parents' => array('label_field'),
+        '#return_value' => $field_name,
+        '#default_value' => ($field_name == $meta['label_field']) ? $field_name : '',
+      );
     }
   }
 
@@ -166,7 +172,7 @@ function theme_data_entity_admin_entity_form($variables) {
     $rows[] = $row;
   }
 
-  $header = array(t('Name'), t('Locked'), t('Required'));
+  $header = array(t('Name'), t('Locked'), t('Required'), t('Label'));
   $output = theme('table', array('header' => $header, 'rows' => $rows));
   $output .= drupal_render_children($form);
   return $output;
@@ -183,6 +189,11 @@ function data_entity_admin_entity_form_submit($form, &$form_state) {
       $meta['fields'][$field_name][$key] = $value;
     }
   }
+
+  if (!empty($form_state['values']['label_field'])) {
+    $meta['label_field'] = $form_state['values']['label_field'];
+  }
+
   $table->update(array('meta' => $meta));
   drupal_set_message(t('Saved changes'));
 }
