@@ -154,6 +154,18 @@ function data_ui_menu() {
         'weight' => -5,
       );
     }
+    if (module_exists('date_views')) {
+      $items['admin/structure/data/edit/' . $table_name . '/date'] = array(
+        'title' => 'Configure date fields',
+        'description' => 'Administer data tables.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('data_ui_date_form', 4),
+        'file' => 'data_ui.admin.inc',
+        'access arguments' => array('administer data tables'),
+        'type' => MENU_LOCAL_TASK,
+        'weight' => -4,
+      );
+    }
     if (module_exists('devel')) {
       $items['admin/structure/data/edit/' . $table_name . '/view-schema'] = array(
         'title' => 'Devel load',
@@ -232,6 +244,9 @@ function data_ui_theme() {
       'render element' => 'form',
     ),
     'data_ui_create_form' => array(
+      'render element' => 'form',
+    ),
+    'data_ui_field_config_form' => array(
       'render element' => 'form',
     ),
     'data_ui_schema_compare_table' => array(

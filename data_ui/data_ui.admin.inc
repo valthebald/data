@@ -806,6 +806,99 @@ function data_ui_views_form_submit($form, &$form_state) {
 }
 
 /**
+ * Form builder for field date configuration.
+ */
+function data_ui_date_form($form, &$form_state, $table) {
+  $table = data_get_table($table);
+
+  drupal_set_title($table->get('title'));
+
+  $schema = $table->get('table_schema');
+  $meta = $table->get('meta');
+
+  $form = array();
+  // Keep table.
+  $form['#table'] = $table;
+
+  // Create a row of settings per field.
+  $form['fields'] = array('#tree' => TRUE);
+  if (isset($schema['fields'])) {
+    foreach ($schema['fields'] as $field_name => $field) {
+      $field_meta_date = isset($meta['fields'][$field_name]['date']) ? $meta['fields'][$field_name]['date'] : array();
+
+      $form['fields'][$field_name] = array();
+
+      $form['fields'][$field_name]['name'] = array('#markup' => check_plain($field_name));
+
+      $sql_type_options = array(
+        '' => t('Not a date field'),
+        DATE_DATETIME => t("Datetime: 'Y-m-d H:i:s'"),
+        DATE_ISO => t("ISO date: 'Y-m-dTH:i:s'"),
+        DATE_UNIX => t('Unix timestamp'),
+      );
+      $form['fields'][$field_name]['sql_type'] = array(
+        '#type' => 'select',
+        '#options' => $sql_type_options,
+        '#default_value' => isset($field_meta_date['sql_type']) ? $field_meta_date['sql_type'] : '',
+      );
+
+      $granularity_options = array(
+        '' => t('None'),
+      ) + drupal_map_assoc(array('year', 'month', 'day', 'hour', 'minute', 'second'));
+      $form['fields'][$field_name]['granularity'] = array(
+        '#type' => 'select',
+        '#options' => $granularity_options,
+        '#default_value' => isset($field_meta_date['granularity']) ? $field_meta_date['granularity'] : '',
+        '#states' => array(
+          'disabled' => array(
+            ':input[name="fields[' . $field_name . '][sql_type]"]' => array('value' => ''),
+          ),
+          // TODO: make this required somehow when a date type is selected for
+          // the field.
+        ),
+      );
+    }
+  }
+
+  $form['#header'] = array(
+    t('Name'),
+    t('Date type'),
+    t('Granularity'),
+  );
+
+  $form['#theme'] = 'data_ui_field_config_form';
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for field date configuration.
+ */
+function data_ui_date_form_submit($form, &$form_state) {
+  $table = $form['#table'];
+  $meta = $table->get('meta');
+  if (isset($form_state['values']['fields'])) {
+    foreach ($form_state['values']['fields'] as $field_name => $settings) {
+      foreach ($settings as $setting_name => $value) {
+        $meta['fields'][$field_name]['date'][$setting_name] = $value;
+      }
+    }
+  }
+  $table->update(array('meta' => $meta));
+
+  drupal_set_message(t("Date settings for the table have been saved."));
+
+  // Date module uses the 'cache_views' table for date_views_fields(), so it's
+  // fine to just clear the Views cache here.
+  views_invalidate_cache();
+}
+
+/**
  * Join form.
  */
 function data_ui_join_form($form, &$form_state, $table, $field_name) {
@@ -1000,6 +1093,42 @@ function theme_data_ui_views_form($variables) {
   $header = array(t('Name'), t('Field handler'), t('Filter handler'), t('Argument handler'), t('Sort handler'));
   $output = theme('table', array('header' => $header, 'rows' => $rows));
   $output .= drupal_render_children($form);
+  return $output;
+}
+
+/**
+ * Theme a generic form of field settings as a table.
+ *
+ * The form must have the following structure:
+ *  - 'fields': A nested array of form elements, grouped first by table field
+ *    and then by configuration setting. Thus, the form element for a single
+ *    configuration for a field is at $form['fields'][FIELDNAME][SETTING], and
+ *    should be repeated for all fields.
+ *  - '#header': An array of strings for the table header.
+ *
+ * @todo: convert other form builders to use this.
+ */
+function theme_data_ui_field_config_form($variables) {
+  $form = $variables['form'];
+
+  // Format existing fields.
+  $rows = array();
+  foreach (element_children($form['fields']) as $field_element) {
+    $row = array();
+    foreach (element_children($form['fields'][$field_element]) as $setting_element) {
+      $row[] = drupal_render($form['fields'][$field_element][$setting_element]);
+    }
+
+    $rows[] = $row;
+  }
+
+  $output = theme('table', array(
+    'header' => $form['#header'],
+    'rows' => $rows,
+  ));
+
+  $output .= drupal_render_children($form);
+
   return $output;
 }
 
