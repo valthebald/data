@@ -1,8 +1,0 @@
-name = Data Taxonomy
-description = Relate data table entries to taxonomy terms.
-package = Data
-dependencies[] = data
-dependencies[] = data_ui
-dependencies[] = taxonomy
-core = 6.x
-

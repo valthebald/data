@@ -1,6 +1,0 @@
-name = Data Node
-description = Relate data tables to nodes.
-package = Data
-dependencies[] = data
-dependencies[] = data_ui
-core = 6.x
