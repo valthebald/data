@@ -89,7 +89,7 @@ function data_ui_menu() {
 
   // Menu items in the tab set that data_entity adds Field UI tabs to need to
   // have separate router items per table (and thus per entity type).
-  $tables = data_entity_get_entity_tables();
+  $tables = data_get_all_tables();
   foreach ($tables as $table_name => $table) {
     $items['admin/structure/data/compare/' . $table_name . ''] = array(
       'title' => 'Adjust schema',
