@@ -26,20 +26,6 @@ data tables:
 * Click on "Configure search" tab
 * Check table columns to be indexed
 
-Use Data Node module if you would like to relate nodes to data records:
-
-* Install Data Node
-* Go to admin/content/data
-* Edit table to relate to nodes
-* Click on "Relate to nodes" tab
-* Pick a content type
-* Pick which id in table will be related to a node id
-* Optionally:
-  * Use views field handler for adding/removing a data table record to
-    a node.
-  * Configure Data Node block to show up in sidebar for selecting an
-    active node to add a data table record to.
-
 Working with HTML Fields
 
 If you are working with a feed that has one or more fields that contain markup
