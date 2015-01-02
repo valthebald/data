@@ -395,7 +395,7 @@ function data_ui_create_form_submit($form, &$form_state) {
     $schema = $index = $primary = $meta = array();
     foreach ($form_state['values']['fields'] as $field) {
       $field['name'] = db_escape_table($field['name']);
-      
+
       $schema['fields'][$field['name']] = data_build_field_definition($field);
       $meta['fields'][$field['name']]['label'] = check_plain($field['label']);
 
@@ -627,7 +627,7 @@ function data_ui_edit_form_submit($form, &$form_state) {
   try {
     if ($form_state['clicked_button']['#value'] == t('Save')) {
       $fields = $schema['fields'];
-      
+
       $new_fields = $form_state['values']['fields'];
 
       $new_index = array();
@@ -638,7 +638,7 @@ function data_ui_edit_form_submit($form, &$form_state) {
         // Convert schema.
         foreach ($fields as $field_name => $field) {
           $safe_field_name = db_escape_table($field_name);
-          
+
           if ($new_spec = _data_ui_changed($new_fields[$safe_field_name], $field)) {
             $table->changeField($safe_field_name, $new_spec);
             drupal_set_message(t('Changed field !field_name', array('!field_name' => $safe_field_name)));
@@ -669,7 +669,7 @@ function data_ui_edit_form_submit($form, &$form_state) {
         switch ($form_state['values']['bulk_operation']) {
           case 'delete':
             foreach ($new_fields as $field_name => $field) {
-              
+
               if (!empty($field['selected'])) {
                 // One field must stay.
                 $schema = $table->get('table_schema');
