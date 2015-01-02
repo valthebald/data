@@ -285,6 +285,11 @@ function data_ui_adopt_form_submit($form, &$form_state) {
   foreach ($tables as $table_name) {
     $table = DataTable::instance($table_name);
     $table->adopt();
+
+    drupal_set_message(t("Table @table has been adopted.", array(
+      '@table' => $table->get('name')
+    )));
+
     unset($table);
   }
 
