@@ -107,7 +107,7 @@ function data_entity_menu() {
       'type' => MENU_LOCAL_TASK,
       'weight' => -3,
     );
- 
+
     $items['admin/structure/data/edit/' . $table_name . '/entity-form'] = array(
       'title' => 'Configure entity form',
       'description' => 'Administer data tables.',
@@ -181,7 +181,7 @@ function data_entity_permission() {
 
   foreach ($tables as $table_name => $table) {
     $permissions['edit data in table ' . $table_name] = array(
-      'title' => t('Edit data in the %table_name table', array('%table_name' => $table->title)), 
+      'title' => t('Edit data in the %table_name table', array('%table_name' => $table->title)),
     );
   }
 
