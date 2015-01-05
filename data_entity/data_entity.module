@@ -7,11 +7,20 @@
 /**
  * Get all data tables which are declared as entities.
  *
- * @todo This is just a wrapper around data_get_all_tables() for now;
- *  add an admin UI later.
+ * @return
+ *  An array of table objects, keyed by table name, for the tables that are
+ *  declared as entity types.
  */
-function data_entity_get_entity_tables() {
-  return data_get_all_tables();
+function data_entity_get_entity_tables($reset = FALSE) {
+  $tables = data_get_all_tables($reset);
+  $entity_tables = array();
+  foreach ($tables as $name => $table) {
+    $meta = $table->get('meta');
+    if (!empty($meta['is_entity_type'])) {
+      $entity_tables[$name] = $table;
+    }
+  }
+  return $entity_tables;
 }
 
 /**

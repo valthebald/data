@@ -10,12 +10,6 @@
 function data_entity_views_data_alter(&$data) {
   $tables = data_entity_get_entity_tables();
   foreach ($tables as $table) {
-    $meta = $table->get('meta');
-    if (empty($meta['is_entity_type'])) {
-      // Skip tables that are not entity types.
-      continue;
-    }
-
     $table_name = $table->get('name');
     $data[$table_name]['edit_link'] = array(
       'field' => array(
@@ -37,12 +31,6 @@ function data_entity_views_default_views_alter(&$views) {
   $tables = data_entity_get_entity_tables();
 
   foreach ($tables as $table) {
-    $meta = $table->get('meta');
-    if (empty($meta['is_entity_type'])) {
-      // Skip tables that are not entity types.
-      continue;
-    }
-
     $view_name = $table_name = $table->get('name');
     // Not all tables have views, eg if they have no primary key.
     if (isset($views[$view_name])) {
