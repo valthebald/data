@@ -117,6 +117,13 @@ function data_entity_menu() {
       'weight' => -3,
     );
 
+    // The following menu items only concern tables that are declared as
+    // entity types, so skip those that are not.
+    $meta = $table->get('meta');
+    if (empty($meta['is_entity_type'])) {
+      continue;
+    }
+
     $items['admin/structure/data/edit/' . $table_name . '/entity-form'] = array(
       'title' => 'Configure entity form',
       'description' => 'Administer data tables.',
