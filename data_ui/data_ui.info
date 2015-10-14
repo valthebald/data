@@ -1,6 +1,0 @@
-name = Data Admin UI
-description = Admin UI for Data Module
-package = Data
-dependencies[] = data
-dependencies[] = schema
-core = 7.x
