@@ -1,0 +1,3 @@
+services:
+  data.data:
+    class: Drupal\data\DataHandler
