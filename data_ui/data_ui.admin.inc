@@ -474,7 +474,7 @@ function data_ui_drop_form($form, &$form_state, $table) {
  */
 function data_ui_drop_form_submit($form, &$form_state) {
   $table = $form['#table'];
-  data_drop_table($table->get('name'));
+  $table->drop();
 
   drupal_set_message(t("Table @table has been dropped.", array(
     '@table' => $table->get('name')
