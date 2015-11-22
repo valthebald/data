@@ -37,7 +37,7 @@ function data_get_all_tables($reset = FALSE) {
  *   A DataTable object if one could be created, FALSE otherwise.
  */
 function data_create_table($name, $schema, $title = NULL) {
-  $table = DataTable::instance($name);
+  $table = \Drupal::service('data.table')->get($name);
   if ($table->create($schema)) {
     if (!empty($title)) {
       $table->update(array('title' => $title));
@@ -45,63 +45,6 @@ function data_create_table($name, $schema, $title = NULL) {
     return $table;
   }
   return FALSE;
-}
-
-/**
- * Get a list of supported field definitions.
- *
- * This list is a sub set of Schema API data types
- * http://drupal.org/node/159605
- * The keys are simplified handles.
- */
-function data_get_field_definitions() {
-  $built_in = array(
-    'int' => array(
-      'type' => 'int',
-      'not null' => FALSE,
-    ),
-    'unsigned int' => array(
-      'type' => 'int',
-      'unsigned' => TRUE,
-      'not null' => FALSE,
-    ),
-    'serial' => array(
-      'type' => 'serial',
-      'unsigned' => TRUE,
-      'not null' => TRUE,
-    ),
-    'varchar' => array(
-      'type' => 'varchar',
-      'length' => 255,
-      'not null' => FALSE,
-    ),
-    'text' => array(
-      'type' => 'text',
-      'not null' => FALSE,
-    ),
-    'bigtext' => array(
-      'type' => 'text',
-      'not null' => FALSE,
-      'size' => 'big',
-    ),
-    'float' => array(
-      'type' => 'float',
-      'size' => 'medium',
-      'not null' => FALSE,
-    ),
-    'double' => array(
-      'type' => 'float',
-      'size' => 'big',
-      'not null' => FALSE,
-    ),
-    'geometry' => array(
-      'type' => 'geometry',
-      'mysql_type' => 'geometry',
-      'pgsql_type' => 'geometry',
-    ),
-  );
-  drupal_alter('data_field_definitions', $built_in);
-  return $built_in;
 }
 
 /**
@@ -434,8 +377,3 @@ function data_date_views_fields($field) {
 
   return $values;
 }
-
-/**
- * Base class for any exceptions thrown in Data.
- */
-class DataException extends Exception { }

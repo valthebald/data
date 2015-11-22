@@ -14,7 +14,7 @@ class TableFactory implements TableFactoryInterface {
   /**
    * @inheritdoc
    */
-  public function getTable($name) {
+  public function get($name) {
     if (!isset(self::$instances[$name])) {
       self::$instances[$name] = new Table($name);
       throw new DataException('No table found');

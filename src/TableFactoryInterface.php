@@ -17,5 +17,5 @@ interface TableFactoryInterface {
    * @return Table
    * @throws DataException
    */
-  function getTable($name);
+  function get($name);
 }
