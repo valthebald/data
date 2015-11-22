@@ -94,7 +94,7 @@ class DataTestCaseAPI extends DataTestCase {
   }
 
   /**
-   * Test API functions of DataTable and DataHandler.
+   * Test API functions of DataTable and TableFactory.
    */
   public function testAPIFunctions() {
 
@@ -173,7 +173,7 @@ class DataTestCaseAPI extends DataTestCase {
     @$result = db_query("SELECT %s FROM {%s}", $name, $table->get('name'));
     $this->assertFalse($result, "DataTable::dropField(): The column is dropped");
 
-    // Test DataHandler::save(), DataHandler::truncate() and DataHandler::delete().
+    // Test TableFactory::save(), TableFactory::truncate() and TableFactory::delete().
     $test_data = $this->testData();
     $table->handler()->save($test_data[0], array('id'));
     $num_of_rows_before = db_result(db_query("SELECT COUNT(*) FROM {%s}", $table->get('name')));

@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Definition of DataHandler class.
+ * Definition of TableFactory class.
  */
 
 /**
@@ -14,17 +14,17 @@ class DataHandler {
   protected $table;
 
   /**
-   * Constructor, call indirectly through DataHandler::instance();
+   * Constructor, call indirectly through TableFactory::instance();
    */
   protected function __construct($table) {
     $this->table = $table;
   }
 
   /**
-   * Instantiate a DataHandler object.
+   * Instantiate a TableFactory object.
    *
    * @param $table
-   *   The name of the table to access with this DataHandler object.
+   *   The name of the table to access with this TableFactory object.
    */
   public static function instance($table) {
     static $handlers;

@@ -48,54 +48,6 @@ function data_create_table($name, $schema, $title = NULL) {
 }
 
 /**
- * Get a table if it exists.
- *
- * @see DataTable class.
- *
- * @param $name
- *   Unique name of the table.
- *
- * @return
- *   A unique DataTable object if defined, FALSE otherwise.
- *
- * Note: In some circumstances, a table may be defined while it does not exist
- * in the database. In these cases, data_get_table() would still return a valid
- * DataTable object.
- */
-function data_get_table($name) {
-  $table = DataTable::instance($name);
-  if ($table->defined()) {
-    return $table;
-  }
-  return FALSE;
-}
-
-/**
- * @deprecated - use $table->drop() instead.
- * @todo: remove.
- */
-function data_drop_table($name) {
-  if ($table = data_get_table($name)) {
-    $table->drop();
-  }
-}
-
-/**
- * Get Data handler for a table.
- *
- * @see class DataHandler
- *
- * @param $table_name
- *   String that is the name of a table.
- *
- * @return
- *   DataHandler object that provides access to a table's data.
- */
-function data_get_handler($table_name) {
-  return DataHandler::instance($table_name);
-}
-
-/**
  * Get a list of supported field definitions.
  *
  * This list is a sub set of Schema API data types

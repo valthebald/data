@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains \Drupal\data\DataHandlerException.
+ * Contains \Drupal\data\DataException.
  */
 
 namespace Drupal\data;
@@ -9,6 +9,6 @@ namespace Drupal\data;
 /**
  * Provides a class for data handling.
  */
-class DataHandlerException extends \Exception {
+class DataException extends \Exception {
 
 }

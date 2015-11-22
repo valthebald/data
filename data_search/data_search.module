@@ -33,7 +33,7 @@ function data_search_theme() {
  *
  * Wipe all orphaned search records.
  *
- * @todo: Move clean up of deleted records into DataHandler::delete() once there
+ * @todo: Move clean up of deleted records into TableFactory::delete() once there
  * is a build query > alter query > execute query pattern implemented.
  */
 function data_search_cron() {

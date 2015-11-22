@@ -4,6 +4,8 @@
  * Contains class definition for DataTable.
  */
 
+namespace Drupal\data;
+
 /**
  * Manages data access and manipulation for a single data table.
  * Use data_create_table() or data_get_table() to instantiate an object from this class.
@@ -33,7 +35,7 @@
  * $table->drop();
  *
  */
-class DataTable {
+class Table {
 
   // Class variables.
   // @todo: change $table_schema to $schema.
@@ -42,20 +44,9 @@ class DataTable {
   public $name, $title, $table_schema, $meta, $export_type;
 
   /**
-   * Instiate a DataTable object. Use this function instead of new DataTable.
-   */
-  public static function instance($name) {
-    static $tables;
-    if (!isset($tables[$name])) {
-      $tables[$name] = new DataTable($name);
-    }
-    return $tables[$name];
-  }
-
-  /**
    * Constructor. Do not call directly, but use DataTable::instance($name) instead.
    */
-  protected function __construct($name) {
+  public function __construct($name) {
     // Set our name after sanitizing it.
     $this->name = db_escape_table($name);
 
