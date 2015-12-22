@@ -1,5 +1,10 @@
-name: Data
-type: module
-description: Provides two dimensional storage space for arbitrary data sets.
-package: Data
+name:
+  'Data'
+description:
+  'Provides two dimensional storage space for arbitrary data sets.'
 core: 8.x
+package: Data
+type: module
+dependencies:
+ - ctools
+version: VERSION
