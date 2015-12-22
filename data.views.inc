@@ -10,8 +10,6 @@
  * Dynamically create views integration for any table Data manages.
  */
 function data_views_data() {
-  $data = array();
-
   $tables = data_get_all_tables();
 
   foreach ($tables as $table) {
